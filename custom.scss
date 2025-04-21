@@ -1,0 +1,267 @@
+/*-- scss:defaults --*/
+
+// Base Document Colors & Fonts (GUESSES - UPDATE THESE!)
+$body-bg: #FFFFFF; // White background (usually default)
+$body-color: #333333; // Dark grey text (common default)
+$link-color: #007BFF; // Standard blue link color (guess)
+$font-family-sans-serif: "Calibri", sans-serif; // Common PowerPoint font (GUESS - CHECK PPTX)
+$presentation-heading-font: "Calibri Light", sans-serif; // Common PowerPoint heading font (GUESS - CHECK PPTX)
+$code-block-font-family: "Consolas", monospace; // Common code font (GUESS - CHECK PPTX)
+
+// Custom Colors (GUESSES based on images - UPDATE WITH EXACT HEX CODES!)
+$header-bg: #002060; // Dark blue from header [cite: 1, 8, 13]
+$header-color: #FFFFFF; // White text in header [cite: 1, 8, 13]
+$footer-bg: #ffffff; // Light grey footer background (guess)
+$footer-color: #595959; // Grey footer text (guess)
+$qut-blue: #005FAF; // Official QUT blue (lookup or use eyedropper)
+$highlight-box-bg: #DEEBF7; // Light blue background for highlight boxes [cite: 1]
+$highlight-box-border: #A0C4E4; // Slightly darker blue border (guess)
+
+// Import Quarto defaults before overrides
+@import 'https://cdn.jsdelivr.net/npm/reveal.js@4/dist/theme/fonts/source-sans-pro/source-sans-pro.css'; // Example: using Source Sans Pro as base
+
+/*-- scss:rules --*/
+
+// General Revealjs adjustments
+.reveal {
+  .slide-content {
+    padding-top: 60px; /* Add padding to avoid header overlap */
+    padding-bottom: 50px; /* Add padding to avoid footer overlap */
+  }
+}
+
+// Header Styling (Mimicking the top bar)
+.slide-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: $header-bg;
+  color: $header-color;
+  padding: 5px 0px; // Reduced padding to prevent "Design" from moving out of frame
+  span {
+    flex: 2; // Dynamically separate spans like hfill
+    text-align: center; // Center-align text within each span
+  }
+  font-size: 1em;
+  z-index: 500; // Ensure it's above slide content
+  display: flex; /* Use flexbox */
+  flex-direction: column; /* Stack children vertically */
+  justify-content: space-between; // Arrange items
+  align-items: center;
+  height: 40px; // Adjust height as needed
+}
+
+// Footer Styling (Mimicking the bottom bar)
+.slide-footer {
+  position: absolute;
+  bottom: 0px;
+  left: 13%;
+  width: 80%;
+  background-color: transparent;// $footer-bg;
+  color: $footer-color;
+  padding: 5px 20px;
+  span {
+    flex: 2; // Dynamically separate spans like hfill
+    text-align: center; // Center-align text within each span
+    vertical-align: bottom; // Align text to the bottom of the span
+  }
+  font-size: 1em;
+  z-index: 500; // Ensure it's above slide content
+  display: flex;
+  justify-content: space-between; // Arrange items
+  align-items: center;
+  height: 35px; // Adjust height as needed
+
+// Adjust the chalkboard icons container
+  .chalkboard-icons {
+    display: flex;
+    align-items: center;
+    margin-right: auto; // Push the icons to the left
+  }
+
+  // QUT Logo Styling
+  img.qut-logo {
+    height: 30px; // Adjust logo size
+    width: auto;
+    margin-left: 10px; // Add spacing to the right of the pen
+    vertical-align: middle; // Align with the pen
+  }
+}
+
+/* Style for the main header row content (adjust as needed) */
+.slide-header .main-header-content {
+  color: $header-color;
+  padding: 5px 20px; /* Adjust padding */
+  font-size: 1em; /* Adjust font size */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-grow: 1; /* Allow it to take available space */
+  width: 100%; /* Ensure it takes full width */
+}
+
+/* Style for the new sub-header row */
+.slide-header .sub-header-content {
+  background-color: #e4e4e4; /* Example: Light blue background - CHANGE THIS COLOR! */
+  color: #000000; /* Example: Black text - CHANGE THIS COLOR! */
+  padding: 3px 20px; /* Adjust padding */
+  font-size: 1em; /* Adjust font size */
+  text-align: center; /* Example: Center align text */
+  flex-grow: 1;
+  width: 100%; /* Ensure it takes full width */
+}
+
+
+// Slide Number adjustment (if using built-in slide numbers)
+.reveal .slide-number {
+  bottom: 8px; // Adjust position to fit within custom footer if needed
+  right: 20px;
+  font-size: 1em;
+  color: $footer-color;
+  z-index: 1000; // Ensure it's above slide content
+}
+
+// Highlight Box Styling (like the blue boxes in slides [cite: 1])
+.highlight-box {
+  background-color: $highlight-box-bg;
+  border: 1px solid $highlight-box-border;
+  padding: 15px;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  border-radius: 4px;
+}
+
+// --- Add more specific styles below ---
+
+// Example: Styling headings if needed
+// .reveal h1, .reveal h2, .reveal h3 {
+//   font-family: $presentation-heading-font;
+//   color: $qut-blue; // Example: Make headings QUT blue
+// }
+
+/* --- Add these styles to your custom.scss --- */
+
+// Container for the custom title slide elements
+.reveal .slides section.title-slide-custom {
+  padding: 0; // Remove default padding if needed
+  position: absolute; // Needed for absolute positioning of children
+  text-align: left; // Override .center if used and not desired globally
+  background-color: #fdfdfd; // Very light grey/off-white (GUESS - CHECK PPTX)
+  width: 100%; // Full width
+  height: 100%; // Full height
+  /* Add background-image if there's a texture/grid */
+  /* background-image: url('your-background-texture.png'); */
+}
+
+// QUT Logo - Top Right
+.title-slide-custom .logo-container-title {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 20%; // Adjust size as needed
+  z-index: 10; // Keep logo potentially above other elements if needed
+}
+.title-slide-custom .logo-container-title img.qut-logo {
+  position: absolute;
+  top: 0px; // Adjust vertical position
+  right: 0px; // Adjust horizontal position 
+  width: 100%;
+  height: auto;
+}
+
+// Main Title and Subtitle Block
+.title-slide-custom .title-block {
+  position: absolute;
+  top: 40%; // Adjust vertical position
+  left: 10%; // Adjust horizontal position
+  width: 100%; // Adjust width
+  text-align: left; // Align text to the left within its block in image
+  z-index: 5;
+}
+.title-slide-custom .title-block h1 {
+  font-family: $presentation-heading-font; // Use variable defined earlier
+  font-size: 2.2em; // Adjust size
+  color: #002060; // Dark Blue (GUESS - CHECK PPTX)
+  margin-bottom: 0.5em;
+  font-weight: 500; // Adjust weight if needed
+}
+.title-slide-custom .title-block h2 {
+  font-family: $presentation-heading-font; // Use variable defined earlier
+  font-size: 1.6em; // Adjust size
+  color: #333333; // Dark Grey (GUESS - CHECK PPTX)
+  margin-top: 0;
+  font-weight: 300; // Lighter weight likely
+}
+
+// Author Info Block
+.title-slide-custom .author-block-title {
+  position: absolute;
+  bottom: 0%; // Adjust vertical position
+  right: 0%; // Adjust horizontal position
+  width: 60%; // Adjust width
+  font-size: 1em; // Adjust size
+  line-height: 1.4;
+  text-align: right; // Align text to the right within its block in image
+  color: $body-color; // Use default body color or specific color
+  z-index: 5;
+}
+
+// Course Code - Top left
+.title-slide-custom .course-code-title {
+  position: absolute;
+  top: 20%; // Adjust vertical position
+  left: 0%; // Adjust horizontal position
+  font-size: 1em; // Adjust size
+  color: $footer-color; // Use footer color or specific color
+  z-index: 5;
+}
+
+// Course Code - Top left
+.title-slide-custom .website-link-title {
+  position: absolute;
+  top: 0%; // Adjust vertical position
+  left: 0%; // Adjust horizontal position
+  font-size: .5em; // Adjust size
+  color: $footer-color; // Use footer color or specific color
+  z-index: 5;
+}
+
+// Contact Info Box - Bottom Left
+.title-slide-custom .contact-box-title {
+  position: absolute;
+  bottom: 0%; // Adjust vertical position
+  left: 0%; // Adjust horizontal position
+  border: 1px solid #AAAAAA; // Grey border (GUESS - CHECK PPTX)
+  padding: 5px 10px;
+  font-size: 0.65em; // Adjust size
+  line-height: 1.4;
+  color: $body-color;
+  background-color: #FFFFFF; // White background for the box (GUESS)
+  z-index: 5;
+}
+
+// Ensure subsequent slides clear these absolute elements if needed
+// (Usually not an issue as they are scoped to .title-slide-custom)
+
+/* Hide the global header ONLY when the body has the 'titleslide' class */
+body.titleslide .slide-header {
+  display: none;
+}
+
+/* Hide the global footer ONLY when the body has the 'titleslide' class */
+body.titleslide .slide-footer {
+  display: none;
+}
+
+
+/* Hide the H2 heading ("Title Slide") on the custom title slide */
+.reveal .slides section.title-slide-custom > h2 {
+  display: none;
+}
+
+// /* Ensure the custom title slide takes up full height */
+// .reveal .slides section.title-slide-custom {
+//   height: 100%; /* Use viewport height */
+//   /* position: relative; was already set, keep it */
+// }

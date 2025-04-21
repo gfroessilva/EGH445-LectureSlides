@@ -1,0 +1,81 @@
+---
+format:     
+    revealjs
+      # include-in-header: ../includes/header.html # Go UP one level from lectures/
+      # include-after-body: ../includes/footer.html # Go UP one level from lectures/
+ 
+# Add other options like date if needed
+---
+
+## Title Slide {data-state="titleslide" .title-slide-custom}
+
+<div class="logo-container-title">
+  <img src="../qut_logo.jpg" alt="QUT Logo"/>
+</div>
+
+<div class="title-block">
+  <h1>Discrete-Time Control Design 3</h1> <h2>Optimal Control</h2> 
+</div>
+
+<div class="author-block-title">
+  Dr Guilherme Froes Silva<br/>
+  School of Electrical Engineering & Robotics<br/>
+  Queensland University of Technology
+</div>
+
+<div class="course-code-title">
+  EGH445 - Modern Control
+</div>
+
+<div class="website-link-title">
+  <a href="../index.html">
+    Website
+  </a>
+</div>
+
+<div class="contact-box-title">
+  Consultation: GP-S1111<br/>
+  Email: g.froessilva@qut.edu.au
+</div>
+
+## Introduction {data-state="intro"}
+This is the title slide content.
+(Quarto automatically uses title, author, etc. You might need custom CSS for exact PPTX title slide layout)
+
+## Disturbances
+
+State Feedback Controller with Feedforward vs Disturbances
+
+Recall the non-zero regulation problem with $r(k_T)=1$[cite: 1].
+
+::: {.highlight-box}
+**Key Concept:** The design approach via eigenvalue assignment, pole placement, pole assignment – alters the steady state gain[cite: 1].
+:::
+
+## Integral Action
+
+To reject constant disturbances, we can augment the system[cite: 14].
+
+Define the augmented state vector $z \triangleq \begin{bmatrix} x \\ q \end{bmatrix}^T$, then[cite: 20]:
+
+$$
+z(k_T+T) = \underbrace{\begin{bmatrix} G & 0_{n \times p} \\ C & I_{p \times p} \end{bmatrix}}_{G_z} z(k_T) + \underbrace{\begin{bmatrix} H \\ 0_{p \times m} \end{bmatrix}}_{H_z} u(k_T)
+$$
+
+Where $q(k_T+T) = q(k_T) + y(k_T)$[cite: 19].
+
+## Code Example
+
+Considering $m=1, k=1, b=1, y_0=1$[cite: 9].
+
+```python
+# Example Python Code
+m = 1.0
+k = 1.0
+b = 1.0
+
+
+# Discretisation (Example from slides [cite: 42])
+# x_k+T = [[0.9952, 0.0950], [-0.0950, 0.9002]]*x_k + [[0.0048], [0.0950]]*u_k
+# y_k = [1, 0]*x_k
+```

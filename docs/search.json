@@ -1,0 +1,51 @@
+[
+  {
+    "objectID": "lectures/lecture9.html#title-slide",
+    "href": "lectures/lecture9.html#title-slide",
+    "title": "EGH445 Modern Control",
+    "section": "Title Slide",
+    "text": "Title Slide\n\n\n\n\n\nDiscrete-Time Control Design 3\n\n\nOptimal Control\n\n\n\nDr Guilherme Froes Silva School of Electrical Engineering & Robotics Queensland University of Technology\n\n\nEGH445 - Modern Control\n\n\n Website \n\n\nConsultation: GP-S1111 Email: g.froessilva@qut.edu.au"
+  },
+  {
+    "objectID": "lectures/lecture9.html#introduction",
+    "href": "lectures/lecture9.html#introduction",
+    "title": "EGH445 Modern Control",
+    "section": "Introduction",
+    "text": "Introduction\nThis is the title slide content. (Quarto automatically uses title, author, etc. You might need custom CSS for exact PPTX title slide layout)"
+  },
+  {
+    "objectID": "lectures/lecture9.html#disturbances",
+    "href": "lectures/lecture9.html#disturbances",
+    "title": "EGH445 Modern Control",
+    "section": "Disturbances",
+    "text": "Disturbances\nState Feedback Controller with Feedforward vs Disturbances\nRecall the non-zero regulation problem with r(k_T)=1[cite: 1].\n\nKey Concept: The design approach via eigenvalue assignment, pole placement, pole assignment – alters the steady state gain[cite: 1]."
+  },
+  {
+    "objectID": "lectures/lecture9.html#integral-action",
+    "href": "lectures/lecture9.html#integral-action",
+    "title": "EGH445 Modern Control",
+    "section": "Integral Action",
+    "text": "Integral Action\nTo reject constant disturbances, we can augment the system[cite: 14].\nDefine the augmented state vector z \\triangleq \\begin{bmatrix} x \\\\ q \\end{bmatrix}^T, then[cite: 20]:\n\nz(k_T+T) = \\underbrace{\\begin{bmatrix} G & 0_{n \\times p} \\\\ C & I_{p \\times p} \\end{bmatrix}}_{G_z} z(k_T) + \\underbrace{\\begin{bmatrix} H \\\\ 0_{p \\times m} \\end{bmatrix}}_{H_z} u(k_T)\n\nWhere q(k_T+T) = q(k_T) + y(k_T)[cite: 19]."
+  },
+  {
+    "objectID": "lectures/lecture9.html#code-example",
+    "href": "lectures/lecture9.html#code-example",
+    "title": "EGH445 Modern Control",
+    "section": "Code Example",
+    "text": "Code Example\nConsidering m=1, k=1, b=1, y_0=1[cite: 9].\n# Example Python Code\nm = 1.0\nk = 1.0\nb = 1.0\n\n\n# Discretisation (Example from slides [cite: 42])\n# x_k+T = [[0.9952, 0.0950], [-0.0950, 0.9002]]*x_k + [[0.0048], [0.0950]]*u_k\n# y_k = [1, 0]*x_k"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "EGH445 Modern Control",
+    "section": "",
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+  }
+]

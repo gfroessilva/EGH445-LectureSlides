@@ -1,0 +1,71 @@
+project:
+  type: website
+  output-dir: docs # Or your preferred output directory
+
+
+website:
+  title: "EGH445 Modern Control"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - about.qmd
+      - text: "Lectures"
+        menu:
+          # - text: "Lecture 1: System Modeling"
+          #   href: lectures/lecture1.qmd
+          # - text: "Lecture 2: System Response and Stability"
+          #   href: lectures/lecture2.qmd
+          # - text: "Lecture 3: Nonlinear Systems and Linearisation"
+          #   href: lectures/lecture3.qmd
+          # - text: "Lecture 4: Discrete-Time Systems Modelling"
+          #   href: lectures/lecture4.qmd
+          # - text: "Lecture 5: Discrete-Time Systems Analysis"
+          #   href: lectures/lecture5.qmd
+          # - text: "Lecture 6: Discrete-Time Control Design"
+          #   href: lectures/lecture6.qmd
+          # - text: "Lecture 7: Discrete-Time Control Design 2"
+          #   href: lectures/lecture7.qmd
+          # - text: "Lecture 8: Mid-Semester Exam"
+          #   href: lectures/lecture8.qmd
+          - text: "Lecture 9: Discrete-Time Control Design 3"
+            href: lectures/lecture9.qmd
+          # - text: "Lecture 10: State Estimation"
+          #   href: lectures/lecture10.qmd
+          # - text: "Lecture 11: Practical Considerations"
+          #   href: lectures/lecture11.qmd
+          # - text: "Lecture 12: Advanced Topics"
+          #   href: lectures/lecture12.qmd
+          # - text: "Lecture 13: Final Exam Review"
+          #   href: lectures/lecture13.qmd
+    right:
+      - icon: github
+        href: https://github.com/gfroessilva/EGH445
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+    css: custom.scss
+    toc: true
+  revealjs:
+    # --- Widescreen Settings ---
+    width: 1280  # Example for 16:9
+    height: 720   # Example for 16:9
+    # Apply the custom theme
+    theme: [default, custom.scss] # Use default reveal theme + custom overrides
+    # --- Standard Options from your PPTX ---
+    slide-number: true # Add slide numbers (styled by custom.scss)
+    # --- Header/Footer Inclusion ---
+    include-in-header: includes/header.html
+    include-after-body: includes/footer.html
+    # --- Other potential settings ---
+    transition: slide # Default transition
+    background-transition: fade
+    scrollable: true # Allow scrolling for long slides
+    # --- Math rendering ---
+    html-math-method: katex # Or mathjax
+
+
+
