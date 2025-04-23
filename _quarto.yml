@@ -50,6 +50,9 @@ format:
     css: custom.scss
     toc: true
   revealjs:
+    # js: _extensions/headerscript/headerscript.js # Custom JS for header/footer
+    # revealjs-plugins:
+    #   - headerscript
     # --- Widescreen Settings ---
     width: 1280  # Example for 16:9
     height: 720   # Example for 16:9
@@ -58,8 +61,12 @@ format:
     # --- Standard Options from your PPTX ---
     slide-number: true # Add slide numbers (styled by custom.scss)
     # --- Header/Footer Inclusion ---
-    include-in-header: includes/header.html
-    include-after-body: includes/footer.html
+    include-in-header: 
+      - includes/header.html
+      # - custom.js # custom JS
+    include-after-body: 
+      - includes/footer.html
+      - includes/script.html # custom JS
     # --- Other potential settings ---
     transition: slide # Default transition
     background-transition: fade

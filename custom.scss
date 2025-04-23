@@ -25,7 +25,8 @@ $highlight-box-border: #A0C4E4; // Slightly darker blue border (guess)
 // General Revealjs adjustments
 .reveal {
   .slide-content {
-    padding-top: 60px; /* Add padding to avoid header overlap */
+    position: relative; // Ensure content is positioned relative to the slide
+    padding-top: 80px; /* Add padding to avoid header overlap */
     padding-bottom: 50px; /* Add padding to avoid footer overlap */
   }
 }
@@ -44,12 +45,17 @@ $highlight-box-border: #A0C4E4; // Slightly darker blue border (guess)
     text-align: center; // Center-align text within each span
   }
   font-size: 1em;
-  z-index: 500; // Ensure it's above slide content
+  z-index: 199; // Ensure it's above slide content
   display: flex; /* Use flexbox */
   flex-direction: column; /* Stack children vertically */
   justify-content: space-between; // Arrange items
   align-items: center;
   height: 40px; // Adjust height as needed
+}
+
+/* Ensure revealjs sidebar menu is above the custom header */
+.slide-menu-wrapper .slide-menu {
+  z-index: 501; /* Or any value higher than the header's z-index (500) */
 }
 
 // Footer Styling (Mimicking the bottom bar)
@@ -93,7 +99,7 @@ $highlight-box-border: #A0C4E4; // Slightly darker blue border (guess)
 .slide-header .main-header-content {
   color: $header-color;
   padding: 5px 20px; /* Adjust padding */
-  font-size: 1em; /* Adjust font size */
+  font-size: clamp(0.75rem, 1.5vw + 0.5rem, 1.1rem); /* Adjust font size */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -106,18 +112,24 @@ $highlight-box-border: #A0C4E4; // Slightly darker blue border (guess)
   background-color: #e4e4e4; /* Example: Light blue background - CHANGE THIS COLOR! */
   color: #000000; /* Example: Black text - CHANGE THIS COLOR! */
   padding: 3px 20px; /* Adjust padding */
-  font-size: 1em; /* Adjust font size */
+  font-size: clamp(0.75rem, 1.5vw + 0.5rem, 1.1rem);; /* Adjust font size */
   text-align: center; /* Example: Center align text */
   flex-grow: 1;
   width: 100%; /* Ensure it takes full width */
 }
 
+.inline-footnote {
+  font-size: 0.8em; /* Adjust size as needed */
+  opacity: 0.8;   /* Make it slightly less prominent */
+  display: block; /* Ensure it's on its own line */
+  margin-top: 0.5em; /* Add some space above the note */
+}
 
 // Slide Number adjustment (if using built-in slide numbers)
 .reveal .slide-number {
   bottom: 8px; // Adjust position to fit within custom footer if needed
   right: 20px;
-  font-size: 1em;
+  font-size: 2.5vw;
   color: $footer-color;
   z-index: 1000; // Ensure it's above slide content
 }
@@ -265,3 +277,4 @@ body.titleslide .slide-footer {
 //   height: 100%; /* Use viewport height */
 //   /* position: relative; was already set, keep it */
 // }
+

@@ -7,18 +7,25 @@
     "text": "Title Slide\n\n\n\n\n\nDiscrete-Time Control Design 3\n\n\nOptimal Control\n\n\n\nDr Guilherme Froes Silva School of Electrical Engineering & Robotics Queensland University of Technology\n\n\nEGH445 - Modern Control\n\n\n Website \n\n\nConsultation: GP-S1111 Email: g.froessilva@qut.edu.au"
   },
   {
-    "objectID": "lectures/lecture9.html#introduction",
-    "href": "lectures/lecture9.html#introduction",
+    "objectID": "lectures/lecture9.html#quick-review-of-the-content-so-far",
+    "href": "lectures/lecture9.html#quick-review-of-the-content-so-far",
     "title": "EGH445 Modern Control",
-    "section": "Introduction",
-    "text": "Introduction\nThis is the title slide content. (Quarto automatically uses title, author, etc. You might need custom CSS for exact PPTX title slide layout)"
+    "section": "Quick review of the content so far",
+    "text": "Quick review of the content so far\n\nContinuous-time system: \n\\begin{align}\\dot{x}(t) &= f(x, u), \\\\ y(t) &= g(x, u) \\end{align}\n\n\n\nLinearised system: \n\\begin{align} \\dot{x}(t) &= Ax(t) + Bu(t), \\\\ y(t) &= Cx(t) + Du(t), \\end{align}\n\nwhere the A, B, C, D are the matrices \nA = \\frac{\\partial f}{\\partial x} \\bigg|_{\\bar x, \\bar u}\nB = \\frac{\\partial f}{\\partial u} \\bigg|_{\\bar x, \\bar u}\nC = \\frac{\\partial g}{\\partial x} \\bigg|_{\\bar x, \\bar u}\nD = \\frac{\\partial g}{\\partial u} \\bigg|_{\\bar x, \\bar u}\n\n\n\nDiscrete-time system: \n\\begin{align} x(kT+T) &= Gx(kT) + Hu(kT), \\\\ y(kT) &= Cx(kT) + Du(kT), \\end{align}\n\nwhere \nG = e^{AT}, \\quad H = \\left[\\int_0^T e^{A\\tau} d\\tau\\right] B \\quad \\left(\\text{or, if $A$ is invertible, } H = A^{-1} (G-I)B\\right)\n\n\n\nState-feedback controller: \nu(k) = -Kx(kT)\n\nwhere K is the feedback gain matrix that is designed to arbitrarily move the poles of the closed-loop system \nx(kT+T) = (G-HK)x(kT)\n\nfor example, by equating the characteristic polynomial of the closed-loop system to a desired polynomial, \n\\det(zI - (G-HK)) = (z - z_1)(z - z_2) \\cdots (z - z_n)\n\n\n\n\n\n\n\n\n\nImportant\n\n\nThe solution exists if the system is controllable, i.e. if the controllability matrix \\mathcal{C} = \\left[H,\\; GH,\\; G^2H,\\; \\ldots,\\; G^{n-1}H\\right] has full rank (\\text{rank}(\\mathcal{C})=n).\n\n\n\n\n\nHow do you choose the poles?\n\n\n\nt_s - settling time\nt_r - rise time\n\\%OS - percent overshoot\n\\omega_n - natural frequency\n\\zeta - damping ratio (or through percent overshoot)\n\n\n\n\\zeta = \\dfrac{\\ln(\\%OS/100)}{\\sqrt{\\pi^2 + \\ln^2(\\%OS/100)}}\n\\omega_n = \\frac{4}{\\zeta t_s}\ns_{1,2} = -\\zeta \\omega_n \\pm j \\omega_n \\sqrt{1-\\zeta^2}\nz_{1,2} = e^{s_{1,2}T}\n\n\n\n\nWe also saw the Internal Model Principle (e.g. Integral Action) to reject disturbances (or follow references) with a known model (e.g. a step input, a ramp input, a sinusoidal input, etc.). Those still relied on the pole placement approach."
   },
   {
-    "objectID": "lectures/lecture9.html#disturbances",
-    "href": "lectures/lecture9.html#disturbances",
+    "objectID": "lectures/lecture9.html#pole-placement",
+    "href": "lectures/lecture9.html#pole-placement",
     "title": "EGH445 Modern Control",
-    "section": "Disturbances",
-    "text": "Disturbances\nState Feedback Controller with Feedforward vs Disturbances\nRecall the non-zero regulation problem with r(k_T)=1[cite: 1].\n\nKey Concept: The design approach via eigenvalue assignment, pole placement, pole assignment – alters the steady state gain[cite: 1]."
+    "section": "Pole placement",
+    "text": "Pole placement\n\nWorks well for:\n\nSISO systems (Single Input Single Output)\nLow order systems (2nd order or when 2nd order dominant, etc.)\n\n\n\nDoes not work well for:\n\nHigh-order systems (4th order, 5th order, etc.)\nMIMO systems (Multiple Input Multiple Output)\nStiff systems (e.g. with very different time constants, e.g. 1ms and 1s)\nHighly nonlinear systems (i.e. linearisation is only valid close to the E.P.)"
+  },
+  {
+    "objectID": "lectures/lecture9.html#the-discrete-time-optimal-control-problem",
+    "href": "lectures/lecture9.html#the-discrete-time-optimal-control-problem",
+    "title": "EGH445 Modern Control",
+    "section": "The Discrete-Time Optimal Control Problem",
+    "text": "The Discrete-Time Optimal Control Problem\nSystem Dynamics\nCost Function / Performance Index\n\nJ = \\sum_{k=0}^{\\infty} \\left( x(kT)^T Q x(kT) + u(kT)^T R u(kT) \\right)\n\nWhere Q\\succeq 01 and R\\succ 02.\nPositive semi-definite.Positive definite."
   },
   {
     "objectID": "lectures/lecture9.html#integral-action",
@@ -47,5 +54,12 @@
     "title": "EGH445 Modern Control",
     "section": "",
     "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+  },
+  {
+    "objectID": "lectures/lecture9.html#section",
+    "href": "lectures/lecture9.html#section",
+    "title": "EGH445 Modern Control",
+    "section": "",
+    "text": "Example of a simple MIMO system: \n\\begin{align} x(kT+T) &= \\begin{bmatrix} 0.5 & 0.1 \\\\ 0 & 0.5 \\end{bmatrix} x(kT) + \\begin{bmatrix} 1 & 0 \\\\ 0 & 1 \\end{bmatrix} u(kT)\n\\end{align}\n\nWe want to place the poles at 0.5 and 0.6, by using u(kT) = -Kx(kT), where K = \\begin{bmatrix} k_1 & k_2 \\\\ k_3 & k_4\\end{bmatrix}.\n\nThe characteristic polynomial is given by: \n\\begin{align}\n&\\det(zI - (G-HK)) = \\det\\left(\\begin{bmatrix} z-0.5+k_1 & k_2-0.1 \\\\ k_3 & z-0.5+k_4\\end{bmatrix}\\right) \\\\\n&= (z-0.5+k_1)(z-0.5+k_4) - (k_2-0.1)k_3 \\\\\n&= z^2 + (k_1 + k_4 - 1.0)*z + (k_1k_4 - 0.5(k_1 + k_4) + 0.1k_3 - k_2k_3)\n\\end{align}\n\n\n\nThe desired characteristic polynomial is given by: \n(z-0.5)(z-0.6) = z^2 - 1.1z + 0.3\n\n\n\nWhen we equate the coefficients, we get: \n\\begin{cases}\nk_1 + k_4 - 1.0 = -1.1 \\\\\nk_1k_4 - 0.5(k_1 + k_4) + 0.1k_3 - k_2k_3 = 0.3 \\\\\n\\end{cases}\n\n\n\n\n\n\n\n\n\nImportant\n\n\nNote that we have two equations and four unknowns. This means that we have degrees of freedom in the design. We can choose two of the four variables arbitrarily, and then solve for the other two.\n\n\n\n\n\nThis seems like a good idea, but it is not. The problem is that differente choices of K, even if they lead to the same eigenvalues, can lead to different eigenvectors. The closed-loop system’s eigenvectors directyl affect the response of the system.\n\n\nConsider the following two cases: \n\\begin{align} K_1 &= \\begin{bmatrix} 0.5 & 0 \\\\ 0 & 0.5 \\end{bmatrix} \\\\ K_2 &= \\begin{bmatrix} 0 & 0 \\\\ 0 & 0.5 \\end{bmatrix} \\end{align}\n\nBoth of correctly assign the eigenvalues we wanted. But let’s simulate the system with both K_1 and K_2."
   }
 ]

@@ -1,8 +1,11 @@
 ---
-format:     
-    revealjs
-      # include-in-header: ../includes/header.html # Go UP one level from lectures/
-      # include-after-body: ../includes/footer.html # Go UP one level from lectures/
+format:
+  revealjs:
+    # embed-resources: true
+    chalkboard: true
+    scrollable: true
+    # include-in-header: ../includes/header.html # Go UP one level from lectures/
+    # include-after-body: ../includes/footer.html # Go UP one level from lectures/
  
 # Add other options like date if needed
 ---
@@ -38,19 +41,316 @@ format:
   Email: g.froessilva@qut.edu.au
 </div>
 
-## Introduction {data-state="intro"}
-This is the title slide content.
-(Quarto automatically uses title, author, etc. You might need custom CSS for exact PPTX title slide layout)
+# Overview {data-state="overview"}
 
-## Disturbances
-
-State Feedback Controller with Feedforward vs Disturbances
-
-Recall the non-zero regulation problem with $r(k_T)=1$[cite: 1].
-
-::: {.highlight-box}
-**Key Concept:** The design approach via eigenvalue assignment, pole placement, pole assignment – alters the steady state gain[cite: 1].
+::: {.incremental}
+- Quick review of the content so far.
+- What is *Optimal* Control?
+- Why should we do optimal control instead of just pole placement?
+- The Optimal Control Problem.
+- The Linear Quadratic Regulator (LQR).
+- Model Predictive Control (MPC).
 :::
+
+## Quick review of the content so far {data-state="review" .smaller .scrollable style="overflow-y:auto;overflow-x:hidden;"}
+
+. . .
+
+**Continuous-time system:**
+$$ 
+\begin{align}\dot{x}(t) &= f(x, u), \\ y(t) &= g(x, u) \end{align} 
+$$
+
+. . . 
+
+**Linearised system:**
+$$ 
+\begin{align} \dot{x}(t) &= Ax(t) + Bu(t), \\ y(t) &= Cx(t) + Du(t), \end{align} 
+$$
+
+where the $A$, $B$, $C$, $D$ are the matrices
+$$ 
+A = \frac{\partial f}{\partial x} \bigg|_{\bar x, \bar u}
+B = \frac{\partial f}{\partial u} \bigg|_{\bar x, \bar u}
+C = \frac{\partial g}{\partial x} \bigg|_{\bar x, \bar u}
+D = \frac{\partial g}{\partial u} \bigg|_{\bar x, \bar u} 
+$$
+
+. . . 
+
+**Discrete-time system:**
+$$
+\begin{align} x(kT+T) &= Gx(kT) + Hu(kT), \\ y(kT) &= Cx(kT) + Du(kT), \end{align}
+$$  
+
+where 
+$$
+G = e^{AT}, \quad H = \left[\int_0^T e^{A\tau} d\tau\right] B \quad \left(\text{or, if $A$ is invertible, } H = A^{-1} (G-I)B\right)
+$$
+
+. . .
+
+**State-feedback controller:**
+$$ 
+u(k) = -Kx(kT) 
+$$
+
+where $K$ is the feedback gain matrix that is designed to arbitrarily move the poles of the closed-loop system 
+$$
+x(kT+T) = (G-HK)x(kT)
+$$ 
+
+for example, by equating the characteristic polynomial of the closed-loop system to a desired polynomial,
+$$
+\det(zI - (G-HK)) = (z - z_1)(z - z_2) \cdots (z - z_n) 
+$$
+
+. . .
+
+::: {.callout-important}
+The solution exists if the system is controllable, i.e. if the **controllability matrix** $\mathcal{C} = \left[H,\; GH,\; G^2H,\; \ldots,\; G^{n-1}H\right]$ has full rank ($\text{rank}(\mathcal{C})=n$).
+:::
+
+. . .
+
+**How do you choose the poles?**
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+::: {.incremental}
+- $t_s$ - settling time
+- $t_r$ - rise time
+- $\%OS$ - percent overshoot
+- $\omega_n$ - natural frequency
+- $\zeta$ - damping ratio (or through percent overshoot)
+:::
+
+:::
+
+::: {.column width="50%"}
+
+::: {.incremental}
+- $\zeta = \dfrac{\ln(\%OS/100)}{\sqrt{\pi^2 + \ln^2(\%OS/100)}}$
+- $\omega_n = \frac{4}{\zeta t_s}$
+- $s_{1,2} = -\zeta \omega_n \pm j \omega_n \sqrt{1-\zeta^2}$
+- $z_{1,2} = e^{s_{1,2}T}$
+:::
+
+:::
+
+::::
+
+. . .
+
+We also saw the **Internal Model Principle** (e.g. **Integral Action**) to reject disturbances (or follow references) with a known model (e.g. a step input, a ramp input, a sinusoidal input, etc.). Those still relied on the **pole placement** approach.
+
+## Pole placement {data-state="intro"}
+
+. . .
+
+*Works well for:*
+
+::: {.incremental}
+- SISO systems (Single Input Single Output)
+- Low order systems (2nd order or when 2nd order *dominant*, etc.)
+:::
+
+. . .
+
+*Does not work well for:*
+
+::: {.incremental}
+- High-order systems (4th order, 5th order, etc.)
+- MIMO systems (Multiple Input Multiple Output)
+- *Stiff* systems (e.g. with very different time constants, e.g. 1ms and 1s)
+- Highly nonlinear systems (i.e. linearisation is only valid close to the E.P.)
+:::
+
+---
+
+**High-order systems (3rd, 4th, 5th, etc.):**
+$$
+\begin{align} x(kT+T) &= Gx(kT) + Hu(kT), \\ y(kT) &= Cx(kT) + Du(kT), \end{align}
+$$  
+
+where $\quad x(kT) \in \mathbb{R}^n, \quad u(kT) \in \mathbb{R}, \quad y(kT) \in \mathbb{R}, \quad n > 3$
+
+. . .
+
+::: {.callout-important}
+The link between pole locations and desired time-domain response becomes less clear. Arbitrary choices can lead to poor performance or excessive control effort.
+
+*How do you choose the best pole locations for a 5th, 10th, or higher-order system?*
+:::
+
+---
+ 
+**MIMO systems (Multiple Input Multiple Output):**
+$$
+\begin{align} x(kT+T) &= Gx(kT) + Hu(kT), \\ y(kT) &= Cx(kT) + Du(kT), \end{align}
+$$  
+
+$x(kT) \in \mathbb{R}^n, \quad u(kT) \in \mathbb{R}^m, \quad y(kT) \in \mathbb{R}^p, \quad n, m, p > 1$
+
+. . .
+
+::: {.callout-important}
+For MIMO systems, pole placement is significantly more complex. Specifying only the eigenvalues leaves **degrees of freedom** in the **eigenvectors**, which also **affect the response**. The design process becomes **non-unique** and less intuitive. 
+
+*How do you systematically handle interactions between different inputs and outputs?*
+:::
+
+## {.smaller}
+
+**Example of a simple MIMO system:**
+$$
+\begin{align} x(kT+T) &= \begin{bmatrix} 1 & 0.5 \\ 0 & 0.8 \end{bmatrix} x(kT) + \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} u(kT)
+\end{align}
+$$
+
+We want to place the poles at $0.4$ and $0.6$, by using $u(kT) = -Kx(kT)$, where $K = \begin{bmatrix} k_1 & k_2 \\ k_3 & k_4\end{bmatrix}$. 
+
+. . .
+
+The characteristic polynomial is given by: 
+$$
+\begin{align}
+&\det(zI - (G-HK)) = \det\left(\begin{bmatrix} z-1+k_1 & k_2-0.1 \\ k_3 & z-0.5+k_4\end{bmatrix}\right) \\ 
+
+\end{align}
+$$
+
+. . .
+
+The desired characteristic polynomial is given by:
+$$
+(z-0.4)(z-0.6) = z^2 - 1.0z + 0.24
+$$
+
+. . .
+
+When we equate the coefficients, we get:
+$$
+\begin{cases}
+
+\end{cases}
+$$
+
+. . .
+
+::: {.callout-important}
+Note that we have **two equations** and **four unknowns**. This means that we have **degrees of freedom** in the design. We can choose two of the four variables arbitrarily, and then solve for the other two.
+:::
+
+. . .
+
+This seems like a good idea, but it is not. The problem is that differente choices of $K$, even if they lead to the same **eigenvalues**, can lead to different **eigenvectors**. The closed-loop system's **eigenvectors** directyl affect the **response** of the system.
+
+. . .
+
+Consider the following two cases of gains matrices $K_1$ and $K_2$, both of which lead to the same eigenvalues:
+$$
+
+$$
+
+Both of correctly assign the eigenvalues we wanted. But let's simulate the system with both $K_1$ and $K_2$.
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+import control as ctrl
+from scipy.signal import lti, step
+
+# Create the system matrices
+A = np.array([[0.5, 0.1], [0, 0.5]])
+B = np.array([[1, 0], [0, 1]])
+C = np.array([[1, 0], [0, 1]])
+D = np.array([[0, 0], [0, 0]])
+K1 = np.array([[0.5, 0], [0, 0.5]])
+K2 = np.array([[0, 0], [0, 0.5]])
+G1 = A - B @ K1
+G2 = A - B @ K2
+
+# Create the LTI systems
+sys1 = ctrl.ss(G1, B, C, D)
+sys2 = ctrl.ss(G2, B, C, D)
+
+# Simulate for initial condition x0 = [1, 0]
+x0 = np.array([1, 0])
+t = np.linspace(0, 10, 1000)
+t1, y1 = ctrl.initial_response(sys1, T=t, X0=x0)
+t2, y2 = ctrl.initial_response(sys2, T=t, X0=x0)
+
+plt.figure(figsize=(10, 5))
+plt.plot(t1, y1[0, :], label='K1 - Output 1')
+plt.plot(t1, y1[1, :], label='K1 - Output 2')
+plt.plot(t2, y2[0, :], label='K2 - Output 1', linestyle='--')
+plt.plot(t2, y2[1, :], label='K2 - Output 2', linestyle='--')
+plt.title('Step Response with Different K Matrices')
+plt.xlabel('Time [s]')
+plt.ylabel('Output')
+plt.legend()
+plt.grid()
+plt.show()
+```
+
+
+---
+
+**Performance trade-off:**
+
+Finally, pole placement does not consider the **control effort**,  not addressing the trade-off between:
+
+::: {.incremental}
+- regulating the state, by making $x(kT)$, or $\delta x(kT)$<sup>1</sup>, small
+
+  ::: {.inline-footnote}
+  <sup>1</sup> For linearised systems, we defined $\delta x = x - \bar x$.
+  :::
+
+- *regulating* required control effort $u(kT)$. 
+:::
+
+. . .
+
+::: {.callout-important}
+You might achieve **desired poles** but with impractically **large control signals**.
+:::
+
+# Optimal Control {data-state="optimal-control"}
+
+*What is optimal?*
+
+. . .
+
+**Optimal** means **best**. But best in terms of what?
+
+::: {.incremental .smaller}
+- **Best** in terms of *performance*?
+- **Best** in terms of *low control effort*?
+- **Best** in terms of a ***<span class="fragment highlight-red">(generalised)</span> cost***?
+:::
+  
+. . . 
+
+::: {.callout-tip}
+## Key Idea:
+Instead of choosing pole locations, you define what constitutes good **performance** via a **cost function** $J$.
+:::
+
+## The Discrete-Time Optimal Control Problem
+
+### System Dynamics
+
+### Cost Function / Performance Index
+
+$$
+J = \sum_{k=0}^{\infty} \left( x(kT)^T Q x(kT) + u(kT)^T R u(kT) \right)
+$$
+
+Where $Q\succeq 0$^[Positive semi-definite.] and $R\succ 0$^[Positive definite.].
 
 ## Integral Action
 

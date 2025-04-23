@@ -94,7 +94,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-338075e93d5c5bd17592affd7b0a7768.css">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-7878241950fc167ffc3a46950a64047a.css">
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
@@ -114,6 +114,8 @@
   <link href="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
@@ -205,17 +207,15 @@
   </style>
   </head><body class="quarto-light"><div class="slide-header">
 
-      <div class="main-header-content">
+    <div class="main-header-content">
 
-        <span>Digital Control / Direct/Discrete Design</span> <span>Design</span>
+      <span id="header-left">Lecture Title</span> <span id="header-right">Section</span>      </div>
 
-      </div>
+    <div class="sub-header-content" id="sub-header-container">
 
-      <div class="sub-header-content">
+      <span id="sub-header-title">Slide Title</span> </div>
 
-        <span>Lecture Topic / Sub-Heading Goes Here</span> </div>
-
-    </div>
+  </div>
 
 
   <div class="reveal">
@@ -248,18 +248,288 @@ Optimal Control
 <p>Consultation: GP-S1111<br> Email: g.froessilva@qut.edu.au</p>
 </div>
 </section>
-<section id="introduction" class="slide level2" data-state="intro">
-<h2>Introduction</h2>
-<p>This is the title slide content. (Quarto automatically uses title, author, etc. You might need custom CSS for exact PPTX title slide layout)</p>
+<section>
+<section id="overview" class="title-slide slide level1 center" data-state="overview">
+<h1>Overview</h1>
+<ul>
+<li class="fragment">Quick review of the content so far.</li>
+<li class="fragment">What is <em>Optimal</em> Control?</li>
+<li class="fragment">Why should we do optimal control instead of just pole placement?</li>
+<li class="fragment">The Optimal Control Problem.</li>
+<li class="fragment">The Linear Quadratic Regulator (LQR).</li>
+<li class="fragment">Model Predictive Control (MPC).</li>
+</ul>
 </section>
-<section id="disturbances" class="slide level2">
-<h2>Disturbances</h2>
-<p>State Feedback Controller with Feedforward vs Disturbances</p>
-<p>Recall the non-zero regulation problem with <span class="math inline">r(k_T)=1</span>[cite: 1].</p>
-<div class="highlight-box">
-<p><strong>Key Concept:</strong> The design approach via eigenvalue assignment, pole placement, pole assignment – alters the steady state gain[cite: 1].</p>
+<section id="quick-review-of-the-content-so-far" class="slide level2 smaller scrollable" data-state="review" style="overflow-y:auto;overflow-x:hidden;">
+<h2>Quick review of the content so far</h2>
+<div class="fragment">
+<p><strong>Continuous-time system:</strong> <span class="math display">
+\begin{align}\dot{x}(t) &amp;= f(x, u), \\ y(t) &amp;= g(x, u) \end{align}
+</span></p>
+</div>
+<div class="fragment">
+<p><strong>Linearised system:</strong> <span class="math display">
+\begin{align} \dot{x}(t) &amp;= Ax(t) + Bu(t), \\ y(t) &amp;= Cx(t) + Du(t), \end{align}
+</span></p>
+<p>where the <span class="math inline">A</span>, <span class="math inline">B</span>, <span class="math inline">C</span>, <span class="math inline">D</span> are the matrices <span class="math display">
+A = \frac{\partial f}{\partial x} \bigg|_{\bar x, \bar u}
+B = \frac{\partial f}{\partial u} \bigg|_{\bar x, \bar u}
+C = \frac{\partial g}{\partial x} \bigg|_{\bar x, \bar u}
+D = \frac{\partial g}{\partial u} \bigg|_{\bar x, \bar u}
+</span></p>
+</div>
+<div class="fragment">
+<p><strong>Discrete-time system:</strong> <span class="math display">
+\begin{align} x(kT+T) &amp;= Gx(kT) + Hu(kT), \\ y(kT) &amp;= Cx(kT) + Du(kT), \end{align}
+</span></p>
+<p>where <span class="math display">
+G = e^{AT}, \quad H = \left[\int_0^T e^{A\tau} d\tau\right] B \quad \left(\text{or, if $A$ is invertible, } H = A^{-1} (G-I)B\right)
+</span></p>
+</div>
+<div class="fragment">
+<p><strong>State-feedback controller:</strong> <span class="math display">
+u(k) = -Kx(kT)
+</span></p>
+<p>where <span class="math inline">K</span> is the feedback gain matrix that is designed to arbitrarily move the poles of the closed-loop system <span class="math display">
+x(kT+T) = (G-HK)x(kT)
+</span></p>
+<p>for example, by equating the characteristic polynomial of the closed-loop system to a desired polynomial, <span class="math display">
+\det(zI - (G-HK)) = (z - z_1)(z - z_2) \cdots (z - z_n)
+</span></p>
+</div>
+<div class="fragment">
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>The solution exists if the system is controllable, i.e.&nbsp;if the <strong>controllability matrix</strong> <span class="math inline">\mathcal{C} = \left[H,\; GH,\; G^2H,\; \ldots,\; G^{n-1}H\right]</span> has full rank (<span class="math inline">\text{rank}(\mathcal{C})=n</span>).</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><strong>How do you choose the poles?</strong></p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<ul>
+<li class="fragment"><span class="math inline">t_s</span> - settling time</li>
+<li class="fragment"><span class="math inline">t_r</span> - rise time</li>
+<li class="fragment"><span class="math inline">\%OS</span> - percent overshoot</li>
+<li class="fragment"><span class="math inline">\omega_n</span> - natural frequency</li>
+<li class="fragment"><span class="math inline">\zeta</span> - damping ratio (or through percent overshoot)</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<ul>
+<li class="fragment"><span class="math inline">\zeta = \dfrac{\ln(\%OS/100)}{\sqrt{\pi^2 + \ln^2(\%OS/100)}}</span></li>
+<li class="fragment"><span class="math inline">\omega_n = \frac{4}{\zeta t_s}</span></li>
+<li class="fragment"><span class="math inline">s_{1,2} = -\zeta \omega_n \pm j \omega_n \sqrt{1-\zeta^2}</span></li>
+<li class="fragment"><span class="math inline">z_{1,2} = e^{s_{1,2}T}</span></li>
+</ul>
+</div></div>
+</div>
+<div class="fragment">
+<p>We also saw the <strong>Internal Model Principle</strong> (e.g.&nbsp;<strong>Integral Action</strong>) to reject disturbances (or follow references) with a known model (e.g.&nbsp;a step input, a ramp input, a sinusoidal input, etc.). Those still relied on the <strong>pole placement</strong> approach.</p>
 </div>
 </section>
+<section id="pole-placement" class="slide level2" data-state="intro">
+<h2>Pole placement</h2>
+<div class="fragment">
+<p><em>Works well for:</em></p>
+<ul>
+<li class="fragment">SISO systems (Single Input Single Output)</li>
+<li class="fragment">Low order systems (2nd order or when 2nd order <em>dominant</em>, etc.)</li>
+</ul>
+</div>
+<div class="fragment">
+<p><em>Does not work well for:</em></p>
+<ul>
+<li class="fragment">High-order systems (4th order, 5th order, etc.)</li>
+<li class="fragment">MIMO systems (Multiple Input Multiple Output)</li>
+<li class="fragment"><em>Stiff</em> systems (e.g.&nbsp;with very different time constants, e.g.&nbsp;1ms and 1s)</li>
+<li class="fragment">Highly nonlinear systems (i.e.&nbsp;linearisation is only valid close to the E.P.)</li>
+</ul>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>High-order systems (3rd, 4th, 5th, etc.):</strong> <span class="math display">
+\begin{align} x(kT+T) &amp;= Gx(kT) + Hu(kT), \\ y(kT) &amp;= Cx(kT) + Du(kT), \end{align}
+</span></p>
+<p>where <span class="math inline">\quad x(kT) \in \mathbb{R}^n, \quad u(kT) \in \mathbb{R}, \quad y(kT) \in \mathbb{R}, \quad n &gt; 3</span></p>
+<div class="fragment">
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>The link between pole locations and desired time-domain response becomes less clear. Arbitrary choices can lead to poor performance or excessive control effort.</p>
+<p><em>How do you choose the best pole locations for a 5th, 10th, or higher-order system?</em></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>MIMO systems (Multiple Input Multiple Output):</strong> <span class="math display">
+\begin{align} x(kT+T) &amp;= Gx(kT) + Hu(kT), \\ y(kT) &amp;= Cx(kT) + Du(kT), \end{align}
+</span></p>
+<p><span class="math inline">x(kT) \in \mathbb{R}^n, \quad u(kT) \in \mathbb{R}^m, \quad y(kT) \in \mathbb{R}^p, \quad n, m, p &gt; 1</span></p>
+<div class="fragment">
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>For MIMO systems, pole placement is significantly more complex. Specifying only the eigenvalues leaves <strong>degrees of freedom</strong> in the <strong>eigenvectors</strong>, which also <strong>affect the response</strong>. The design process becomes <strong>non-unique</strong> and less intuitive.</p>
+<p><em>How do you systematically handle interactions between different inputs and outputs?</em></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="section" class="slide level2 smaller">
+<h2></h2>
+<p><strong>Example of a simple MIMO system:</strong> <span class="math display">
+\begin{align} x(kT+T) &amp;= \begin{bmatrix} 0.5 &amp; 0.1 \\ 0 &amp; 0.5 \end{bmatrix} x(kT) + \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} u(kT)
+\end{align}
+</span></p>
+<p>We want to place the poles at <span class="math inline">0.5</span> and <span class="math inline">0.6</span>, by using <span class="math inline">u(kT) = -Kx(kT)</span>, where <span class="math inline">K = \begin{bmatrix} k_1 &amp; k_2 \\ k_3 &amp; k_4\end{bmatrix}</span>.</p>
+<div class="fragment">
+<p>The characteristic polynomial is given by: <span class="math display">
+\begin{align}
+&amp;\det(zI - (G-HK)) = \det\left(\begin{bmatrix} z-0.5+k_1 &amp; k_2-0.1 \\ k_3 &amp; z-0.5+k_4\end{bmatrix}\right) \\
+&amp;= (z-0.5+k_1)(z-0.5+k_4) - (k_2-0.1)k_3 \\
+&amp;= z^2 + (k_1 + k_4 - 1.0)*z + (k_1k_4 - 0.5(k_1 + k_4) + 0.1k_3 - k_2k_3)
+\end{align}
+</span></p>
+</div>
+<div class="fragment">
+<p>The desired characteristic polynomial is given by: <span class="math display">
+(z-0.5)(z-0.6) = z^2 - 1.1z + 0.3
+</span></p>
+</div>
+<div class="fragment">
+<p>When we equate the coefficients, we get: <span class="math display">
+\begin{cases}
+k_1 + k_4 - 1.0 = -1.1 \\
+k_1k_4 - 0.5(k_1 + k_4) + 0.1k_3 - k_2k_3 = 0.3 \\
+\end{cases}
+</span></p>
+</div>
+<div class="fragment">
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>Note that we have <strong>two equations</strong> and <strong>four unknowns</strong>. This means that we have <strong>degrees of freedom</strong> in the design. We can choose two of the four variables arbitrarily, and then solve for the other two.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>This seems like a good idea, but it is not. The problem is that differente choices of <span class="math inline">K</span>, even if they lead to the same <strong>eigenvalues</strong>, can lead to different <strong>eigenvectors</strong>. The closed-loop system’s <strong>eigenvectors</strong> directyl affect the <strong>response</strong> of the system.</p>
+</div>
+<div class="fragment">
+<p>Consider the following two cases: <span class="math display">
+\begin{align} K_1 &amp;= \begin{bmatrix} 0.5 &amp; 0 \\ 0 &amp; 0.5 \end{bmatrix} \\ K_2 &amp;= \begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 0.5 \end{bmatrix} \end{align}
+</span></p>
+<p>Both of correctly assign the eigenvalues we wanted. But let’s simulate the system with both <span class="math inline">K_1</span> and <span class="math inline">K_2</span>.</p>
+<div id="567b561f" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display">
+<div>
+<figure>
+<p><img data-src="lecture9_files/figure-revealjs/cell-2-output-1.png"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>Performance trade-off:</strong></p>
+<p>Finally, pole placement does not consider the <strong>control effort</strong>, not addressing the trade-off between:</p>
+<ul>
+<li class="fragment"><p>regulating the state, by making <span class="math inline">x(kT)</span>, or <span class="math inline">\delta x(kT)</span><sup>1</sup>, small</p>
+<div class="inline-footnote">
+<p><sup>1</sup> For linearised systems, we defined <span class="math inline">\delta x = x - \bar x</span>.</p>
+</div></li>
+<li class="fragment"><p><em>regulating</em> required control effort <span class="math inline">u(kT)</span>.</p></li>
+</ul>
+<div class="fragment">
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>You might achieve <strong>desired poles</strong> but with impractically <strong>large control signals</strong>.</p>
+</div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="optimal-control" class="title-slide slide level1 center" data-state="optimal-control">
+<h1>Optimal Control</h1>
+<p><em>What is optimal?</em></p>
+<div class="fragment">
+<p><strong>Optimal</strong> means <strong>best</strong>. But best in terms of what?</p>
+<div class="smaller">
+<ul>
+<li class="fragment"><strong>Best</strong> in terms of <em>performance</em>?</li>
+<li class="fragment"><strong>Best</strong> in terms of <em>low control effort</em>?</li>
+<li class="fragment"><strong>Best</strong> in terms of a <strong><em><span class="fragment highlight-red">(generalised)</span> cost</em></strong>?</li>
+</ul>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Key Idea:</strong></p>
+</div>
+<div class="callout-content">
+<p>Instead of choosing pole locations, you define what constitutes good <strong>performance</strong> via a <strong>cost function</strong> <span class="math inline">J</span>.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-discrete-time-optimal-control-problem" class="slide level2 scrollable">
+<h2>The Discrete-Time Optimal Control Problem</h2>
+<h3 id="system-dynamics">System Dynamics</h3>
+<h3 id="cost-function-performance-index">Cost Function / Performance Index</h3>
+<p><span class="math display">
+J = \sum_{k=0}^{\infty} \left( x(kT)^T Q x(kT) + u(kT)^T R u(kT) \right)
+</span></p>
+<p>Where <span class="math inline">Q\succeq 0</span><sup>1</sup> and <span class="math inline">R\succ 0</span><sup>2</sup>.</p>
+<aside><ol class="aside-footnotes"><li id="fn1"><p>Positive semi-definite.</p></li><li id="fn2"><p>Positive definite.</p></li></ol></aside></section>
 <section id="integral-action" class="slide level2">
 <h2>Integral Action</h2>
 <p>To reject constant disturbances, we can augment the system[cite: 14].</p>
@@ -283,7 +553,8 @@ z(k_T+T) = \underbrace{\begin{bmatrix} G &amp; 0_{n \times p} \\ C &amp; I_{p \t
 <span id="cb1-9"><a></a><span class="co"># y_k = [1, 0]*x_k</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 
-</section>
+</section></section>
+
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
@@ -298,6 +569,7 @@ z(k_T+T) = \underbrace{\begin{bmatrix} G &amp; 0_{n \times p} \\ C &amp; I_{p \t
   <script src="../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
   <script src="../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
   <script src="../site_libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
@@ -318,7 +590,8 @@ z(k_T+T) = \underbrace{\begin{bmatrix} G &amp; 0_{n \times p} \\ C &amp; I_{p \t
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
-'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
 'smaller': false,
  
         // Display controls in the bottom right corner
@@ -472,7 +745,7 @@ z(k_T+T) = \underbrace{\begin{bmatrix} G &amp; 0_{n \times p} \\ C &amp; I_{p \t
         margin: 0.1,
 
         // reveal.js plugins
-        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
 
           RevealNotes,
           RevealSearch,
@@ -485,6 +758,257 @@ z(k_T+T) = \underbrace{\begin{bmatrix} G &amp; 0_{n \times p} \\ C &amp; I_{p \t
         <img src="../qut_logo.jpg" alt="QUT Logo" class="qut-logo"> <span class="course-code"><a href="../index.html">EGH445 Modern Control</a></span>
 
       </div>
+    <script>
+
+    // custom.js
+
+    
+
+    // Variable to store the last seen H1 title (Section Title)
+
+    let currentSectionTitle = "";
+
+    // Variable to store the main Lecture Title (will be set on ready)
+
+    let currentLectureTitle = "";
+
+    
+
+    // Function to update header elements based on the current slide
+
+    function updateHeaderContent(currentSlide) {
+
+      // Get references to the header elements using their IDs
+
+      let headerLeft = document.getElementById('header-left');
+
+      let headerRight = document.getElementById('header-right');
+
+      let subHeaderContainer = document.getElementById('sub-header-container');
+
+      let subHeaderTitle = document.getElementById('sub-header-title');
+
+    
+
+      // --- Lecture Title (Static) ---
+
+      // Set this based on the value captured during the 'ready' event
+
+      if (headerLeft && currentLectureTitle) {
+
+          headerLeft.innerText = currentLectureTitle;
+
+      }
+
+    
+
+      // --- Section Title (H1 - Update only if found) ---
+
+      // --- Also use H1 presence to hide/show sub-header ---
+
+      let h1Element = currentSlide.querySelector('h1');
+
+      if (h1Element) {
+
+        // H1 FOUND (Section Title Slide)
+
+        currentSectionTitle = h1Element.innerText.trim();
+
+        if (headerRight) {
+
+            headerRight.innerText = currentSectionTitle;
+
+        }
+
+        if (subHeaderContainer) {
+
+            subHeaderContainer.style.display = 'none';
+
+        }
+
+      } else {
+
+        // NO H1 FOUND (Regular Slide)
+
+         if (headerRight) {
+
+            headerRight.innerText = currentSectionTitle; // Use stored value
+
+        }
+
+        if (subHeaderContainer) {
+
+            subHeaderContainer.style.display = 'block'; // Or 'flex' if needed
+
+        }
+
+      }
+
+    
+
+      // // --- Slide Title (H2 - Update always if found, text only) ---
+
+      // let h2Element = currentSlide.querySelector('h2');
+
+      // // IMPORTANT: Exclude the H2 from the custom title slide's content
+
+      // // We check if the parent section has the 'title-slide-custom' class
+
+      // let slideTitle = "";
+
+      // if (h2Element && !currentSlide.classList.contains('title-slide-custom')) {
+
+      //     slideTitle = h2Element.innerText.trim();
+
+      // }
+
+    
+
+      // // Update the sub-header text span
+
+      // if (subHeaderTitle) {
+
+      //   subHeaderTitle.innerText = slideTitle;
+
+      // }
+
+      // --- Slide Title (H2 - Update only if found, text only) ---
+
+      let h2Element = currentSlide.querySelector('h2');
+
+      let slideTitle = "";
+
+      if (h2Element && !currentSlide.classList.contains('title-slide-custom')) {
+
+          slideTitle = h2Element.innerText.trim();
+
+      }
+
+    
+
+      // Update the sub-header text span only if slideTitle is not empty
+
+      if (subHeaderTitle && slideTitle) {
+
+        subHeaderTitle.innerText = slideTitle;
+
+      }
+
+    }
+
+    
+
+    // Wait for Reveal.js to be ready
+
+    Reveal.on('ready', event => {
+
+      // --- Set the Static Lecture Title (Left Header) ---
+
+      // Get it from the H2 within the title slide's .title-block div
+
+      let headerLeft = document.getElementById('header-left');
+
+      let firstSlide = event.currentSlide; // The first slide IS the title slide on ready
+
+      let titleElement = firstSlide.querySelector('.title-block h1'); // <<<< TARGET THE H2 in .title-block
+
+    
+
+      if (titleElement) {
+
+          currentLectureTitle = titleElement.innerText.trim(); // Store the lecture title
+
+      } else {
+
+          // Fallback if the structure isn't found
+
+          let docTitle = document.title;
+
+          if (docTitle && docTitle.includes('|')) {
+
+            currentLectureTitle = docTitle.split('|')[0].trim();
+
+          } else if (docTitle) {
+
+            currentLectureTitle = docTitle.trim();
+
+          } else {
+
+            currentLectureTitle = "Lecture"; // Generic fallback
+
+          }
+
+      }
+
+      // Set the text for the left header span
+
+      if (headerLeft) {
+
+        headerLeft.innerText = currentLectureTitle;
+
+      }
+
+    
+
+      // --- Set initial Section Title based on first slide's H1 ---
+
+      let firstH1 = firstSlide.querySelector('h1'); // Still look for H1 for section
+
+      if (firstH1) {
+
+        currentSectionTitle = firstH1.innerText.trim(); // Store initial section
+
+      }
+
+      // --- Run initial update (handles H2 and visibility based on H1) ---
+
+      updateHeaderContent(firstSlide);
+
+    });
+
+    
+
+    // Add listener for when the slide changes
+
+    Reveal.on('slidechanged', event => {
+
+      updateHeaderContent(event.currentSlide);
+
+    });
+
+    
+
+    // Add listener for when a fragment is shown
+
+    Reveal.on('fragmentshown', event => {
+
+      // event.fragment is the DOM element of the fragment that was shown
+
+      let fragment = event.fragment;
+
+    
+
+      // Find the closest ancestor element with the class 'scrollable'
+
+      let scrollableContainer = fragment.closest('.scrollable');
+
+    
+
+      // If the fragment is inside a .scrollable container
+
+      if (scrollableContainer) {
+
+        // Scroll the container to bring the fragment into view
+
+        // Options like 'smooth', 'center' can be adjusted
+
+        fragment.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      }
+
+    });
+
+    </script>
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
         const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")

@@ -1,0 +1,126 @@
+<script>
+// custom.js
+
+// Variable to store the last seen H1 title (Section Title)
+let currentSectionTitle = "";
+// Variable to store the main Lecture Title (will be set on ready)
+let currentLectureTitle = "";
+
+// Function to update header elements based on the current slide
+function updateHeaderContent(currentSlide) {
+  // Get references to the header elements using their IDs
+  let headerLeft = document.getElementById('header-left');
+  let headerRight = document.getElementById('header-right');
+  let subHeaderContainer = document.getElementById('sub-header-container');
+  let subHeaderTitle = document.getElementById('sub-header-title');
+
+  // --- Lecture Title (Static) ---
+  // Set this based on the value captured during the 'ready' event
+  if (headerLeft && currentLectureTitle) {
+      headerLeft.innerText = currentLectureTitle;
+  }
+
+  // --- Section Title (H1 - Update only if found) ---
+  // --- Also use H1 presence to hide/show sub-header ---
+  let h1Element = currentSlide.querySelector('h1');
+  if (h1Element) {
+    // H1 FOUND (Section Title Slide)
+    currentSectionTitle = h1Element.innerText.trim();
+    if (headerRight) {
+        headerRight.innerText = currentSectionTitle;
+    }
+    if (subHeaderContainer) {
+        subHeaderContainer.style.display = 'none';
+    }
+  } else {
+    // NO H1 FOUND (Regular Slide)
+     if (headerRight) {
+        headerRight.innerText = currentSectionTitle; // Use stored value
+    }
+    if (subHeaderContainer) {
+        subHeaderContainer.style.display = 'block'; // Or 'flex' if needed
+    }
+  }
+
+  // // --- Slide Title (H2 - Update always if found, text only) ---
+  // let h2Element = currentSlide.querySelector('h2');
+  // // IMPORTANT: Exclude the H2 from the custom title slide's content
+  // // We check if the parent section has the 'title-slide-custom' class
+  // let slideTitle = "";
+  // if (h2Element && !currentSlide.classList.contains('title-slide-custom')) {
+  //     slideTitle = h2Element.innerText.trim();
+  // }
+
+  // // Update the sub-header text span
+  // if (subHeaderTitle) {
+  //   subHeaderTitle.innerText = slideTitle;
+  // }
+  // --- Slide Title (H2 - Update only if found, text only) ---
+  let h2Element = currentSlide.querySelector('h2');
+  let slideTitle = "";
+  if (h2Element && !currentSlide.classList.contains('title-slide-custom')) {
+      slideTitle = h2Element.innerText.trim();
+  }
+
+  // Update the sub-header text span only if slideTitle is not empty
+  if (subHeaderTitle && slideTitle) {
+    subHeaderTitle.innerText = slideTitle;
+  }
+}
+
+// Wait for Reveal.js to be ready
+Reveal.on('ready', event => {
+  // --- Set the Static Lecture Title (Left Header) ---
+  // Get it from the H2 within the title slide's .title-block div
+  let headerLeft = document.getElementById('header-left');
+  let firstSlide = event.currentSlide; // The first slide IS the title slide on ready
+  let titleElement = firstSlide.querySelector('.title-block h1'); // <<<< TARGET THE H2 in .title-block
+
+  if (titleElement) {
+      currentLectureTitle = titleElement.innerText.trim(); // Store the lecture title
+  } else {
+      // Fallback if the structure isn't found
+      let docTitle = document.title;
+      if (docTitle && docTitle.includes('|')) {
+        currentLectureTitle = docTitle.split('|')[0].trim();
+      } else if (docTitle) {
+        currentLectureTitle = docTitle.trim();
+      } else {
+        currentLectureTitle = "Lecture"; // Generic fallback
+      }
+  }
+  // Set the text for the left header span
+  if (headerLeft) {
+    headerLeft.innerText = currentLectureTitle;
+  }
+
+  // --- Set initial Section Title based on first slide's H1 ---
+  let firstH1 = firstSlide.querySelector('h1'); // Still look for H1 for section
+  if (firstH1) {
+    currentSectionTitle = firstH1.innerText.trim(); // Store initial section
+  }
+  // --- Run initial update (handles H2 and visibility based on H1) ---
+  updateHeaderContent(firstSlide);
+});
+
+// Add listener for when the slide changes
+Reveal.on('slidechanged', event => {
+  updateHeaderContent(event.currentSlide);
+});
+
+// Add listener for when a fragment is shown
+Reveal.on('fragmentshown', event => {
+  // event.fragment is the DOM element of the fragment that was shown
+  let fragment = event.fragment;
+
+  // Find the closest ancestor element with the class 'scrollable'
+  let scrollableContainer = fragment.closest('.scrollable');
+
+  // If the fragment is inside a .scrollable container
+  if (scrollableContainer) {
+    // Scroll the container to bring the fragment into view
+    // Options like 'smooth', 'center' can be adjusted
+    fragment.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+});
+</script>
