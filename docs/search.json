@@ -21,11 +21,18 @@
     "text": "Pole placement\n\nWorks well for:\n\nSISO systems (Single Input Single Output)\nLow order systems (2nd order or when 2nd order dominant, etc.)\n\n\n\nDoes not work well for:\n\nHigh-order systems (4th order, 5th order, etc.)\nMIMO systems (Multiple Input Multiple Output)\nStiff systems (e.g. with very different time constants, e.g. 1ms and 1s)\nHighly nonlinear systems (i.e. linearisation is only valid close to the E.P.)"
   },
   {
+    "objectID": "lectures/lecture9.html#section",
+    "href": "lectures/lecture9.html#section",
+    "title": "EGH445 Modern Control",
+    "section": "",
+    "text": "Example of a simple MIMO system: \n\\begin{align} x(kT+T) &= \\begin{bmatrix} 1 & 0.5 \\\\ 0 & 0.8 \\end{bmatrix} x(kT) + \\begin{bmatrix} 1 & 0 \\\\ 0 & 1 \\end{bmatrix} u(kT)\n\\end{align}\n\nWe want to place the poles at 0.4 and 0.6, by using u(kT) = -Kx(kT), where K = \\begin{bmatrix} k_1 & k_2 \\\\ k_3 & k_4\\end{bmatrix}.\n\nThe characteristic polynomial is given by: $$ \\begin{align}\n&\\det(zI - (G-HK)) = \\det\\left(\\begin{bmatrix} z-1+k_1 & k_2-0.1 \\\\ k_3 & z-0.5+k_4\\end{bmatrix}\\right) \\\\\n\n\\end{align} $$\n\n\nThe desired characteristic polynomial is given by: \n(z-0.4)(z-0.6) = z^2 - 1.0z + 0.24\n\n\n\nWhen we equate the coefficients, we get: $$\n\\begin{cases}\n\n\\end{cases}\n$$\n\n\n\n\n\n\n\n\nImportant\n\n\nNote that we have two equations and four unknowns. This means that we have degrees of freedom in the design. We can choose two of the four variables arbitrarily, and then solve for the other two.\n\n\n\n\n\nThis seems like a good idea, but it is not. The problem is that differente choices of K, even if they lead to the same eigenvalues, can lead to different eigenvectors. The closed-loop system’s eigenvectors directyl affect the response of the system.\n\n\nConsider the following two cases of gains matrices K_1 and K_2, both of which lead to the same eigenvalues: $$\n$$\nBoth of correctly assign the eigenvalues we wanted. But let’s simulate the system with both K_1 and K_2.\n\n\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport control as ctrl\nfrom scipy.signal import lti, step\n\n# Create the system matrices\nA = np.array([[0.5, 0.1], [0, 0.5]])\nB = np.array([[1, 0], [0, 1]])\nC = np.array([[1, 0], [0, 1]])\nD = np.array([[0, 0], [0, 0]])\nK1 = np.array([[0.5, 0], [0, 0.5]])\nK2 = np.array([[0, 0], [0, 0.5]])\nG1 = A - B @ K1\nG2 = A - B @ K2\n\n# Create the LTI systems\nsys1 = ctrl.ss(G1, B, C, D)\nsys2 = ctrl.ss(G2, B, C, D)\n\n# Simulate for initial condition x0 = [1, 0]\nx0 = np.array([1, 0])\nt = np.linspace(0, 10, 1000)\nt1, y1 = ctrl.initial_response(sys1, T=t, X0=x0)\nt2, y2 = ctrl.initial_response(sys2, T=t, X0=x0)\n\nplt.figure(figsize=(10, 5))\nplt.plot(t1, y1[0, :], label='K1 - Output 1')\nplt.plot(t1, y1[1, :], label='K1 - Output 2')\nplt.plot(t2, y2[0, :], label='K2 - Output 1', linestyle='--')\nplt.plot(t2, y2[1, :], label='K2 - Output 2', linestyle='--')\nplt.title('Step Response with Different K Matrices')\nplt.xlabel('Time [s]')\nplt.ylabel('Output')\nplt.legend()\nplt.grid()\nplt.show()"
+  },
+  {
     "objectID": "lectures/lecture9.html#the-discrete-time-optimal-control-problem",
     "href": "lectures/lecture9.html#the-discrete-time-optimal-control-problem",
     "title": "EGH445 Modern Control",
     "section": "The Discrete-Time Optimal Control Problem",
-    "text": "The Discrete-Time Optimal Control Problem\nSystem Dynamics\nCost Function / Performance Index\n\nJ = \\sum_{k=0}^{\\infty} \\left( x(kT)^T Q x(kT) + u(kT)^T R u(kT) \\right)\n\nWhere Q\\succeq 01 and R\\succ 02.\nPositive semi-definite.Positive definite."
+    "text": "The Discrete-Time Optimal Control Problem\nSystem Dynamics \nx(kT+T) = Gx(kT) + Hu(kT)\n\nCost Function / Performance Index\n\nJ = \\sum_{k=0}^{\\infty} \\left( x(kT)^T Q x(kT) + u(kT)^T R u(kT) \\right)\n\nWhere Q\\succeq 0 and R\\succ 0.\n\n\nA\\succeq 0 means that A is positive semi-definite, i.e. x^T A x \\geq 0 for all x \\in \\mathbb{R}^n.\nA\\succ 0 means that A is positive definite, i.e. x^T A x &gt; 0 for all x \\in \\mathbb{R}^n and x \\neq 0."
   },
   {
     "objectID": "lectures/lecture9.html#integral-action",
@@ -56,10 +63,10 @@
     "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
   },
   {
-    "objectID": "lectures/lecture9.html#section",
-    "href": "lectures/lecture9.html#section",
+    "objectID": "2025/week9.html#diversity-in-stem",
+    "href": "2025/week9.html#diversity-in-stem",
     "title": "EGH445 Modern Control",
-    "section": "",
-    "text": "Example of a simple MIMO system: \n\\begin{align} x(kT+T) &= \\begin{bmatrix} 0.5 & 0.1 \\\\ 0 & 0.5 \\end{bmatrix} x(kT) + \\begin{bmatrix} 1 & 0 \\\\ 0 & 1 \\end{bmatrix} u(kT)\n\\end{align}\n\nWe want to place the poles at 0.5 and 0.6, by using u(kT) = -Kx(kT), where K = \\begin{bmatrix} k_1 & k_2 \\\\ k_3 & k_4\\end{bmatrix}.\n\nThe characteristic polynomial is given by: \n\\begin{align}\n&\\det(zI - (G-HK)) = \\det\\left(\\begin{bmatrix} z-0.5+k_1 & k_2-0.1 \\\\ k_3 & z-0.5+k_4\\end{bmatrix}\\right) \\\\\n&= (z-0.5+k_1)(z-0.5+k_4) - (k_2-0.1)k_3 \\\\\n&= z^2 + (k_1 + k_4 - 1.0)*z + (k_1k_4 - 0.5(k_1 + k_4) + 0.1k_3 - k_2k_3)\n\\end{align}\n\n\n\nThe desired characteristic polynomial is given by: \n(z-0.5)(z-0.6) = z^2 - 1.1z + 0.3\n\n\n\nWhen we equate the coefficients, we get: \n\\begin{cases}\nk_1 + k_4 - 1.0 = -1.1 \\\\\nk_1k_4 - 0.5(k_1 + k_4) + 0.1k_3 - k_2k_3 = 0.3 \\\\\n\\end{cases}\n\n\n\n\n\n\n\n\n\nImportant\n\n\nNote that we have two equations and four unknowns. This means that we have degrees of freedom in the design. We can choose two of the four variables arbitrarily, and then solve for the other two.\n\n\n\n\n\nThis seems like a good idea, but it is not. The problem is that differente choices of K, even if they lead to the same eigenvalues, can lead to different eigenvectors. The closed-loop system’s eigenvectors directyl affect the response of the system.\n\n\nConsider the following two cases: \n\\begin{align} K_1 &= \\begin{bmatrix} 0.5 & 0 \\\\ 0 & 0.5 \\end{bmatrix} \\\\ K_2 &= \\begin{bmatrix} 0 & 0 \\\\ 0 & 0.5 \\end{bmatrix} \\end{align}\n\nBoth of correctly assign the eigenvalues we wanted. But let’s simulate the system with both K_1 and K_2."
+    "section": "Diversity in STEM",
+    "text": "Diversity in STEM"
   }
 ]

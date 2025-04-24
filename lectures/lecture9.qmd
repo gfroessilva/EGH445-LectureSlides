@@ -199,10 +199,10 @@ $x(kT) \in \mathbb{R}^n, \quad u(kT) \in \mathbb{R}^m, \quad y(kT) \in \mathbb{R
 ::: {.callout-important}
 For MIMO systems, pole placement is significantly more complex. Specifying only the eigenvalues leaves **degrees of freedom** in the **eigenvectors**, which also **affect the response**. The design process becomes **non-unique** and less intuitive. 
 
-*How do you systematically handle interactions between different inputs and outputs?*
+*How do you systematically handle interactions between different inputs and outputs?*   
 :::
 
-## {.smaller}
+## {.smaller .scrollable}
 
 **Example of a simple MIMO system:**
 $$
@@ -211,6 +211,7 @@ $$
 $$
 
 We want to place the poles at $0.4$ and $0.6$, by using $u(kT) = -Kx(kT)$, where $K = \begin{bmatrix} k_1 & k_2 \\ k_3 & k_4\end{bmatrix}$. 
+
 
 . . .
 
@@ -258,6 +259,9 @@ $$
 Both of correctly assign the eigenvalues we wanted. But let's simulate the system with both $K_1$ and $K_2$.
 
 ```{python}
+#| output-location: column
+#| results: hold
+#| echo: true
 import numpy as np
 import matplotlib.pyplot as plt
 import control as ctrl
@@ -340,17 +344,26 @@ You might achieve **desired poles** but with impractically **large control signa
 Instead of choosing pole locations, you define what constitutes good **performance** via a **cost function** $J$.
 :::
 
-## The Discrete-Time Optimal Control Problem
+## The Discrete-Time Optimal Control Problem  {.smaller}
 
-### System Dynamics
+**System Dynamics**
+$$
+x(kT+T) = Gx(kT) + Hu(kT)
+$$
 
-### Cost Function / Performance Index
+**Cost Function / Performance Index**
 
 $$
 J = \sum_{k=0}^{\infty} \left( x(kT)^T Q x(kT) + u(kT)^T R u(kT) \right)
 $$
 
-Where $Q\succeq 0$^[Positive semi-definite.] and $R\succ 0$^[Positive definite.].
+Where $Q\succeq 0$ and $R\succ 0$.
+
+::: aside
+$A\succeq 0$ means that $A$ is positive semi-definite, i.e. $x^T A x \geq 0$ for all $x \in \mathbb{R}^n$.
+
+$A\succ 0$ means that $A$ is positive definite, i.e. $x^T A x > 0$ for all $x \in \mathbb{R}^n$ and $x \neq 0$.
+:::
 
 ## Integral Action
 
@@ -361,6 +374,8 @@ Define the augmented state vector $z \triangleq \begin{bmatrix} x \\ q \end{bmat
 $$
 z(k_T+T) = \underbrace{\begin{bmatrix} G & 0_{n \times p} \\ C & I_{p \times p} \end{bmatrix}}_{G_z} z(k_T) + \underbrace{\begin{bmatrix} H \\ 0_{p \times m} \end{bmatrix}}_{H_z} u(k_T)
 $$
+
+
 
 Where $q(k_T+T) = q(k_T) + y(k_T)$[cite: 19].
 

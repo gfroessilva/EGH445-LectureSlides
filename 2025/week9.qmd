@@ -1,0 +1,11 @@
+---
+format:
+  revealjs: default
+---
+
+# Diversity in STEM {header-left="Week 9" header-right="Events"}
+![](images/paste-1.png){fig-alt="Diversity in STEM Banner"}
+
+
+# Diversity in STEM 2 {header-left="Week 9" header-right="Events"}
+![](images/paste-1.png){fig-alt="Diversity in STEM Banner"}

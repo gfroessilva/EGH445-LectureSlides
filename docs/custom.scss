@@ -118,6 +118,12 @@ $highlight-box-border: #A0C4E4; // Slightly darker blue border (guess)
   width: 100%; /* Ensure it takes full width */
 }
 
+.inline-footnote {
+  font-size: 0.8em; /* Adjust size as needed */
+  opacity: 0.8;   /* Make it slightly less prominent */
+  display: block; /* Ensure it's on its own line */
+  margin-top: 0.5em; /* Add some space above the note */
+}
 
 // Slide Number adjustment (if using built-in slide numbers)
 .reveal .slide-number {

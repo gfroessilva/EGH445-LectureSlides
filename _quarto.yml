@@ -38,6 +38,10 @@ website:
           #   href: lectures/lecture12.qmd
           # - text: "Lecture 13: Final Exam Review"
           #   href: lectures/lecture13.qmd
+      - text: "2025"
+        menu:
+          - text: "Week 9"
+            href: 2025/week9.qmd
     right:
       - icon: github
         href: https://github.com/gfroessilva/EGH445
