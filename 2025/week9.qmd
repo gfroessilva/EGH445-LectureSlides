@@ -1,7 +1,11 @@
 ---
 format:
-  revealjs: default
+  revealjs:
+    scrollable: false
 ---
+
+## Diversity in STEM {header-left="Week 9" header-right="Events"}
+[![](images/paste-1.png){fig-alt="Diversity in STEM Banner"}](https://events.humanitix.com/diversity-in-stem-night)
 
 ## Diversity in STEM {header-left="Week 9" header-right="Events"}
 ![](images/paste-1.png){fig-alt="Diversity in STEM Banner"}

@@ -404,27 +404,30 @@ x(kT+T) = (G-HK)x(kT)
 <section id="section" class="slide level2 smaller scrollable">
 <h2></h2>
 <p><strong>Example of a simple MIMO system:</strong> <span class="math display">
-\begin{align} x(kT+T) &amp;= \begin{bmatrix} 1 &amp; 0.5 \\ 0 &amp; 0.8 \end{bmatrix} x(kT) + \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} u(kT)
+\begin{align} x(kT+T) &amp;= \begin{bmatrix} 1 &amp; 0.1 \\ 0 &amp; 0.8 \end{bmatrix} x(kT) + \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} u(kT)
 \end{align}
 </span></p>
 <p>We want to place the poles at <span class="math inline">0.4</span> and <span class="math inline">0.6</span>, by using <span class="math inline">u(kT) = -Kx(kT)</span>, where <span class="math inline">K = \begin{bmatrix} k_1 &amp; k_2 \\ k_3 &amp; k_4\end{bmatrix}</span>.</p>
 <div class="fragment">
-<p>The characteristic polynomial is given by: $$ <span class="math display">\begin{align}
-&amp;\det(zI - (G-HK)) = \det\left(\begin{bmatrix} z-1+k_1 &amp; k_2-0.1 \\ k_3 &amp; z-0.5+k_4\end{bmatrix}\right) \\
-
-\end{align}</span> $$</p>
-</div>
-<div class="fragment">
-<p>The desired characteristic polynomial is given by: <span class="math display">
-(z-0.4)(z-0.6) = z^2 - 1.0z + 0.24
+<p>The characteristic polynomial is given by: <span class="math display">
+\begin{align}
+&amp;\det(zI - (G-HK)) = \det\left(\begin{bmatrix} z-1+k_1 &amp; k_2-0.1 \\ k_3 &amp; z-0.8+k_4\end{bmatrix}\right) \\
+&amp;= z^2 + (k_1 + k_4 - 1.8)z + (0.1k_3 - k_4 - 0.8k_1 + k_1k_4 - k_2k_3 + 0.8)
+\end{align}
 </span></p>
 </div>
 <div class="fragment">
-When we equate the coefficients, we get: $$
-<span class="math display">\begin{cases}
-
-\end{cases}</span>
-<p>$$</p>
+<p>The desired characteristic polynomial is given by: <span class="math display">
+(z-0.4)(z-0.6) = z^2 - 1z + 0.24
+</span></p>
+</div>
+<div class="fragment">
+<p>When we equate the coefficients, we get: <span class="math display">
+\begin{cases}
+(k_1 + k_4 - 1.8) = -1 \\
+0.1k_3 - k_4 - 0.8k_1 + k_1k_4 - k_2k_3 + 0.8 = 0.24
+\end{cases}
+</span></p>
 </div>
 <div class="fragment">
 <div class="callout callout-important callout-titled callout-style-default">
@@ -445,52 +448,56 @@ When we equate the coefficients, we get: $$
 <p>This seems like a good idea, but it is not. The problem is that differente choices of <span class="math inline">K</span>, even if they lead to the same <strong>eigenvalues</strong>, can lead to different <strong>eigenvectors</strong>. The closed-loop system’s <strong>eigenvectors</strong> directyl affect the <strong>response</strong> of the system.</p>
 </div>
 <div class="fragment">
-<p>Consider the following two cases of gains matrices <span class="math inline">K_1</span> and <span class="math inline">K_2</span>, both of which lead to the same eigenvalues: $$</p>
-<p>$$</p>
-<p>Both of correctly assign the eigenvalues we wanted. But let’s simulate the system with both <span class="math inline">K_1</span> and <span class="math inline">K_2</span>.</p>
-<div id="7764e1ff" class="cell columns column-output-location" data-results="hold" data-execution_count="1">
+<p>Let <span class="math inline">k_2 = k_3 = 0</span> and consider the following two cases of gains matrices <span class="math inline">K_1</span> and <span class="math inline">K_2</span>, both of which lead assign the closed-loop eigenvalues to the desired values: <span class="math display">
+K_1 = \begin{bmatrix} 0.6 &amp; 0 \\ 0 &amp; 0.2 \end{bmatrix}, \quad K_2 = \begin{bmatrix} 0.4 &amp; 0 \\ 0 &amp; 0.4 \end{bmatrix}
+</span></p>
+<p>Both of which lead to the same eigenvalues we wanted. But let’s simulate the system with both <span class="math inline">K_1</span> and <span class="math inline">K_2</span>.</p>
+<div id="1b045e7a" class="cell columns column-output-location" data-results="hold" data-execution_count="1">
 <div class="column">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a></a><span class="im">import</span> control <span class="im">as</span> ctrl</span>
-<span id="cb1-4"><a></a><span class="im">from</span> scipy.signal <span class="im">import</span> lti, step</span>
+<span id="cb1-4"><a></a><span class="co"># from scipy.signal import lti, step # Removed unused import</span></span>
 <span id="cb1-5"><a></a></span>
 <span id="cb1-6"><a></a><span class="co"># Create the system matrices</span></span>
-<span id="cb1-7"><a></a>A <span class="op">=</span> np.array([[<span class="fl">0.5</span>, <span class="fl">0.1</span>], [<span class="dv">0</span>, <span class="fl">0.5</span>]])</span>
+<span id="cb1-7"><a></a>A <span class="op">=</span> np.array([[<span class="dv">1</span>, <span class="fl">0.1</span>], [<span class="dv">0</span>, <span class="fl">0.8</span>]])</span>
 <span id="cb1-8"><a></a>B <span class="op">=</span> np.array([[<span class="dv">1</span>, <span class="dv">0</span>], [<span class="dv">0</span>, <span class="dv">1</span>]])</span>
-<span id="cb1-9"><a></a>C <span class="op">=</span> np.array([[<span class="dv">1</span>, <span class="dv">0</span>], [<span class="dv">0</span>, <span class="dv">1</span>]])</span>
+<span id="cb1-9"><a></a>C <span class="op">=</span> np.array([[<span class="dv">1</span>, <span class="dv">0</span>], [<span class="dv">0</span>, <span class="dv">1</span>]]) <span class="co"># Assuming C outputs the state directly for this example</span></span>
 <span id="cb1-10"><a></a>D <span class="op">=</span> np.array([[<span class="dv">0</span>, <span class="dv">0</span>], [<span class="dv">0</span>, <span class="dv">0</span>]])</span>
-<span id="cb1-11"><a></a>K1 <span class="op">=</span> np.array([[<span class="fl">0.5</span>, <span class="dv">0</span>], [<span class="dv">0</span>, <span class="fl">0.5</span>]])</span>
-<span id="cb1-12"><a></a>K2 <span class="op">=</span> np.array([[<span class="dv">0</span>, <span class="dv">0</span>], [<span class="dv">0</span>, <span class="fl">0.5</span>]])</span>
+<span id="cb1-11"><a></a>K1 <span class="op">=</span> np.array([[<span class="fl">0.6</span>, <span class="dv">0</span>], [<span class="dv">0</span>, <span class="fl">0.2</span>]])  <span class="co"># Updated K1</span></span>
+<span id="cb1-12"><a></a>K2 <span class="op">=</span> np.array([[<span class="fl">0.4</span>, <span class="dv">0</span>], [<span class="dv">0</span>, <span class="fl">0.4</span>]])  <span class="co"># Updated K2</span></span>
 <span id="cb1-13"><a></a>G1 <span class="op">=</span> A <span class="op">-</span> B <span class="op">@</span> K1</span>
 <span id="cb1-14"><a></a>G2 <span class="op">=</span> A <span class="op">-</span> B <span class="op">@</span> K2</span>
 <span id="cb1-15"><a></a></span>
-<span id="cb1-16"><a></a><span class="co"># Create the LTI systems</span></span>
-<span id="cb1-17"><a></a>sys1 <span class="op">=</span> ctrl.ss(G1, B, C, D)</span>
-<span id="cb1-18"><a></a>sys2 <span class="op">=</span> ctrl.ss(G2, B, C, D)</span>
-<span id="cb1-19"><a></a></span>
-<span id="cb1-20"><a></a><span class="co"># Simulate for initial condition x0 = [1, 0]</span></span>
-<span id="cb1-21"><a></a>x0 <span class="op">=</span> np.array([<span class="dv">1</span>, <span class="dv">0</span>])</span>
-<span id="cb1-22"><a></a>t <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">10</span>, <span class="dv">1000</span>)</span>
-<span id="cb1-23"><a></a>t1, y1 <span class="op">=</span> ctrl.initial_response(sys1, T<span class="op">=</span>t, X0<span class="op">=</span>x0)</span>
-<span id="cb1-24"><a></a>t2, y2 <span class="op">=</span> ctrl.initial_response(sys2, T<span class="op">=</span>t, X0<span class="op">=</span>x0)</span>
-<span id="cb1-25"><a></a></span>
-<span id="cb1-26"><a></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
-<span id="cb1-27"><a></a>plt.plot(t1, y1[<span class="dv">0</span>, :], label<span class="op">=</span><span class="st">'K1 - Output 1'</span>)</span>
-<span id="cb1-28"><a></a>plt.plot(t1, y1[<span class="dv">1</span>, :], label<span class="op">=</span><span class="st">'K1 - Output 2'</span>)</span>
-<span id="cb1-29"><a></a>plt.plot(t2, y2[<span class="dv">0</span>, :], label<span class="op">=</span><span class="st">'K2 - Output 1'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
-<span id="cb1-30"><a></a>plt.plot(t2, y2[<span class="dv">1</span>, :], label<span class="op">=</span><span class="st">'K2 - Output 2'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
-<span id="cb1-31"><a></a>plt.title(<span class="st">'Step Response with Different K Matrices'</span>)</span>
-<span id="cb1-32"><a></a>plt.xlabel(<span class="st">'Time [s]'</span>)</span>
-<span id="cb1-33"><a></a>plt.ylabel(<span class="st">'Output'</span>)</span>
-<span id="cb1-34"><a></a>plt.legend()</span>
-<span id="cb1-35"><a></a>plt.grid()</span>
-<span id="cb1-36"><a></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div><div class="column">
+<span id="cb1-16"><a></a><span class="co"># Create the closed-loop LTI systems (using G1, G2 as the new 'A' matrices)</span></span>
+<span id="cb1-17"><a></a><span class="co"># Note: We don't need B for initial response, but control.ss requires it.</span></span>
+<span id="cb1-18"><a></a><span class="co"># We'll use the original B, C, D for consistency, though B and D aren't used in initial_response.</span></span>
+<span id="cb1-19"><a></a>sys1 <span class="op">=</span> ctrl.ss(G1, B, C, D, <span class="fl">0.1</span>) <span class="co"># Using dt=0.1 based on context</span></span>
+<span id="cb1-20"><a></a>sys2 <span class="op">=</span> ctrl.ss(G2, B, C, D, <span class="fl">0.1</span>) <span class="co"># Using dt=0.1 based on context</span></span>
+<span id="cb1-21"><a></a></span>
+<span id="cb1-22"><a></a><span class="co"># Simulate for initial condition x0 = [1, 0]</span></span>
+<span id="cb1-23"><a></a>x0 <span class="op">=</span> np.array([<span class="dv">1</span>, <span class="dv">0</span>])</span>
+<span id="cb1-24"><a></a>t_end <span class="op">=</span> <span class="fl">1.5</span> <span class="co"># Reduced simulation time for clarity</span></span>
+<span id="cb1-25"><a></a>t <span class="op">=</span> np.arange(<span class="dv">0</span>, t_end, <span class="fl">0.1</span>) <span class="co"># Time vector with dt=0.1</span></span>
+<span id="cb1-26"><a></a>t1, y1 <span class="op">=</span> ctrl.initial_response(sys1, T<span class="op">=</span>t, X0<span class="op">=</span>x0)</span>
+<span id="cb1-27"><a></a>t2, y2 <span class="op">=</span> ctrl.initial_response(sys2, T<span class="op">=</span>t, X0<span class="op">=</span>x0)</span>
+<span id="cb1-28"><a></a></span>
+<span id="cb1-29"><a></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb1-30"><a></a>plt.plot(t1, y1[<span class="dv">0</span>, :], label<span class="op">=</span><span class="st">'K1 - x1'</span>)</span>
+<span id="cb1-31"><a></a>plt.plot(t1, y1[<span class="dv">1</span>, :], label<span class="op">=</span><span class="st">'K1 - x2'</span>)</span>
+<span id="cb1-32"><a></a>plt.plot(t2, y2[<span class="dv">0</span>, :], label<span class="op">=</span><span class="st">'K2 - x1'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb1-33"><a></a>plt.plot(t2, y2[<span class="dv">1</span>, :], label<span class="op">=</span><span class="st">'K2 - x2'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb1-34"><a></a>plt.title(<span class="st">'Initial Condition Response ($x_0=[1, 0]^T$) with Different K Matrices'</span>) <span class="co"># Corrected title</span></span>
+<span id="cb1-35"><a></a>plt.xlabel(<span class="st">'Time (steps * dt)'</span>) <span class="co"># Adjusted label if dt is used</span></span>
+<span id="cb1-36"><a></a>plt.ylabel(<span class="st">'State Values'</span>) <span class="co"># Changed label as C=I</span></span>
+<span id="cb1-37"><a></a>plt.legend()</span>
+<span id="cb1-38"><a></a>plt.grid(<span class="va">True</span>) <span class="co"># Added grid</span></span>
+<span id="cb1-39"><a></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div><div class="column fragment">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
-<p><img data-src="lecture9_files/figure-revealjs/cell-2-output-1.png" width="816" height="449"></p>
+<p><img data-src="lecture9_files/figure-revealjs/cell-2-output-1.png" width="812" height="453"></p>
 </figure>
 </div>
 </div>
@@ -814,9 +821,199 @@ z(k_T+T) = \underbrace{\begin{bmatrix} G &amp; 0_{n \times p} \\ C &amp; I_{p \t
 
     // Function to update header elements based on the current slide
 
-    function updateHeaderContent(currentSlide) {
+    // function updateHeaderContent(currentSlide) {
 
-      // Get references to the header elements using their IDs
+    //   // Get references to the header elements using their IDs
+
+    //   let headerLeft = document.getElementById('header-left');
+
+    //   let headerRight = document.getElementById('header-right');
+
+    //   let subHeaderContainer = document.getElementById('sub-header-container');
+
+    //   let subHeaderTitle = document.getElementById('sub-header-title');
+
+    
+
+    //   // --- Lecture Title (Static) ---
+
+    //   // Set this based on the value captured during the 'ready' event
+
+    //   if (headerLeft && currentLectureTitle) {
+
+    //       headerLeft.innerText = currentLectureTitle;
+
+    //   }
+
+    
+
+    //   // --- Section Title (H1 - Update only if found) ---
+
+    //   // --- Also use H1 presence to hide/show sub-header ---
+
+    //   let h1Element = currentSlide.querySelector('h1');
+
+    //   if (h1Element) {
+
+    //     // H1 FOUND (Section Title Slide)
+
+    //     currentSectionTitle = h1Element.innerText.trim();
+
+    //     if (headerRight) {
+
+    //         headerRight.innerText = currentSectionTitle;
+
+    //     }
+
+    //     if (subHeaderContainer) {
+
+    //         subHeaderContainer.style.display = 'none';
+
+    //     }
+
+    //   } else {
+
+    //     // NO H1 FOUND (Regular Slide)
+
+    //      if (headerRight) {
+
+    //         headerRight.innerText = currentSectionTitle; // Use stored value
+
+    //     }
+
+    //     if (subHeaderContainer) {
+
+    //         subHeaderContainer.style.display = 'block'; // Or 'flex' if needed
+
+    //     }
+
+    //   }
+
+    
+
+    //   // // --- Slide Title (H2 - Update always if found, text only) ---
+
+    //   // let h2Element = currentSlide.querySelector('h2');
+
+    //   // // IMPORTANT: Exclude the H2 from the custom title slide's content
+
+    //   // // We check if the parent section has the 'title-slide-custom' class
+
+    //   // let slideTitle = "";
+
+    //   // if (h2Element && !currentSlide.classList.contains('title-slide-custom')) {
+
+    //   //     slideTitle = h2Element.innerText.trim();
+
+    //   // }
+
+    
+
+    //   // // Update the sub-header text span
+
+    //   // if (subHeaderTitle) {
+
+    //   //   subHeaderTitle.innerText = slideTitle;
+
+    //   // }
+
+    //   // --- Slide Title (H2 - Update only if found, text only) ---
+
+    //   let h2Element = currentSlide.querySelector('h2');
+
+    //   let slideTitle = "";
+
+    //   if (h2Element && !currentSlide.classList.contains('title-slide-custom')) {
+
+    //       slideTitle = h2Element.innerText.trim();
+
+    //   }
+
+    
+
+    //   // Update the sub-header text span only if slideTitle is not empty
+
+    //   if (subHeaderTitle && slideTitle) {
+
+    //     subHeaderTitle.innerText = slideTitle;
+
+    //   }
+
+    // }
+
+    
+
+    // // Wait for Reveal.js to be ready
+
+    // Reveal.on('ready', event => {
+
+    //   // --- Set the Static Lecture Title (Left Header) ---
+
+    //   // Get it from the H2 within the title slide's .title-block div
+
+    //   let headerLeft = document.getElementById('header-left');
+
+    //   let firstSlide = event.currentSlide; // The first slide IS the title slide on ready
+
+    //   let titleElement = firstSlide.querySelector('.title-block h1'); // <<<< TARGET THE H2 in .title-block
+
+    
+
+    //   if (titleElement) {
+
+    //       currentLectureTitle = titleElement.innerText.trim(); // Store the lecture title
+
+    //   } else {
+
+    //       // Fallback if the structure isn't found
+
+    //       let docTitle = document.title;
+
+    //       if (docTitle && docTitle.includes('|')) {
+
+    //         currentLectureTitle = docTitle.split('|')[0].trim();
+
+    //       } else if (docTitle) {
+
+    //         currentLectureTitle = docTitle.trim();
+
+    //       } else {
+
+    //         currentLectureTitle = "Lecture"; // Generic fallback
+
+    //       }
+
+    //   }
+
+    //   // Set the text for the left header span
+
+    //   if (headerLeft) {
+
+    //     headerLeft.innerText = currentLectureTitle;
+
+    //   }
+
+    
+
+    //   // --- Set initial Section Title based on first slide's H1 ---
+
+    //   let firstH1 = firstSlide.querySelector('h1'); // Still look for H1 for section
+
+    //   if (firstH1) {
+
+    //     currentSectionTitle = firstH1.innerText.trim(); // Store initial section
+
+    //   }
+
+    //   // --- Run initial update (handles H2 and visibility based on H1) ---
+
+    //   updateHeaderContent(firstSlide);
+
+    // });
+
+    
+
+    function updateHeaderContent(currentSlide) {
 
       let headerLeft = document.getElementById('header-left');
 
@@ -828,35 +1025,105 @@ z(k_T+T) = \underbrace{\begin{bmatrix} G &amp; 0_{n \times p} \\ C &amp; I_{p \t
 
     
 
-      // --- Lecture Title (Static) ---
+      // --- Check for data-attributes first ---
 
-      // Set this based on the value captured during the 'ready' event
+      let slideDataHeaderLeft = currentSlide.dataset.headerLeft;
 
-      if (headerLeft && currentLectureTitle) {
+      let slideDataHeaderRight = currentSlide.dataset.headerRight;
+
+    
+
+      // --- Left Header (Lecture Title / Override) ---
+
+      if (headerLeft) {
+
+        if (slideDataHeaderLeft !== undefined) {
+
+          // Use attribute value if present on the slide
+
+          headerLeft.innerText = slideDataHeaderLeft;
+
+        } else {
+
+          // Otherwise, use the stored lecture title
 
           headerLeft.innerText = currentLectureTitle;
+
+        }
 
       }
 
     
 
-      // --- Section Title (H1 - Update only if found) ---
-
-      // --- Also use H1 presence to hide/show sub-header ---
+      // --- Right Header (Section Title / Override) ---
 
       let h1Element = currentSlide.querySelector('h1');
 
-      if (h1Element) {
+      let useH1Logic = true; // Flag to determine if we use H1 logic
 
-        // H1 FOUND (Section Title Slide)
+    
 
-        currentSectionTitle = h1Element.innerText.trim();
+      if (headerRight) {
 
-        if (headerRight) {
+        if (slideDataHeaderRight !== undefined) {
 
-            headerRight.innerText = currentSectionTitle;
+          // Use attribute value if present on the slide
+
+          headerRight.innerText = slideDataHeaderRight;
+
+          useH1Logic = false; // Don't use H1 logic if attribute is set
 
         }
+
+      }
+
+    
+
+      // --- H1 Logic (Only if data-header-right wasn't used) ---
+
+      if (useH1Logic) {
+
+        if (h1Element) {
+
+          // H1 FOUND (Section Title Slide)
+
+          currentSectionTitle = h1Element.innerText.trim();
+
+          if (headerRight) {
+
+              headerRight.innerText = currentSectionTitle;
+
+          }
+
+          if (subHeaderContainer) {
+
+              subHeaderContainer.style.display = 'none'; // Hide sub-header on H1 slides
+
+          }
+
+        } else {
+
+          // NO H1 FOUND (Regular Slide)
+
+           if (headerRight) {
+
+              headerRight.innerText = currentSectionTitle; // Use stored section title
+
+          }
+
+          if (subHeaderContainer) {
+
+              subHeaderContainer.style.display = 'block'; // Show sub-header on regular slides
+
+          }
+
+        }
+
+      } else {
+
+        // If data-header-right was used, decide sub-header visibility
+
+        // Option 1: Hide sub-header if data-header-right is present
 
         if (subHeaderContainer) {
 
@@ -864,53 +1131,21 @@ z(k_T+T) = \underbrace{\begin{bmatrix} G &amp; 0_{n \times p} \\ C &amp; I_{p \t
 
         }
 
-      } else {
+        // Option 2: Keep sub-header logic based on H1 presence (even if H1 text isn't used for headerRight)
 
-        // NO H1 FOUND (Regular Slide)
+        // if (h1Element && subHeaderContainer) { subHeaderContainer.style.display = 'none'; }
 
-         if (headerRight) {
-
-            headerRight.innerText = currentSectionTitle; // Use stored value
-
-        }
-
-        if (subHeaderContainer) {
-
-            subHeaderContainer.style.display = 'block'; // Or 'flex' if needed
-
-        }
+        // else if (subHeaderContainer) { subHeaderContainer.style.display = 'block'; }
 
       }
 
     
 
-      // // --- Slide Title (H2 - Update always if found, text only) ---
-
-      // let h2Element = currentSlide.querySelector('h2');
-
-      // // IMPORTANT: Exclude the H2 from the custom title slide's content
-
-      // // We check if the parent section has the 'title-slide-custom' class
-
-      // let slideTitle = "";
-
-      // if (h2Element && !currentSlide.classList.contains('title-slide-custom')) {
-
-      //     slideTitle = h2Element.innerText.trim();
-
-      // }
-
     
 
-      // // Update the sub-header text span
+      // --- Sub-Header Title (H2) ---
 
-      // if (subHeaderTitle) {
-
-      //   subHeaderTitle.innerText = slideTitle;
-
-      // }
-
-      // --- Slide Title (H2 - Update only if found, text only) ---
+      // (Keep your existing H2 logic for the sub-header title)
 
       let h2Element = currentSlide.querySelector('h2');
 
@@ -922,13 +1157,13 @@ z(k_T+T) = \underbrace{\begin{bmatrix} G &amp; 0_{n \times p} \\ C &amp; I_{p \t
 
       }
 
-    
-
-      // Update the sub-header text span only if slideTitle is not empty
-
       if (subHeaderTitle && slideTitle) {
 
         subHeaderTitle.innerText = slideTitle;
+
+      } else if (subHeaderTitle) {
+
+        subHeaderTitle.innerText = ""; // Clear if no H2
 
       }
 
@@ -936,29 +1171,31 @@ z(k_T+T) = \underbrace{\begin{bmatrix} G &amp; 0_{n \times p} \\ C &amp; I_{p \t
 
     
 
-    // Wait for Reveal.js to be ready
+    // --- Reveal.on('ready', ...) ---
+
+    // Keep this mostly the same to initialize currentLectureTitle
+
+    // and call updateHeaderContent for the first slide.
 
     Reveal.on('ready', event => {
 
-      // --- Set the Static Lecture Title (Left Header) ---
-
-      // Get it from the H2 within the title slide's .title-block div
-
       let headerLeft = document.getElementById('header-left');
 
-      let firstSlide = event.currentSlide; // The first slide IS the title slide on ready
+      let firstSlide = event.currentSlide;
 
-      let titleElement = firstSlide.querySelector('.title-block h1'); // <<<< TARGET THE H2 in .title-block
+      // Use H1 from .title-block on the *very first slide* to set the default lecture title
+
+      let titleElement = document.querySelector('.reveal .slides section:first-of-type .title-block h1');
 
     
 
       if (titleElement) {
 
-          currentLectureTitle = titleElement.innerText.trim(); // Store the lecture title
+          currentLectureTitle = titleElement.innerText.trim();
 
       } else {
 
-          // Fallback if the structure isn't found
+          // Fallback logic...
 
           let docTitle = document.title;
 
@@ -972,37 +1209,43 @@ z(k_T+T) = \underbrace{\begin{bmatrix} G &amp; 0_{n \times p} \\ C &amp; I_{p \t
 
           } else {
 
-            currentLectureTitle = "Lecture"; // Generic fallback
+            currentLectureTitle = "Lecture";
 
           }
 
       }
 
-      // Set the text for the left header span
+      // Initial Lecture Title setting (might be overridden by data-attribute on first slide)
 
-      if (headerLeft) {
+      // if (headerLeft) {
 
-        headerLeft.innerText = currentLectureTitle;
+      //   headerLeft.innerText = currentLectureTitle;
 
-      }
+      // }
 
     
 
-      // --- Set initial Section Title based on first slide's H1 ---
+      // --- Set initial Section Title based on first slide's H1 (if no data-attribute) ---
 
-      let firstH1 = firstSlide.querySelector('h1'); // Still look for H1 for section
+      // let firstH1 = firstSlide.querySelector('h1');
 
-      if (firstH1) {
+      // if (firstH1 && firstSlide.dataset.headerRight === undefined) { // Check attribute
 
-        currentSectionTitle = firstH1.innerText.trim(); // Store initial section
+      //   currentSectionTitle = firstH1.innerText.trim();
 
-      }
+      // }
 
-      // --- Run initial update (handles H2 and visibility based on H1) ---
+    
+
+      // --- Run initial update ---
+
+      // This will now check attributes on the first slide
 
       updateHeaderContent(firstSlide);
 
     });
+
+    
 
     
 

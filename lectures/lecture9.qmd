@@ -206,7 +206,7 @@ For MIMO systems, pole placement is significantly more complex. Specifying only 
 
 **Example of a simple MIMO system:**
 $$
-\begin{align} x(kT+T) &= \begin{bmatrix} 1 & 0.5 \\ 0 & 0.8 \end{bmatrix} x(kT) + \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} u(kT)
+\begin{align} x(kT+T) &= \begin{bmatrix} 1 & 0.1 \\ 0 & 0.8 \end{bmatrix} x(kT) + \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} u(kT)
 \end{align}
 $$
 
@@ -218,8 +218,8 @@ We want to place the poles at $0.4$ and $0.6$, by using $u(kT) = -Kx(kT)$, where
 The characteristic polynomial is given by: 
 $$
 \begin{align}
-&\det(zI - (G-HK)) = \det\left(\begin{bmatrix} z-1+k_1 & k_2-0.1 \\ k_3 & z-0.5+k_4\end{bmatrix}\right) \\ 
-
+&\det(zI - (G-HK)) = \det\left(\begin{bmatrix} z-1+k_1 & k_2-0.1 \\ k_3 & z-0.8+k_4\end{bmatrix}\right) \\
+&= z^2 + (k_1 + k_4 - 1.8)z + (0.1k_3 - k_4 - 0.8k_1 + k_1k_4 - k_2k_3 + 0.8)
 \end{align}
 $$
 
@@ -227,7 +227,7 @@ $$
 
 The desired characteristic polynomial is given by:
 $$
-(z-0.4)(z-0.6) = z^2 - 1.0z + 0.24
+(z-0.4)(z-0.6) = z^2 - 1z + 0.24
 $$
 
 . . .
@@ -235,7 +235,8 @@ $$
 When we equate the coefficients, we get:
 $$
 \begin{cases}
-
+(k_1 + k_4 - 1.8) = -1 \\
+0.1k_3 - k_4 - 0.8k_1 + k_1k_4 - k_2k_3 + 0.8 = 0.24
 \end{cases}
 $$
 
@@ -251,52 +252,55 @@ This seems like a good idea, but it is not. The problem is that differente choic
 
 . . .
 
-Consider the following two cases of gains matrices $K_1$ and $K_2$, both of which lead to the same eigenvalues:
+Let $k_2 = k_3 = 0$ and consider the following two cases of gains matrices $K_1$ and $K_2$, both of which lead assign the closed-loop eigenvalues to the desired values:
+$$
+K_1 = \begin{bmatrix} 0.6 & 0 \\ 0 & 0.2 \end{bmatrix}, \quad K_2 = \begin{bmatrix} 0.4 & 0 \\ 0 & 0.4 \end{bmatrix}
 $$
 
-$$
-
-Both of correctly assign the eigenvalues we wanted. But let's simulate the system with both $K_1$ and $K_2$.
+Both of which lead to the same eigenvalues we wanted. But let's simulate the system with both $K_1$ and $K_2$.
 
 ```{python}
-#| output-location: column
+#| output-location: column-fragment
 #| results: hold
 #| echo: true
 import numpy as np
 import matplotlib.pyplot as plt
 import control as ctrl
-from scipy.signal import lti, step
+# from scipy.signal import lti, step # Removed unused import
 
 # Create the system matrices
-A = np.array([[0.5, 0.1], [0, 0.5]])
+A = np.array([[1, 0.1], [0, 0.8]])
 B = np.array([[1, 0], [0, 1]])
-C = np.array([[1, 0], [0, 1]])
+C = np.array([[1, 0], [0, 1]]) # Assuming C outputs the state directly for this example
 D = np.array([[0, 0], [0, 0]])
-K1 = np.array([[0.5, 0], [0, 0.5]])
-K2 = np.array([[0, 0], [0, 0.5]])
+K1 = np.array([[0.6, 0], [0, 0.2]])  # Updated K1
+K2 = np.array([[0.4, 0], [0, 0.4]])  # Updated K2
 G1 = A - B @ K1
 G2 = A - B @ K2
 
-# Create the LTI systems
-sys1 = ctrl.ss(G1, B, C, D)
-sys2 = ctrl.ss(G2, B, C, D)
+# Create the closed-loop LTI systems (using G1, G2 as the new 'A' matrices)
+# Note: We don't need B for initial response, but control.ss requires it.
+# We'll use the original B, C, D for consistency, though B and D aren't used in initial_response.
+sys1 = ctrl.ss(G1, B, C, D, 0.1) # Using dt=0.1 based on context
+sys2 = ctrl.ss(G2, B, C, D, 0.1) # Using dt=0.1 based on context
 
 # Simulate for initial condition x0 = [1, 0]
 x0 = np.array([1, 0])
-t = np.linspace(0, 10, 1000)
+t_end = 1.5 # Reduced simulation time for clarity
+t = np.arange(0, t_end, 0.1) # Time vector with dt=0.1
 t1, y1 = ctrl.initial_response(sys1, T=t, X0=x0)
 t2, y2 = ctrl.initial_response(sys2, T=t, X0=x0)
 
 plt.figure(figsize=(10, 5))
-plt.plot(t1, y1[0, :], label='K1 - Output 1')
-plt.plot(t1, y1[1, :], label='K1 - Output 2')
-plt.plot(t2, y2[0, :], label='K2 - Output 1', linestyle='--')
-plt.plot(t2, y2[1, :], label='K2 - Output 2', linestyle='--')
-plt.title('Step Response with Different K Matrices')
-plt.xlabel('Time [s]')
-plt.ylabel('Output')
+plt.plot(t1, y1[0, :], label='K1 - x1')
+plt.plot(t1, y1[1, :], label='K1 - x2')
+plt.plot(t2, y2[0, :], label='K2 - x1', linestyle='--')
+plt.plot(t2, y2[1, :], label='K2 - x2', linestyle='--')
+plt.title('Initial Condition Response ($x_0=[1, 0]^T$) with Different K Matrices') # Corrected title
+plt.xlabel('Time (steps * dt)') # Adjusted label if dt is used
+plt.ylabel('State Values') # Changed label as C=I
 plt.legend()
-plt.grid()
+plt.grid(True) # Added grid
 plt.show()
 ```
 
