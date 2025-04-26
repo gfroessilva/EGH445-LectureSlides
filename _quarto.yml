@@ -54,9 +54,6 @@ format:
     css: custom.scss
     toc: true
   revealjs:
-    # js: _extensions/headerscript/headerscript.js # Custom JS for header/footer
-    # revealjs-plugins:
-    #   - headerscript
     # --- Widescreen Settings ---
     width: 1280  # Example for 16:9
     height: 720   # Example for 16:9

@@ -22,6 +22,12 @@ $highlight-box-border: #A0C4E4; // Slightly darker blue border (guess)
 
 /*-- scss:rules --*/
 
+.list-style-numbered ul{
+  list-style-type: decimal; /* Remove bullets */
+  // padding-left: 0; /* Remove default padding */
+  // margin-left: 0; /* Remove default margin */
+}
+
 // General Revealjs adjustments
 .reveal {
   .slide-content {
@@ -277,4 +283,3 @@ body.titleslide .slide-footer {
 //   height: 100%; /* Use viewport height */
 //   /* position: relative; was already set, keep it */
 // }
-

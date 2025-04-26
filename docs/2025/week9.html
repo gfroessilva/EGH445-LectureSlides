@@ -6,8 +6,8 @@
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-b719d3d4935f2b08311a76135e2bf442.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.28">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.27">
 
   <title>EGH445 Modern Control – week9</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -28,7 +28,7 @@
       vertical-align: middle;
     }
   </style>
-  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-7878241950fc167ffc3a46950a64047a.css">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-2ece5c28b4f67afd026fc65ac1fbbec1.css">
   <link href="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -140,13 +140,9 @@
 <section id="diversity-in-stem" class="slide level2" data-header-left="Week 9" data-header-right="Events">
 <h2>Diversity in STEM</h2>
 <p><a href="https://events.humanitix.com/diversity-in-stem-night"><img data-src="images/paste-1.png" alt="Diversity in STEM Banner"></a></p>
+
+
 </section>
-<section id="diversity-in-stem-1" class="slide level2" data-header-left="Week 9" data-header-right="Events">
-<h2>Diversity in STEM</h2>
-
-
-
-<img data-src="images/paste-1.png" alt="Diversity in STEM Banner" class="r-stretch"></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
@@ -345,7 +341,15 @@
     </script>
     <div class="slide-footer">
 
-        <img src="../qut_logo.jpg" alt="QUT Logo" class="qut-logo"> <span class="course-code"><a href="../index.html">EGH445 Modern Control</a></span>
+        <img src="../qut_logo.jpg" alt="QUT Logo" class="qut-logo"> 
+
+        <span class="course-code">
+
+          <!-- <a href="../index.html">EGH445 Modern Control</a> -->
+
+          EGH445 Modern Control
+
+        </span>
 
       </div>
     <script>
@@ -362,199 +366,9 @@
 
     let currentLectureTitle = "";
 
-    
+    // Variable to store the last seen H2 title (Slide Title)
 
-    // Function to update header elements based on the current slide
-
-    // function updateHeaderContent(currentSlide) {
-
-    //   // Get references to the header elements using their IDs
-
-    //   let headerLeft = document.getElementById('header-left');
-
-    //   let headerRight = document.getElementById('header-right');
-
-    //   let subHeaderContainer = document.getElementById('sub-header-container');
-
-    //   let subHeaderTitle = document.getElementById('sub-header-title');
-
-    
-
-    //   // --- Lecture Title (Static) ---
-
-    //   // Set this based on the value captured during the 'ready' event
-
-    //   if (headerLeft && currentLectureTitle) {
-
-    //       headerLeft.innerText = currentLectureTitle;
-
-    //   }
-
-    
-
-    //   // --- Section Title (H1 - Update only if found) ---
-
-    //   // --- Also use H1 presence to hide/show sub-header ---
-
-    //   let h1Element = currentSlide.querySelector('h1');
-
-    //   if (h1Element) {
-
-    //     // H1 FOUND (Section Title Slide)
-
-    //     currentSectionTitle = h1Element.innerText.trim();
-
-    //     if (headerRight) {
-
-    //         headerRight.innerText = currentSectionTitle;
-
-    //     }
-
-    //     if (subHeaderContainer) {
-
-    //         subHeaderContainer.style.display = 'none';
-
-    //     }
-
-    //   } else {
-
-    //     // NO H1 FOUND (Regular Slide)
-
-    //      if (headerRight) {
-
-    //         headerRight.innerText = currentSectionTitle; // Use stored value
-
-    //     }
-
-    //     if (subHeaderContainer) {
-
-    //         subHeaderContainer.style.display = 'block'; // Or 'flex' if needed
-
-    //     }
-
-    //   }
-
-    
-
-    //   // // --- Slide Title (H2 - Update always if found, text only) ---
-
-    //   // let h2Element = currentSlide.querySelector('h2');
-
-    //   // // IMPORTANT: Exclude the H2 from the custom title slide's content
-
-    //   // // We check if the parent section has the 'title-slide-custom' class
-
-    //   // let slideTitle = "";
-
-    //   // if (h2Element && !currentSlide.classList.contains('title-slide-custom')) {
-
-    //   //     slideTitle = h2Element.innerText.trim();
-
-    //   // }
-
-    
-
-    //   // // Update the sub-header text span
-
-    //   // if (subHeaderTitle) {
-
-    //   //   subHeaderTitle.innerText = slideTitle;
-
-    //   // }
-
-    //   // --- Slide Title (H2 - Update only if found, text only) ---
-
-    //   let h2Element = currentSlide.querySelector('h2');
-
-    //   let slideTitle = "";
-
-    //   if (h2Element && !currentSlide.classList.contains('title-slide-custom')) {
-
-    //       slideTitle = h2Element.innerText.trim();
-
-    //   }
-
-    
-
-    //   // Update the sub-header text span only if slideTitle is not empty
-
-    //   if (subHeaderTitle && slideTitle) {
-
-    //     subHeaderTitle.innerText = slideTitle;
-
-    //   }
-
-    // }
-
-    
-
-    // // Wait for Reveal.js to be ready
-
-    // Reveal.on('ready', event => {
-
-    //   // --- Set the Static Lecture Title (Left Header) ---
-
-    //   // Get it from the H2 within the title slide's .title-block div
-
-    //   let headerLeft = document.getElementById('header-left');
-
-    //   let firstSlide = event.currentSlide; // The first slide IS the title slide on ready
-
-    //   let titleElement = firstSlide.querySelector('.title-block h1'); // <<<< TARGET THE H2 in .title-block
-
-    
-
-    //   if (titleElement) {
-
-    //       currentLectureTitle = titleElement.innerText.trim(); // Store the lecture title
-
-    //   } else {
-
-    //       // Fallback if the structure isn't found
-
-    //       let docTitle = document.title;
-
-    //       if (docTitle && docTitle.includes('|')) {
-
-    //         currentLectureTitle = docTitle.split('|')[0].trim();
-
-    //       } else if (docTitle) {
-
-    //         currentLectureTitle = docTitle.trim();
-
-    //       } else {
-
-    //         currentLectureTitle = "Lecture"; // Generic fallback
-
-    //       }
-
-    //   }
-
-    //   // Set the text for the left header span
-
-    //   if (headerLeft) {
-
-    //     headerLeft.innerText = currentLectureTitle;
-
-    //   }
-
-    
-
-    //   // --- Set initial Section Title based on first slide's H1 ---
-
-    //   let firstH1 = firstSlide.querySelector('h1'); // Still look for H1 for section
-
-    //   if (firstH1) {
-
-    //     currentSectionTitle = firstH1.innerText.trim(); // Store initial section
-
-    //   }
-
-    //   // --- Run initial update (handles H2 and visibility based on H1) ---
-
-    //   updateHeaderContent(firstSlide);
-
-    // });
+    let currentSlideTitle = "";
 
     
 
@@ -686,29 +500,23 @@
 
     
 
-    
-
       // --- Sub-Header Title (H2) ---
-
-      // (Keep your existing H2 logic for the sub-header title)
 
       let h2Element = currentSlide.querySelector('h2');
 
-      let slideTitle = "";
+      // Only update currentSlideTitle when an H2 is found AND has non-empty text
 
-      if (h2Element && !currentSlide.classList.contains('title-slide-custom')) {
+      if (h2Element && !currentSlide.classList.contains('title-slide-custom') && h2Element.innerText.trim() !== "") {
 
-          slideTitle = h2Element.innerText.trim();
+          currentSlideTitle = h2Element.innerText.trim(); // Store the H2 text when found
 
       }
 
-      if (subHeaderTitle && slideTitle) {
+      // Always apply the currentSlideTitle (whether it was just updated or is persisting from a previous slide)
 
-        subHeaderTitle.innerText = slideTitle;
+      if (subHeaderTitle && currentSlideTitle !== "") {
 
-      } else if (subHeaderTitle) {
-
-        subHeaderTitle.innerText = ""; // Clear if no H2
+        subHeaderTitle.innerText = currentSlideTitle;
 
       }
 
@@ -717,10 +525,6 @@
     
 
     // --- Reveal.on('ready', ...) ---
-
-    // Keep this mostly the same to initialize currentLectureTitle
-
-    // and call updateHeaderContent for the first slide.
 
     Reveal.on('ready', event => {
 
@@ -760,25 +564,17 @@
 
       }
 
-      // Initial Lecture Title setting (might be overridden by data-attribute on first slide)
+      
 
-      // if (headerLeft) {
+      // Initialize currentSlideTitle from the first slide if it has an H2 with non-empty text
 
-      //   headerLeft.innerText = currentLectureTitle;
+      let firstH2 = firstSlide.querySelector('h2');
 
-      // }
+      if (firstH2 && !firstSlide.classList.contains('title-slide-custom') && firstH2.innerText.trim() !== "") {
 
-    
+        currentSlideTitle = firstH2.innerText.trim();
 
-      // --- Set initial Section Title based on first slide's H1 (if no data-attribute) ---
-
-      // let firstH1 = firstSlide.querySelector('h1');
-
-      // if (firstH1 && firstSlide.dataset.headerRight === undefined) { // Check attribute
-
-      //   currentSectionTitle = firstH1.innerText.trim();
-
-      // }
+      }
 
     
 
@@ -789,8 +585,6 @@
       updateHeaderContent(firstSlide);
 
     });
-
-    
 
     
 
