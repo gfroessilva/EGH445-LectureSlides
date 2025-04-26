@@ -299,7 +299,7 @@ G = e^{AT}, \quad H = \left[\int_0^T e^{A\tau} d\tau\right] B \quad \left(\text{
 <div class="fragment">
 <p><strong>State-feedback controller:</strong> <span class="math display">
 \begin{align*}
-u(k) = -Kx(kT)
+u(kT) = -Kx(kT)
 \end{align*}
 </span></p>
 <p>where <span class="math inline">K</span> is the feedback gain matrix that is designed to arbitrarily move the poles of the closed-loop system <span class="math display">
@@ -451,7 +451,7 @@ x(kT+T) = (G-HK)x(kT)
 K_1 = \begin{bmatrix} 0.6 &amp; 0 \\ 0 &amp; 0.2 \end{bmatrix}, \quad K_2 = \begin{bmatrix} 0.4 &amp; 0 \\ 0 &amp; 0.4 \end{bmatrix}
 </span></p>
 <p>Both of which lead to the same eigenvalues we wanted. But let’s simulate the system with both <span class="math inline">K_1</span> and <span class="math inline">K_2</span>.</p>
-<div id="915166e7" class="cell columns column-output-location" data-results="hold" data-execution_count="1">
+<div id="5b69cb82" class="cell columns column-output-location" data-results="hold" data-execution_count="1">
 <div class="column">
 <div class="sourceCode cell-code" id="cb1" data-code-line-numbers="1-3|5-8|9-10|11-12|15-17|23-24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -621,7 +621,7 @@ B = \frac{\partial}{\partial u}(-x + x^3 + u) \Big|_{x=0, u=0} = 1
 </div>
 </div>
 </div>
-<div id="c0e1a146" class="cell columns column-output-location" data-results="hold" data-execution_count="2">
+<div id="dc1d5917" class="cell columns column-output-location" data-results="hold" data-execution_count="2">
 <div class="column">
 <div class="sourceCode cell-code" id="cb2" data-code-line-numbers="1-3|8-11|13-18|20-23|29-37|42-63|104-120"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb2-2"><a></a><span class="im">from</span> scipy.integrate <span class="im">import</span> solve_ivp</span>
@@ -854,7 +854,7 @@ J = \sum_{k=0}^{\infty} \left( x(kT)^T Q x(kT) + u(kT)^T R u(kT) \right), \quad 
 K = (R + H^\intercal P H)^{-1} H^\intercal P G,
 </span></p>
 <div class="fragment">
-<p>which depends on the <em>unique, symmetric, positive semi-definite</em> solution <span class="math inline">S</span> of the <strong>Discrete Algebraic Riccati Equation (DARE)</strong>: <span class="math display">
+<p>which depends on the <em>unique, symmetric, positive semi-definite</em> solution <span class="math inline">P</span> of the <strong>Discrete Algebraic Riccati Equation (DARE)</strong>: <span class="math display">
 P = G^\intercal PG - (G^\intercal PH)(R+H^\intercal PH)^{-1}(H^\intercal PG) + Q,
 </span></p>
 <div class="inline-footnote">
@@ -978,7 +978,7 @@ P = 15.2571 \text{ or } P = -7.2624
 <li class="fragment"><strong>Pick the <em>positive semi-definite</em> solution</strong>: <span class="math inline">P = 15.2571</span>.</li>
 <li class="fragment"><strong>Compute the gain</strong> <span class="math inline">K = (R + H^\intercal P H)^{-1} H^\intercal P G = 5.519</span>.</li>
 </ul>
-<div id="f7a88ba3" class="cell columns column-output-location" data-results="hold" data-execution_count="3">
+<div id="a5a608bf" class="cell columns column-output-location" data-results="hold" data-execution_count="3">
 <div class="column">
 <div class="sourceCode cell-code" id="cb4" data-code-line-numbers="3|30-32|34-49|"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb4-2"><a></a><span class="im">from</span> scipy.integrate <span class="im">import</span> solve_ivp</span>
@@ -1141,7 +1141,7 @@ Linear Closed-Loop Pole = 0.381. (STABLE)</code></pre>
 <p>Consider the MIMO system with two states and two inputs: <span class="math display">
 \begin{align*} x(kT+T) &amp;= \begin{bmatrix} 1 &amp; 0.1 \\ 0 &amp; 0.8 \end{bmatrix} x(kT) + \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} u(kT) \\ y(kT) &amp;= Cx(kT) + Du(kT) \end{align*}
 </span></p>
-<div id="bd364741" class="cell columns column-output-location" data-results="hold" data-execution_count="4">
+<div id="5d2db87c" class="cell columns column-output-location" data-results="hold" data-execution_count="4">
 <div class="column">
 <div class="sourceCode cell-code" id="cb6" data-code-line-numbers=""><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb6-2"><a></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -1232,7 +1232,7 @@ eig(G - H @ K3) = [0.00980006 0.0078745 ]</code></pre>
 </section>
 <section id="quick-example-of-dlqr-tuning" class="slide level2">
 <h2>Quick Example of DLQR Tuning</h2>
-<div id="b9ed73b3" class="cell" data-code-block-height="300px" data-results="hold" data-execution_count="5">
+<div id="25ac7a1c" class="cell" data-code-block-height="300px" data-results="hold" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8" data-code-line-numbers=""><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a><span class="co"># Iterate over different Q values and simulate the system</span></span>
@@ -1287,151 +1287,177 @@ eig(G - H @ K3) = [0.00980006 0.0078745 ]</code></pre>
 <ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">Unsaturated LQR</a></li><li><a href="#tabset-1-2">Saturated LQR</a></li><li><a href="#tabset-1-3">MPC</a></li></ul>
 <div class="tab-content">
 <div id="tabset-1-1">
-<div id="ad73ca70" class="cell columns column-output-location" data-execution_count="6">
+<div id="0c90ad95" class="cell columns column-output-location" data-execution_count="6">
 <div class="column">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a><span class="co"># Scenario 1: Unconstrained LQR for Nonzero Regulation (Self-Contained)</span></span>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a><span class="co"># Scenario 1: Unconstrained LQR for Nonzero Regulation (Damped 2nd Order System)</span></span>
 <span id="cb9-2"><a></a></span>
 <span id="cb9-3"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb9-4"><a></a><span class="im">from</span> scipy.integrate <span class="im">import</span> solve_ivp</span>
-<span id="cb9-5"><a></a><span class="im">from</span> scipy.linalg <span class="im">import</span> solve_discrete_are</span>
-<span id="cb9-6"><a></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb9-7"><a></a><span class="im">import</span> time</span>
-<span id="cb9-8"><a></a></span>
-<span id="cb9-9"><a></a><span class="co"># print("--- Running Scenario 1: Unconstrained LQR (Nonzero Setpoint) ---")</span></span>
-<span id="cb9-10"><a></a></span>
-<span id="cb9-11"><a></a><span class="co"># --- 1. System Definition ---</span></span>
-<span id="cb9-12"><a></a><span class="co"># Stable continuous system: dx/dt = -x + u</span></span>
-<span id="cb9-13"><a></a>a <span class="op">=</span> <span class="op">-</span><span class="fl">1.0</span></span>
-<span id="cb9-14"><a></a>b <span class="op">=</span> <span class="fl">1.0</span></span>
-<span id="cb9-15"><a></a><span class="kw">def</span> system_ode(t, x, u, a_par, b_par):</span>
-<span id="cb9-16"><a></a>    <span class="co"># x is a 1-element array</span></span>
-<span id="cb9-17"><a></a>    <span class="cf">return</span> a_par <span class="op">*</span> x[<span class="dv">0</span>] <span class="op">+</span> b_par <span class="op">*</span> u</span>
-<span id="cb9-18"><a></a></span>
-<span id="cb9-19"><a></a><span class="co"># --- 2. Discretization ---</span></span>
-<span id="cb9-20"><a></a>Ts <span class="op">=</span> <span class="fl">0.1</span> <span class="co"># Sampling time</span></span>
-<span id="cb9-21"><a></a>Ac <span class="op">=</span> np.array([[a]])</span>
-<span id="cb9-22"><a></a>Bc <span class="op">=</span> np.array([[b]])</span>
-<span id="cb9-23"><a></a>Ad <span class="op">=</span> np.array([[np.exp(a <span class="op">*</span> Ts)]])</span>
-<span id="cb9-24"><a></a>Bd <span class="op">=</span> np.array([[(np.exp(a <span class="op">*</span> Ts) <span class="op">-</span> <span class="dv">1</span>) <span class="op">/</span> a <span class="op">*</span> b]])</span>
-<span id="cb9-25"><a></a>n_states <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb9-26"><a></a>m_inputs <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb9-27"><a></a><span class="co"># print(f"Discrete System: Ad = {Ad[0,0]:.3f}, Bd = {Bd[0,0]:.3f}")</span></span>
-<span id="cb9-28"><a></a></span>
-<span id="cb9-29"><a></a><span class="co"># --- 3. Setpoint ---</span></span>
-<span id="cb9-30"><a></a>x_ref <span class="op">=</span> <span class="fl">2.0</span></span>
-<span id="cb9-31"><a></a>u_ref <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> Ad[<span class="dv">0</span>,<span class="dv">0</span>]) <span class="op">/</span> Bd[<span class="dv">0</span>,<span class="dv">0</span>] <span class="op">*</span> x_ref <span class="co"># Calculate for discrete system</span></span>
-<span id="cb9-32"><a></a><span class="co"># print(f"Setpoint: x_ref = {x_ref:.2f}, requires u_ref = {u_ref:.2f}")</span></span>
-<span id="cb9-33"><a></a>x_eq_ref <span class="op">=</span> np.array([x_ref]) <span class="co"># Target state for reference</span></span>
+<span id="cb9-5"><a></a><span class="im">from</span> scipy.linalg <span class="im">import</span> solve_discrete_are, expm</span>
+<span id="cb9-6"><a></a><span class="im">from</span> scipy.signal <span class="im">import</span> cont2discrete</span>
+<span id="cb9-7"><a></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb9-8"><a></a><span class="im">import</span> time</span>
+<span id="cb9-9"><a></a></span>
+<span id="cb9-10"><a></a><span class="bu">print</span>(<span class="st">"--- Running Scenario 1: Unconstrained LQR (Nonzero Setpoint, Damped System) ---"</span>)</span>
+<span id="cb9-11"><a></a></span>
+<span id="cb9-12"><a></a><span class="co"># --- 1. System Definition ---</span></span>
+<span id="cb9-13"><a></a><span class="co"># Continuous system: dx/dt = Ac*x + Bc*u</span></span>
+<span id="cb9-14"><a></a><span class="co"># x = [y, y_dot]^T = [x1, x2]^T</span></span>
+<span id="cb9-15"><a></a><span class="co"># d(x1)/dt = x2</span></span>
+<span id="cb9-16"><a></a><span class="co"># d(x2)/dt = x1 - c*x2 + u</span></span>
+<span id="cb9-17"><a></a>c_damping <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb9-18"><a></a>Ac <span class="op">=</span> np.array([[<span class="fl">0.</span>, <span class="fl">1.</span>], [<span class="fl">1.</span>, <span class="op">-</span>c_damping]])</span>
+<span id="cb9-19"><a></a>Bc <span class="op">=</span> np.array([[<span class="fl">0.</span>], [<span class="fl">1.</span>]])</span>
+<span id="cb9-20"><a></a>n_states <span class="op">=</span> Ac.shape[<span class="dv">0</span>]</span>
+<span id="cb9-21"><a></a>m_inputs <span class="op">=</span> Bc.shape[<span class="dv">1</span>]</span>
+<span id="cb9-22"><a></a></span>
+<span id="cb9-23"><a></a><span class="kw">def</span> system_ode(t, x, u, Ac_mat, Bc_mat):</span>
+<span id="cb9-24"><a></a>    u_val <span class="op">=</span> u <span class="cf">if</span> np.isscalar(u) <span class="cf">else</span> u[<span class="dv">0</span>]</span>
+<span id="cb9-25"><a></a>    dxdt <span class="op">=</span> Ac_mat <span class="op">@</span> x <span class="op">+</span> Bc_mat <span class="op">@</span> np.array([u_val])</span>
+<span id="cb9-26"><a></a>    <span class="cf">return</span> dxdt.flatten()</span>
+<span id="cb9-27"><a></a></span>
+<span id="cb9-28"><a></a><span class="co"># --- 2. Discretization ---</span></span>
+<span id="cb9-29"><a></a>Ts <span class="op">=</span> <span class="fl">0.1</span> <span class="co"># Sampling time</span></span>
+<span id="cb9-30"><a></a>Ad, Bd, _, _, _ <span class="op">=</span> cont2discrete((Ac, Bc, np.eye(n_states), np.zeros((n_states, m_inputs))), Ts, method<span class="op">=</span><span class="st">'zoh'</span>)</span>
+<span id="cb9-31"><a></a><span class="bu">print</span>(<span class="st">"--- Discrete Model ---"</span>)</span>
+<span id="cb9-32"><a></a><span class="bu">print</span>(<span class="ss">f"Ad = </span><span class="ch">\n</span><span class="sc">{</span>Ad<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb9-33"><a></a><span class="bu">print</span>(<span class="ss">f"Bd = </span><span class="ch">\n</span><span class="sc">{</span>Bd<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb9-34"><a></a></span>
-<span id="cb9-35"><a></a><span class="co"># --- 4. DLQR Design (for error regulation) ---</span></span>
-<span id="cb9-36"><a></a><span class="co"># Weights for error cost: sum(Qd*xtilde^2 + Rd*utilde^2)</span></span>
-<span id="cb9-37"><a></a>Qd <span class="op">=</span> <span class="fl">10.0</span></span>
-<span id="cb9-38"><a></a>Rd <span class="op">=</span> <span class="fl">1.0</span> <span class="co"># Using less aggressive weights</span></span>
-<span id="cb9-39"><a></a>Q_dare <span class="op">=</span> np.array([[Qd]])</span>
-<span id="cb9-40"><a></a>R_dare <span class="op">=</span> np.array([[Rd]])</span>
-<span id="cb9-41"><a></a><span class="cf">try</span>:</span>
-<span id="cb9-42"><a></a>    S <span class="op">=</span> solve_discrete_are(Ad, Bd, Q_dare, R_dare)</span>
-<span id="cb9-43"><a></a>    Kd_term1 <span class="op">=</span> R_dare <span class="op">+</span> Bd.T <span class="op">@</span> S <span class="op">@</span> Bd</span>
-<span id="cb9-44"><a></a>    Kd_term2 <span class="op">=</span> Bd.T <span class="op">@</span> S <span class="op">@</span> Ad</span>
-<span id="cb9-45"><a></a>    Kd <span class="op">=</span> np.linalg.inv(Kd_term1) <span class="op">@</span> Kd_term2</span>
-<span id="cb9-46"><a></a>    K_lqr <span class="op">=</span> Kd[<span class="dv">0</span>, <span class="dv">0</span>] <span class="co"># Scalar gain for error feedback</span></span>
-<span id="cb9-47"><a></a>    <span class="bu">print</span>(<span class="ss">f"DLQR Gain for error K = </span><span class="sc">{</span>K_lqr<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
-<span id="cb9-48"><a></a><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
-<span id="cb9-49"><a></a>    <span class="bu">print</span>(<span class="ss">f"DLQR Design failed: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)<span class="op">;</span> exit()</span>
-<span id="cb9-50"><a></a></span>
-<span id="cb9-51"><a></a></span>
-<span id="cb9-52"><a></a><span class="bu">print</span>(<span class="ss">f"Control Limits: [-inf, inf]"</span>)</span>
+<span id="cb9-35"><a></a><span class="co"># --- 3. Setpoint ---</span></span>
+<span id="cb9-36"><a></a>x_ref <span class="op">=</span> np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]) <span class="co"># Target state y=1, y_dot=0</span></span>
+<span id="cb9-37"><a></a><span class="co"># Calculate corresponding u_ref for discrete system</span></span>
+<span id="cb9-38"><a></a><span class="co"># x_ref = Ad*x_ref + Bd*u_ref =&gt; Bd*u_ref = (I-Ad)*x_ref</span></span>
+<span id="cb9-39"><a></a><span class="co"># Use pseudo-inverse if Bd is not square: u_ref = pinv(Bd) @ (I-Ad) @ x_ref</span></span>
+<span id="cb9-40"><a></a><span class="cf">try</span>:</span>
+<span id="cb9-41"><a></a>    u_ref_vec <span class="op">=</span> np.linalg.pinv(Bd) <span class="op">@</span> (np.eye(n_states) <span class="op">-</span> Ad) <span class="op">@</span> x_ref</span>
+<span id="cb9-42"><a></a>    u_ref <span class="op">=</span> u_ref_vec[<span class="dv">0</span>] <span class="co"># Extract scalar</span></span>
+<span id="cb9-43"><a></a>    <span class="co"># Verify continuous u_ref = -x1_ref = -1</span></span>
+<span id="cb9-44"><a></a>    <span class="bu">print</span>(<span class="ss">f"Setpoint: x_ref = </span><span class="sc">{</span>x_ref<span class="sc">.</span>T<span class="sc">}</span><span class="ss">, requires discrete u_ref = </span><span class="sc">{</span>u_ref<span class="sc">:.3f}</span><span class="ss"> (cont. u_ref=-1.0)"</span>)</span>
+<span id="cb9-45"><a></a><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb9-46"><a></a>    <span class="bu">print</span>(<span class="ss">f"Could not calculate discrete u_ref: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">. Using continuous u_ref."</span>)</span>
+<span id="cb9-47"><a></a>    u_ref <span class="op">=</span> <span class="op">-</span>x_ref[<span class="dv">0</span>] <span class="co"># Use continuous calculation</span></span>
+<span id="cb9-48"><a></a></span>
+<span id="cb9-49"><a></a><span class="co"># --- 4. DLQR Design (for error regulation) ---</span></span>
+<span id="cb9-50"><a></a><span class="co"># Weights for error cost: sum(xtilde' Q xtilde + utilde' R utilde)</span></span>
+<span id="cb9-51"><a></a>Qd <span class="op">=</span> np.diag([<span class="fl">1.0</span>, <span class="fl">0.1</span>]) <span class="co"># Penalize position x1 more</span></span>
+<span id="cb9-52"><a></a>Rd <span class="op">=</span> np.array([[<span class="fl">0.01</span>]])   <span class="co"># Aggressive: Low penalty on control effort</span></span>
 <span id="cb9-53"><a></a></span>
-<span id="cb9-54"><a></a><span class="co"># --- 5. Simulation Setup ---</span></span>
-<span id="cb9-55"><a></a>t_start <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb9-56"><a></a>t_end <span class="op">=</span> <span class="fl">5.0</span></span>
-<span id="cb9-57"><a></a>n_steps <span class="op">=</span> <span class="bu">int</span>(t_end <span class="op">/</span> Ts)</span>
-<span id="cb9-58"><a></a>x0 <span class="op">=</span> <span class="fl">0.0</span> <span class="co"># Initial condition (start from origin)</span></span>
-<span id="cb9-59"><a></a></span>
-<span id="cb9-60"><a></a><span class="co"># --- Helper function for interval simulation ---</span></span>
-<span id="cb9-61"><a></a><span class="kw">def</span> simulate_interval(ode_func, t_start, x_start, duration, control_val):</span>
-<span id="cb9-62"><a></a>    t_eval_interval <span class="op">=</span> [t_start <span class="op">+</span> duration]</span>
-<span id="cb9-63"><a></a>    sol_interval <span class="op">=</span> solve_ivp(</span>
-<span id="cb9-64"><a></a>        ode_func, (t_start, t_start <span class="op">+</span> duration), x_start, method<span class="op">=</span><span class="st">'RK45'</span>,</span>
-<span id="cb9-65"><a></a>        t_eval<span class="op">=</span>t_eval_interval, args<span class="op">=</span>(control_val,)</span>
-<span id="cb9-66"><a></a>    )</span>
-<span id="cb9-67"><a></a>    <span class="cf">if</span> sol_interval.status <span class="op">!=</span> <span class="dv">0</span>: <span class="cf">return</span> <span class="va">None</span>, <span class="va">False</span></span>
-<span id="cb9-68"><a></a>    <span class="cf">return</span> sol_interval.y[:, <span class="op">-</span><span class="dv">1</span>], <span class="va">True</span></span>
-<span id="cb9-69"><a></a></span>
-<span id="cb9-70"><a></a><span class="co"># --- 6. Simulation Loop ---</span></span>
-<span id="cb9-71"><a></a>t_history <span class="op">=</span> [t_start]</span>
-<span id="cb9-72"><a></a>x_history <span class="op">=</span> [np.array([x0])] <span class="co"># Store as list of arrays</span></span>
-<span id="cb9-73"><a></a>u_history <span class="op">=</span> []</span>
-<span id="cb9-74"><a></a>current_t <span class="op">=</span> t_start</span>
-<span id="cb9-75"><a></a>current_x <span class="op">=</span> np.array([x0])</span>
-<span id="cb9-76"><a></a>success_run <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb9-77"><a></a></span>
-<span id="cb9-78"><a></a>start_sim_time <span class="op">=</span> time.time()</span>
-<span id="cb9-79"><a></a><span class="co"># print("Running simulation...")</span></span>
-<span id="cb9-80"><a></a><span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(n_steps):</span>
-<span id="cb9-81"><a></a>    x_error <span class="op">=</span> current_x[<span class="dv">0</span>] <span class="op">-</span> x_ref</span>
-<span id="cb9-82"><a></a>    <span class="co"># Control Law: u[k] = u_ref - K*(x[k]-x_ref)</span></span>
-<span id="cb9-83"><a></a>    u_k <span class="op">=</span> u_ref <span class="op">-</span> K_lqr <span class="op">*</span> x_error</span>
-<span id="cb9-84"><a></a>    <span class="co"># NO SATURATION APPLIED HERE</span></span>
-<span id="cb9-85"><a></a>    u_history.append(u_k)</span>
+<span id="cb9-54"><a></a><span class="cf">try</span>:</span>
+<span id="cb9-55"><a></a>    S <span class="op">=</span> solve_discrete_are(Ad, Bd, Qd, Rd)</span>
+<span id="cb9-56"><a></a>    Kd_term1 <span class="op">=</span> Rd <span class="op">+</span> Bd.T <span class="op">@</span> S <span class="op">@</span> Bd</span>
+<span id="cb9-57"><a></a>    Kd_term2 <span class="op">=</span> Bd.T <span class="op">@</span> S <span class="op">@</span> Ad</span>
+<span id="cb9-58"><a></a>    Kd <span class="op">=</span> np.linalg.inv(Kd_term1) <span class="op">@</span> Kd_term2 <span class="co"># Gain is 1x2</span></span>
+<span id="cb9-59"><a></a>    <span class="bu">print</span>(<span class="ss">f"DLQR Gain for error K = </span><span class="sc">{</span>Kd<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb9-60"><a></a><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb9-61"><a></a>    <span class="bu">print</span>(<span class="ss">f"DLQR Design failed: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)<span class="op">;</span> exit()</span>
+<span id="cb9-62"><a></a></span>
+<span id="cb9-63"><a></a><span class="co"># --- 5. Simulation Setup ---</span></span>
+<span id="cb9-64"><a></a>t_start <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb9-65"><a></a>t_end <span class="op">=</span> <span class="fl">6.0</span></span>
+<span id="cb9-66"><a></a>n_steps <span class="op">=</span> <span class="bu">int</span>(t_end <span class="op">/</span> Ts)</span>
+<span id="cb9-67"><a></a>x0 <span class="op">=</span> np.array([<span class="fl">0.0</span>, <span class="fl">0.0</span>]) <span class="co"># Initial condition (start from origin)</span></span>
+<span id="cb9-68"><a></a></span>
+<span id="cb9-69"><a></a><span class="co"># --- Helper function for interval simulation ---</span></span>
+<span id="cb9-70"><a></a><span class="kw">def</span> simulate_interval(ode_func, t_start, x_start, duration, control_val):</span>
+<span id="cb9-71"><a></a>    t_eval_interval <span class="op">=</span> [t_start <span class="op">+</span> duration]</span>
+<span id="cb9-72"><a></a>    sol_interval <span class="op">=</span> solve_ivp(</span>
+<span id="cb9-73"><a></a>        ode_func, (t_start, t_start <span class="op">+</span> duration), x_start, method<span class="op">=</span><span class="st">'RK45'</span>,</span>
+<span id="cb9-74"><a></a>        t_eval<span class="op">=</span>t_eval_interval, args<span class="op">=</span>(control_val,)</span>
+<span id="cb9-75"><a></a>    )</span>
+<span id="cb9-76"><a></a>    <span class="cf">if</span> sol_interval.status <span class="op">!=</span> <span class="dv">0</span>: <span class="cf">return</span> <span class="va">None</span>, <span class="va">False</span></span>
+<span id="cb9-77"><a></a>    <span class="cf">return</span> sol_interval.y[:, <span class="op">-</span><span class="dv">1</span>], <span class="va">True</span></span>
+<span id="cb9-78"><a></a></span>
+<span id="cb9-79"><a></a><span class="co"># --- 6. Simulation Loop ---</span></span>
+<span id="cb9-80"><a></a>t_history <span class="op">=</span> [t_start]</span>
+<span id="cb9-81"><a></a>x_history <span class="op">=</span> [x0]</span>
+<span id="cb9-82"><a></a>u_history <span class="op">=</span> []</span>
+<span id="cb9-83"><a></a>current_t <span class="op">=</span> t_start</span>
+<span id="cb9-84"><a></a>current_x <span class="op">=</span> x0.copy()</span>
+<span id="cb9-85"><a></a>success_run <span class="op">=</span> <span class="va">True</span></span>
 <span id="cb9-86"><a></a></span>
-<span id="cb9-87"><a></a>    <span class="kw">def</span> ode_lqr_interval(t, y, u_val):</span>
-<span id="cb9-88"><a></a>        <span class="cf">return</span> system_ode(t, y, u_val, a, b)</span>
-<span id="cb9-89"><a></a></span>
-<span id="cb9-90"><a></a>    next_x, success <span class="op">=</span> simulate_interval(ode_lqr_interval, current_t, current_x, Ts, u_k)</span>
-<span id="cb9-91"><a></a></span>
-<span id="cb9-92"><a></a>    <span class="cf">if</span> <span class="kw">not</span> success:</span>
-<span id="cb9-93"><a></a>        <span class="bu">print</span>(<span class="ss">f"ODE solver failed at t=</span><span class="sc">{</span>current_t<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
-<span id="cb9-94"><a></a>        success_run <span class="op">=</span> <span class="va">False</span><span class="op">;</span> <span class="cf">break</span></span>
-<span id="cb9-95"><a></a></span>
-<span id="cb9-96"><a></a>    current_t <span class="op">+=</span> Ts</span>
-<span id="cb9-97"><a></a>    current_x <span class="op">=</span> next_x</span>
-<span id="cb9-98"><a></a>    t_history.append(current_t)</span>
-<span id="cb9-99"><a></a>    x_history.append(current_x.copy()) <span class="co"># Append copy</span></span>
-<span id="cb9-100"><a></a></span>
-<span id="cb9-101"><a></a>    <span class="cf">if</span> np.<span class="bu">max</span>(np.<span class="bu">abs</span>(current_x)) <span class="op">&gt;</span> <span class="dv">100</span>: <span class="co"># Divergence check</span></span>
-<span id="cb9-102"><a></a>        <span class="bu">print</span>(<span class="ss">f"State diverging excessively at t=</span><span class="sc">{</span>current_t<span class="sc">:.2f}</span><span class="ss">. Stopping."</span>)</span>
-<span id="cb9-103"><a></a>        success_run <span class="op">=</span> <span class="va">False</span><span class="op">;</span> <span class="cf">break</span></span>
-<span id="cb9-104"><a></a></span>
-<span id="cb9-105"><a></a><span class="bu">print</span>(<span class="ss">f"Simulation loop time: </span><span class="sc">{</span>time<span class="sc">.</span>time() <span class="op">-</span> start_sim_time<span class="sc">:.2f}</span><span class="ss"> s"</span>)</span>
-<span id="cb9-106"><a></a></span>
-<span id="cb9-107"><a></a><span class="co"># --- 7. Plotting ---</span></span>
-<span id="cb9-108"><a></a><span class="cf">if</span> success_run:</span>
-<span id="cb9-109"><a></a>    t_history <span class="op">=</span> np.array(t_history)</span>
-<span id="cb9-110"><a></a>    x_history <span class="op">=</span> np.array(x_history).T[<span class="dv">0</span>,:] <span class="co"># Extract scalar state history</span></span>
-<span id="cb9-111"><a></a>    u_history <span class="op">=</span> np.array(u_history)</span>
-<span id="cb9-112"><a></a>    n_plot <span class="op">=</span> <span class="bu">len</span>(u_history) <span class="co"># Successful steps</span></span>
-<span id="cb9-113"><a></a></span>
-<span id="cb9-114"><a></a>    <span class="co"># Define consistent plot limits</span></span>
-<span id="cb9-115"><a></a>    xlims <span class="op">=</span> (t_start, t_end)</span>
-<span id="cb9-116"><a></a>    ylims_x <span class="op">=</span> (<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">2.5</span>)</span>
-<span id="cb9-117"><a></a>    ylims_u <span class="op">=</span> (<span class="op">-</span><span class="fl">3.5</span>, <span class="fl">5.5</span>) <span class="co"># Wider range to potentially show large unconstrained values</span></span>
-<span id="cb9-118"><a></a></span>
-<span id="cb9-119"><a></a>    plt.figure(<span class="st">"Unconstrained LQR (Nonzero Setpoint)"</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">8</span>))</span>
-<span id="cb9-120"><a></a>    plt.rcParams.update({<span class="st">'font.size'</span>: <span class="dv">12</span>})</span>
-<span id="cb9-121"><a></a></span>
-<span id="cb9-122"><a></a>    plt.subplot(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>)</span>
-<span id="cb9-123"><a></a>    plt.plot(t_history[:n_plot<span class="op">+</span><span class="dv">1</span>], x_history[:n_plot<span class="op">+</span><span class="dv">1</span>], label<span class="op">=</span><span class="st">'State x(t)'</span>, lw<span class="op">=</span><span class="dv">2</span>, marker<span class="op">=</span><span class="st">'.'</span>)</span>
-<span id="cb9-124"><a></a>    plt.axhline(x_ref, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, label<span class="op">=</span><span class="ss">f'Setpoint x=</span><span class="sc">{</span>x_ref<span class="sc">}</span><span class="ss">'</span>)</span>
-<span id="cb9-125"><a></a>    plt.ylabel(<span class="st">'State x'</span>)</span>
-<span id="cb9-126"><a></a>    plt.title(<span class="ss">f'Unconstrained LQR (Setpoint x=</span><span class="sc">{</span>x_ref<span class="sc">}</span><span class="ss">)'</span>)</span>
-<span id="cb9-127"><a></a>    plt.ylim(ylims_x)<span class="op">;</span> plt.xlim(xlims)<span class="op">;</span> plt.grid(<span class="va">True</span>)<span class="op">;</span> plt.legend()</span>
-<span id="cb9-128"><a></a></span>
-<span id="cb9-129"><a></a>    plt.subplot(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">2</span>)</span>
-<span id="cb9-130"><a></a>    plt.step(t_history[:n_plot], u_history[:n_plot], where<span class="op">=</span><span class="st">'post'</span>, label<span class="op">=</span><span class="st">'Control u[k]'</span>, lw<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb9-131"><a></a>    plt.axhline(u_ref, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, label<span class="op">=</span><span class="ss">f'Steady-State u=</span><span class="sc">{</span>u_ref<span class="sc">:.2f}</span><span class="ss">'</span>)</span>
-<span id="cb9-132"><a></a>    plt.ylabel(<span class="st">'Control Input u'</span>)</span>
-<span id="cb9-133"><a></a>    plt.xlabel(<span class="st">'Time (s)'</span>)</span>
-<span id="cb9-134"><a></a>    plt.ylim(ylims_u)<span class="op">;</span> plt.xlim(xlims)<span class="op">;</span> plt.grid(<span class="va">True</span>)<span class="op">;</span> plt.legend()</span>
-<span id="cb9-135"><a></a></span>
-<span id="cb9-136"><a></a>    plt.tight_layout()</span>
-<span id="cb9-137"><a></a>    plt.show()</span>
-<span id="cb9-138"><a></a><span class="cf">else</span>:</span>
-<span id="cb9-139"><a></a>    <span class="bu">print</span>(<span class="st">"Simulation failed, not plotting."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-87"><a></a>start_sim_time <span class="op">=</span> time.time()</span>
+<span id="cb9-88"><a></a><span class="bu">print</span>(<span class="st">"Running simulation..."</span>)</span>
+<span id="cb9-89"><a></a><span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(n_steps):</span>
+<span id="cb9-90"><a></a>    x_error <span class="op">=</span> current_x <span class="op">-</span> x_ref</span>
+<span id="cb9-91"><a></a>    <span class="co"># Control Law: u[k] = u_ref - K*(x[k]-x_ref)</span></span>
+<span id="cb9-92"><a></a>    u_k_vec <span class="op">=</span> u_ref <span class="op">-</span> Kd <span class="op">@</span> x_error</span>
+<span id="cb9-93"><a></a>    u_k <span class="op">=</span> u_k_vec[<span class="dv">0</span>] <span class="co"># Extract scalar control</span></span>
+<span id="cb9-94"><a></a>    <span class="co"># NO SATURATION APPLIED HERE</span></span>
+<span id="cb9-95"><a></a>    u_history.append(u_k)</span>
+<span id="cb9-96"><a></a></span>
+<span id="cb9-97"><a></a>    <span class="kw">def</span> ode_lqr_interval(t, y, u_val):</span>
+<span id="cb9-98"><a></a>        <span class="cf">return</span> system_ode(t, y, u_val, Ac, Bc)</span>
+<span id="cb9-99"><a></a></span>
+<span id="cb9-100"><a></a>    next_x, success <span class="op">=</span> simulate_interval(ode_lqr_interval, current_t, current_x, Ts, u_k)</span>
+<span id="cb9-101"><a></a></span>
+<span id="cb9-102"><a></a>    <span class="cf">if</span> <span class="kw">not</span> success:</span>
+<span id="cb9-103"><a></a>        <span class="bu">print</span>(<span class="ss">f"ODE solver failed at t=</span><span class="sc">{</span>current_t<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb9-104"><a></a>        success_run <span class="op">=</span> <span class="va">False</span><span class="op">;</span> <span class="cf">break</span></span>
+<span id="cb9-105"><a></a></span>
+<span id="cb9-106"><a></a>    current_t <span class="op">+=</span> Ts</span>
+<span id="cb9-107"><a></a>    current_x <span class="op">=</span> next_x</span>
+<span id="cb9-108"><a></a>    t_history.append(current_t)</span>
+<span id="cb9-109"><a></a>    x_history.append(current_x.copy())</span>
+<span id="cb9-110"><a></a></span>
+<span id="cb9-111"><a></a>    <span class="cf">if</span> np.<span class="bu">max</span>(np.<span class="bu">abs</span>(current_x)) <span class="op">&gt;</span> <span class="dv">100</span>: <span class="co"># Divergence check</span></span>
+<span id="cb9-112"><a></a>        <span class="bu">print</span>(<span class="ss">f"State diverging excessively at t=</span><span class="sc">{</span>current_t<span class="sc">:.2f}</span><span class="ss">. Stopping."</span>)</span>
+<span id="cb9-113"><a></a>        success_run <span class="op">=</span> <span class="va">False</span><span class="op">;</span> <span class="cf">break</span></span>
+<span id="cb9-114"><a></a></span>
+<span id="cb9-115"><a></a><span class="bu">print</span>(<span class="ss">f"Simulation loop time: </span><span class="sc">{</span>time<span class="sc">.</span>time() <span class="op">-</span> start_sim_time<span class="sc">:.2f}</span><span class="ss"> s"</span>)</span>
+<span id="cb9-116"><a></a></span>
+<span id="cb9-117"><a></a><span class="co"># --- 7. Plotting ---</span></span>
+<span id="cb9-118"><a></a><span class="cf">if</span> success_run:</span>
+<span id="cb9-119"><a></a>    t_history <span class="op">=</span> np.array(t_history)</span>
+<span id="cb9-120"><a></a>    x_history <span class="op">=</span> np.array(x_history).T <span class="co"># Shape is (n_states, n_points)</span></span>
+<span id="cb9-121"><a></a>    u_history <span class="op">=</span> np.array(u_history)</span>
+<span id="cb9-122"><a></a>    n_plot <span class="op">=</span> <span class="bu">len</span>(u_history)</span>
+<span id="cb9-123"><a></a></span>
+<span id="cb9-124"><a></a>    <span class="co"># Define consistent plot limits (adjust if needed)</span></span>
+<span id="cb9-125"><a></a>    xlims <span class="op">=</span> (t_start, t_end)</span>
+<span id="cb9-126"><a></a>    ylims_x1 <span class="op">=</span> (<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">1.5</span>)</span>
+<span id="cb9-127"><a></a>    ylims_x2 <span class="op">=</span> (<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">1.5</span>)</span>
+<span id="cb9-128"><a></a>    ylims_u <span class="op">=</span> (<span class="op">-</span><span class="dv">4</span>, <span class="dv">1</span>) <span class="co"># Adjusted for u_ref=-1 and expected transient</span></span>
+<span id="cb9-129"><a></a></span>
+<span id="cb9-130"><a></a>    plt.figure(<span class="st">"Unconstrained LQR (Nonzero Setpoint, Damped)"</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">9</span>))</span>
+<span id="cb9-131"><a></a>    plt.rcParams.update({<span class="st">'font.size'</span>: <span class="dv">12</span>})</span>
+<span id="cb9-132"><a></a></span>
+<span id="cb9-133"><a></a>    plt.subplot(<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb9-134"><a></a>    plt.plot(t_history[:n_plot<span class="op">+</span><span class="dv">1</span>], x_history[<span class="dv">0</span>,:n_plot<span class="op">+</span><span class="dv">1</span>], label<span class="op">=</span><span class="st">'$x_1$ (y)'</span>, lw<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb9-135"><a></a>    plt.axhline(x_ref[<span class="dv">0</span>], color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, label<span class="op">=</span><span class="ss">f'Setpoint $x_1=</span><span class="sc">{</span>x_ref[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">$'</span>)</span>
+<span id="cb9-136"><a></a>    plt.title(<span class="ss">f'Unconstrained LQR (Setpoint x=[</span><span class="sc">{</span>x_ref[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">,</span><span class="sc">{</span>x_ref[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">]^T)'</span>)</span>
+<span id="cb9-137"><a></a>    plt.ylabel(<span class="st">'Position $x_1$'</span>)</span>
+<span id="cb9-138"><a></a>    plt.ylim(ylims_x1)<span class="op">;</span> plt.xlim(xlims)<span class="op">;</span> plt.grid(<span class="va">True</span>)<span class="op">;</span> plt.legend()</span>
+<span id="cb9-139"><a></a></span>
+<span id="cb9-140"><a></a>    plt.subplot(<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb9-141"><a></a>    plt.plot(t_history[:n_plot<span class="op">+</span><span class="dv">1</span>], x_history[<span class="dv">1</span>,:n_plot<span class="op">+</span><span class="dv">1</span>], label<span class="op">=</span><span class="st">'$x_2$ (dy/dt)'</span>, lw<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb9-142"><a></a>    plt.axhline(x_ref[<span class="dv">1</span>], color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, label<span class="op">=</span><span class="ss">f'Setpoint $x_2=</span><span class="sc">{</span>x_ref[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">$'</span>)</span>
+<span id="cb9-143"><a></a>    plt.ylabel(<span class="st">'Velocity $x_2$'</span>)</span>
+<span id="cb9-144"><a></a>    plt.ylim(ylims_x2)<span class="op">;</span> plt.xlim(xlims)<span class="op">;</span> plt.grid(<span class="va">True</span>)<span class="op">;</span> plt.legend()</span>
+<span id="cb9-145"><a></a></span>
+<span id="cb9-146"><a></a>    plt.subplot(<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">3</span>)</span>
+<span id="cb9-147"><a></a>    plt.step(t_history[:n_plot], u_history[:n_plot], where<span class="op">=</span><span class="st">'post'</span>, label<span class="op">=</span><span class="st">'Control u[k]'</span>, lw<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb9-148"><a></a>    plt.axhline(u_ref, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, label<span class="op">=</span><span class="ss">f'Steady-State u=</span><span class="sc">{</span>u_ref<span class="sc">:.2f}</span><span class="ss">'</span>)</span>
+<span id="cb9-149"><a></a>    plt.ylabel(<span class="st">'Control Input u'</span>)</span>
+<span id="cb9-150"><a></a>    plt.xlabel(<span class="st">'Time (s)'</span>)</span>
+<span id="cb9-151"><a></a>    plt.ylim(ylims_u)<span class="op">;</span> plt.xlim(xlims)<span class="op">;</span> plt.grid(<span class="va">True</span>)<span class="op">;</span> plt.legend()</span>
+<span id="cb9-152"><a></a></span>
+<span id="cb9-153"><a></a>    plt.tight_layout()</span>
+<span id="cb9-154"><a></a>    plt.show()</span>
+<span id="cb9-155"><a></a><span class="cf">else</span>:</span>
+<span id="cb9-156"><a></a>    <span class="bu">print</span>(<span class="st">"Simulation failed, not plotting."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div><div class="column">
 <div class="cell-output cell-output-stdout">
-<pre><code>DLQR Gain for error K = 1.956
-Control Limits: [-inf, inf]
+<pre><code>--- Running Scenario 1: Unconstrained LQR (Nonzero Setpoint, Damped System) ---
+--- Discrete Model ---
+Ad = 
+[[1.00492178 0.09770379]
+ [0.09770379 0.95606989]]
+Bd = 
+[[0.00492178]
+ [0.09770379]]
+Setpoint: x_ref = [1. 0.], requires discrete u_ref = -1.000 (cont. u_ref=-1.0)
+DLQR Gain for error K = [[8.76224795 4.36193866]]
+Running simulation...
 Simulation loop time: 0.02 s</code></pre>
 </div>
 <div class="cell-output cell-output-display">
@@ -1444,7 +1470,7 @@ Simulation loop time: 0.02 s</code></pre>
 </div></div>
 </div>
 <div id="tabset-1-2">
-<div id="5fb061f1" class="cell columns column-output-location" data-execution_count="7">
+<div id="ffaad4fd" class="cell columns column-output-location" data-execution_count="7">
 <div class="column">
 <div class="sourceCode cell-code" id="cb11" data-code-line-numbers=""><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a></a><span class="co"># Scenario 2: Saturated LQR for Nonzero Regulation (Damped 2nd Order System)</span></span>
 <span id="cb11-2"><a></a></span>
@@ -1616,7 +1642,7 @@ Simulation loop time: 0.03 s</code></pre>
 </div></div>
 </div>
 <div id="tabset-1-3">
-<div id="6dda2b3d" class="cell columns column-output-location" data-execution_count="8">
+<div id="750d464f" class="cell columns column-output-location" data-execution_count="8">
 <div class="column">
 <div class="sourceCode cell-code" id="cb13" data-code-line-numbers=""><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a></a><span class="co"># Scenario 3: MPC for Nonzero Regulation (Damped 2nd Order System)</span></span>
 <span id="cb13-2"><a></a></span>
@@ -1813,7 +1839,7 @@ Simulation loop time: 0.03 s</code></pre>
 MPC CVXPY Problem defined.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>MPC Simulation loop time: 18.55 s</code></pre>
+<pre><code>MPC Simulation loop time: 13.07 s</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
@@ -1859,6 +1885,52 @@ MPC CVXPY Problem defined.</code></pre>
 <li class="fragment">MPC is more complex and computationally intensive than LQR.</li>
 <li class="fragment">MPC’s performance depends on the accuracy of the system model.</li>
 </ul>
+</div>
+</section></section>
+<section>
+<section id="annexes" class="title-slide slide level1 center">
+<h1>Annexes</h1>
+
+</section>
+<section id="quadratic-forms-and-positiveness" class="slide level2 smaller scrollable">
+<h2>Quadratic Forms and Positiveness</h2>
+<p>For a square matrix <span class="math inline">P</span> and a vector <span class="math inline">x</span>, the product <span class="math inline">x^\intercal P x</span> is a <strong>scalar</strong> called a <strong>quadratic form</strong>.</p>
+<p>For example, <span class="math inline">\; [x_1, x_2] \begin{bmatrix} 1 &amp; 2 \\ 3 &amp; 4 \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \end{bmatrix} = 1x_1^2 + 2x_1x_2 + 3x_1x_2 + 4x_2^2</span>.</p>
+<p><span class="fragment"><span class="math inline">P\succeq 0</span> means that <span class="math inline">P</span> is positive semi-definite, i.e.&nbsp;<span class="math inline">x^T P x \geq 0</span> for all <span class="math inline">x \in \mathbb{R}^n</span>.</span></p>
+<p><span class="fragment"><span class="math inline">P\succ 0</span> means that <span class="math inline">P</span> is positive definite, i.e.&nbsp;<span class="math inline">x^T P x &gt; 0</span> for all <span class="math inline">x \in \mathbb{R}^n</span> and <span class="math inline">x \neq 0</span>.</span></p>
+<div class="fragment">
+<ul>
+<li>A symmetric matrix <span class="math inline">P</span> is positive definite if (and only if)
+<ul>
+<li>all its <strong>eigenvalues</strong> are positive.</li>
+<li>all its <strong>principal minors</strong> are positive. <span class="math display">
+P = \begin{bmatrix} p_{1,1} &amp; p_{1,2} &amp; p_{1,3} \\
+    p_{2,1} &amp; p_{2,2} &amp; p_{2,3} \\ p_{3,1} &amp; p_{3,2} &amp; p_{3,3} \end{bmatrix} \succ 0 \iff p_{1,1} &gt; 0, \; det\begin{bmatrix} p_{1,1} &amp; p_{1,2} \\ p_{2,1} &amp; p_{2,2} \end{bmatrix} &gt; 0, \; det(P) &gt; 0
+</span></li>
+</ul></li>
+</ul>
+</div>
+</section>
+<section id="lqr-cost-function-and-tuning" class="slide level2 smaller">
+<h2>LQR Cost Function and Tuning</h2>
+<p>Note that the cost function is a <strong>quadratic form</strong> in the state and control variables.</p>
+<div class="fragment">
+<p><span class="math display">
+J = \sum_{k=0}^{\infty} (x(k)^\intercal Q x(k) + u(k)^\intercal R u(k))
+</span></p>
+</div>
+<div class="fragment">
+<p>Consider <span class="math inline">x(k) = [x_1(k), x_2(k)]^\intercal</span> and <span class="math inline">u(k) = [u_1(k), u_2(k)]^\intercal</span>. The cost function can be expressed as:</p>
+</div>
+<div class="fragment">
+<p><span class="math display">
+\begin{align*}
+J &amp;= \sum_{k=0}^{\infty} (q_{1,1}x_1(k)^2 + q_{1,2}x_1(k)x_2(k) + q_{2,1}x_2(k)x_1(k) + q_{2,2}x_2(k)^2 \\ &amp;+ r_{1,1}u_1(k)^2 + r_{1,2}u_1(k)u_2(k) + r_{2,1}u_2(k)u_1(k) + r_{2,2}u_2(k)^2)
+\end{align*}
+</span></p>
+</div>
+<div class="fragment">
+<p>Notice that you have freedom to <strong>tune</strong> the individual weights <span class="math inline">q_{i,j}</span> and <span class="math inline">r_{i,j}</span> in the cost function.</p>
 
 
 </div>
