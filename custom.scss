@@ -283,3 +283,59 @@ body.titleslide .slide-footer {
 //   height: 100%; /* Use viewport height */
 //   /* position: relative; was already set, keep it */
 // }
+
+/* Rule specifically for print media */
+@media print {
+  .reveal .slides section.scrollable {
+    /* Ensure the container allows its content to determine height for printing */
+    height: auto !important;
+    overflow: visible !important; /* Make overflow visible for printing */
+  }
+
+  .print-page-break {
+    page-break-before: always !important; /* Force a page break *before* this element */
+  }
+
+  /* Optional: Try to prevent breaks inside common elements */
+  .reveal pre, .reveal code, .reveal table, .reveal img, .reveal figure {
+     page-break-inside: avoid !important;
+  }
+}
+
+/* Optional: Rules for screen/live view */
+@media screen {
+  .print-page-break {
+    /* You might add some margin for visual separation in the live scrollable view */
+    margin-top: 30px;
+  }
+}
+
+
+#code150 code.sourceCode {
+  height: 150px;
+}
+
+#code200 code.sourceCode {
+  max-height: 200px; /* Use max-height */
+  overflow-y: auto;  /* Add overflow for scrolling */
+}
+
+#code250 code.sourceCode {
+  height: 250px;
+}
+
+#code300 code.sourceCode {
+  max-height: 300px;
+}
+
+#code350 code.sourceCode {
+  height: 350px;
+}
+
+#code400 code.sourceCode {
+  height: 400px;
+}
+
+#code450 code.sourceCode {
+  height: 450px;
+}

@@ -1,0 +1,93 @@
+---
+format:
+#   pdf: default
+  revealjs:
+    # revealjs-plugins:
+    #   - plugin/OneTimer
+    # embed-resources: true
+    chalkboard: true
+    scrollable: true
+    # pdf-separate-fragments: true
+    # pdf-max-pages-per-slide: 100
+--- 
+
+## Title Slide {data-state="titleslide" .title-slide-custom}
+
+<div class="logo-container-title">
+  <img src="../qut_logo.jpg" alt="QUT Logo"/>
+</div>
+
+<div class="title-block">
+  <h1>Discrete-Time Control Design 3</h1> <h2>Optimal Control</h2> 
+</div>
+
+<div class="author-block-title">
+  Dr Guilherme Froes Silva<br/>
+  School of Electrical Engineering & Robotics<br/>
+  Queensland University of Technology
+</div>
+
+<div class="course-code-title">
+  EGH445 - Modern Control
+</div>
+
+<!-- <div class="website-link-title">
+  <a href="../index.html">
+    Website
+  </a>
+</div> -->
+
+<div class="contact-box-title">
+  Consultation: GP-S1111<br/>
+  Email: g.froessilva@qut.edu.au
+</div>
+
+# Overview {data-state="overview"}
+
+- Testing code
+
+## Python Code
+
+```{python}
+#| echo: true
+#| id: code200
+import numpy as np
+import matplotlib.pyplot as plt 
+# 2
+# 1
+# 1
+# 1
+# 1 
+# 1
+# 1
+# 1
+# 1
+# 1# 1
+# 1
+# 1
+# 1
+# 1 
+# 1
+# 1
+# 1
+# 1
+# 1# 1
+# 1
+# 1
+# 1
+# 1 
+# 1
+# 1
+# 1
+# 1
+# 1# 1
+# 1
+# 1
+# 1
+# 1 
+# 1
+# 1
+# 1
+# 1
+# 1
+```

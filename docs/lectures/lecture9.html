@@ -94,7 +94,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-2ece5c28b4f67afd026fc65ac1fbbec1.css">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-340579894df40c8a7e696098a2e3717d.css">
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
@@ -266,53 +266,47 @@ Optimal Control
 <section id="quick-review-of-some-of-the-content-so-far" class="slide level2 smaller scrollable" data-state="review" style="overflow-y:auto;overflow-x:hidden;">
 <h2>Quick review of (some of) the content so far</h2>
 <div class="fragment">
-<p><strong>Continuous-time system:</strong> <span class="math display">
-\begin{align*}\dot{x}(t) &amp;= f(x, u), \\ y(t) &amp;= g(x, u) \end{align*}
-</span></p>
+<p><strong>Continuous-time system:</strong> <span class="math display">\begin{align*}
+\dot{x}(t) &amp;= f(x, u), \\
+y(t) &amp;= g(x, u)
+\end{align*}</span></p>
 </div>
 <div class="fragment">
-<p><strong>Linearised system:</strong> <span class="math display">
-\begin{align*}
+<p><strong>Linearised system:</strong> <span class="math display">\begin{align*}
 \delta\dot{x}(t) &amp;= A\delta x(t) + B \delta u(t),  \\
 \delta y(t) &amp;= C\delta x(t) + D\delta u(t),
-\end{align*}
-</span></p>
-<p>where <span class="math inline">\delta x = x - \bar x</span>, <span class="math inline">\delta u = u - \bar u</span>, <span class="math inline">\delta y = y - \bar y</span>, and the <span class="math inline">A</span>, <span class="math inline">B</span>, <span class="math inline">C</span>, <span class="math inline">D</span> are the matrices <span class="math display">
-\begin{align*}
+\end{align*}</span></p>
+<p>where <span class="math inline">\delta x = x - \bar x</span>, <span class="math inline">\delta u = u - \bar u</span>, <span class="math inline">\delta y = y - \bar y</span>, and the <span class="math inline">A</span>, <span class="math inline">B</span>, <span class="math inline">C</span>, <span class="math inline">D</span> are the matrices</p>
+<p><span class="math display">\begin{align*}
 A = \frac{\partial f}{\partial x} \bigg|_{\bar x, \bar u}
 B = \frac{\partial f}{\partial u} \bigg|_{\bar x, \bar u}
 C = \frac{\partial g}{\partial x} \bigg|_{\bar x, \bar u}
 D = \frac{\partial g}{\partial u} \bigg|_{\bar x, \bar u}
-\end{align*}
-</span></p>
+\end{align*}</span></p>
+<!-- . . .  -->
 </div>
-<div class="fragment">
-<p><strong>Discrete-time system:</strong> <span class="math display">
-\begin{align*} x(kT+T) &amp;= Gx(kT) + Hu(kT), \\ y(kT) &amp;= Cx(kT) + Du(kT), \end{align*}
-</span></p>
-<p>where <span class="math display">
-\begin{align*}
+</section>
+<section id="section" class="slide level2 smaller">
+<h2></h2>
+<p><strong>Discrete-time system:</strong></p>
+<p><span class="math display">\begin{align*} x(kT+T) &amp;= Gx(kT) + Hu(kT), \\ y(kT) &amp;= Cx(kT) + Du(kT), \end{align*}</span></p>
+<p>where</p>
+<p><span class="math display">\begin{align*}
 G = e^{AT}, \quad H = \left[\int_0^T e^{A\tau} d\tau\right] B \quad \left(\text{or, if $A$ is invertible, } H = A^{-1} (G-I)B\right)
-\end{align*}
-</span></p>
-</div>
+\end{align*}</span></p>
 <div class="fragment">
-<p><strong>State-feedback controller:</strong> <span class="math display">
-\begin{align*}
-u(kT) = -Kx(kT)
-\end{align*}
-</span></p>
-<p>where <span class="math inline">K</span> is the feedback gain matrix that is designed to arbitrarily move the poles of the closed-loop system <span class="math display">
-\begin{align*}
+<p><strong>State-feedback controller:</strong> <span class="math inline">\;u(kT) = -Kx(kT)</span>,</p>
+<p>where <span class="math inline">K</span> is the feedback gain matrix that is designed to arbitrarily move the poles of the closed-loop system <span class="math display">\begin{align*}
 x(kT+T) = (G-HK)x(kT)
-\end{align*}
-</span></p>
-<p>for example, by equating the characteristic polynomial of the closed-loop system to a desired polynomial, <span class="math display">
-\begin{align*}
-\det(zI - (G-HK)) = (z - z_1)(z - z_2) \cdots (z - z_n)
-\end{align*}
-</span></p>
+\end{align*}</span></p>
 </div>
+</section>
+<section id="section-1" class="slide level2 smaller">
+<h2></h2>
+<p>This is achieved, for example, by equating the characteristic polynomial of the closed-loop system to a desired polynomial,</p>
+<p><span class="math display">\begin{align*}
+\det(zI - (G-HK)) = (z - z_1)(z - z_2) \cdots (z - z_n)
+\end{align*}</span></p>
 <div class="fragment">
 <div class="callout callout-important callout-titled callout-style-default">
 <div class="callout-body">
@@ -347,10 +341,12 @@ x(kT+T) = (G-HK)x(kT)
 <li class="fragment"><span class="math inline">z_{1,2} = e^{s_{1,2}T}</span></li>
 </ul>
 </div></div>
+<!-- . . . -->
 </div>
-<div class="fragment">
+</section>
+<section id="section-2" class="slide level2 smaller">
+<h2></h2>
 <p>We also saw the <strong>Internal Model Principle</strong> (e.g.&nbsp;<strong>Integral Action</strong>) to reject disturbances (or follow references) with a known model (e.g.&nbsp;a step input, a ramp input, a sinusoidal input, etc.). Those still relied on the <strong>pole placement</strong> approach.</p>
-</div>
 </section></section>
 <section>
 <section id="limitations-of-pole-placement" class="title-slide slide level1 center" data-state="intro">
@@ -368,15 +364,13 @@ x(kT+T) = (G-HK)x(kT)
 <li class="fragment"><strong>Higher-order systems</strong> (4th order, 5th order, etc.)</li>
 <li class="fragment"><strong>MIMO systems</strong> (Multiple Input Multiple Output)</li>
 <li class="fragment"><em>Stiff</em> systems (e.g.&nbsp;with very different time constants, e.g.&nbsp;1ms and 1s)</li>
-<li class="fragment"><strong>Highly nonlinear systems</strong> (i.e.&nbsp;when the linearisation quickly becomes invalid.)</li>
+<li class="fragment"><strong>Highly nonlinear systems</strong> (i.e.&nbsp;linearisation quickly becomes invalid.)</li>
 </ul>
 </div>
 </section>
 <section id="higher-order-systems" class="slide level2">
 <h2>Higher-Order Systems</h2>
-<p><span class="math display">
-\begin{align*} x(kT+T) &amp;= Gx(kT) + Hu(kT), \\ y(kT) &amp;= Cx(kT) + Du(kT), \end{align*}
-</span></p>
+<p><span class="math display">\begin{align*} x(kT+T) &amp;= Gx(kT) + Hu(kT), \\ y(kT) &amp;= Cx(kT) + Du(kT), \end{align*}</span></p>
 <p>where <span class="math inline">\quad x(kT) \in \mathbb{R}^n, \quad u(kT) \in \mathbb{R}, \quad y(kT) \in \mathbb{R}, \quad n &gt; 3</span></p>
 <div class="fragment">
 <div class="callout callout-important callout-titled callout-style-default">
@@ -398,37 +392,30 @@ x(kT+T) = (G-HK)x(kT)
 <section id="mimo-systems" class="slide level2 smaller scrollable">
 <h2>MIMO Systems</h2>
 <p>Let’s start with an example.</p>
-<p>Consider a simple MIMO system with two states and two inputs: <span class="math display">
-\begin{align*} x(kT+T) &amp;= \begin{bmatrix} 1 &amp; 0.1 \\ 0 &amp; 0.8 \end{bmatrix} x(kT) + \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} u(kT)
-\end{align*}
-</span></p>
+<p>Consider a simple MIMO system with two states and two inputs:</p>
+<p><span class="math display">\begin{align*} x(kT+T) &amp;= \begin{bmatrix} 1 &amp; 0.1 \\ 0 &amp; 0.8 \end{bmatrix} x(kT) + \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} u(kT)
+\end{align*}</span></p>
 <p>We want to place the poles at <span class="math inline">0.4</span> and <span class="math inline">0.6</span>, by using <span class="math inline">u(kT) = -Kx(kT)</span>, where <span class="math inline">K = \begin{bmatrix} k_1 &amp; k_2 \\ k_3 &amp; k_4\end{bmatrix}</span>.</p>
 <div class="fragment">
-<p>The characteristic polynomial is given by: <span class="math display">
-\begin{align*}
+<p>The characteristic polynomial is given by:</p>
+<p><span class="math display">\begin{align*}
 &amp;\det(zI - (G-HK)) = \det\left(\begin{bmatrix} z-1+k_1 &amp; k_2-0.1 \\ k_3 &amp; z-0.8+k_4\end{bmatrix}\right) \\
 &amp;= z^2 + (k_1 + k_4 - 1.8)z + (0.1k_3 - k_4 - 0.8k_1 + k_1k_4 - k_2k_3 + 0.8)
-\end{align*}
-</span></p>
+\end{align*}</span></p>
 </div>
 <div class="fragment">
-<p>The desired characteristic polynomial is given by: <span class="math display">
-\begin{align*}
+<p>The desired characteristic polynomial is given by:</p>
+<p><span class="math display">\begin{align*}
 (z-0.4)(z-0.6) = z^2 - 1z + 0.24
-\end{align*}
-</span></p>
-</div>
-<div class="fragment">
-<p>When we equate the coefficients, we get: <span class="math display">
-\begin{align*}
+\end{align*}</span></p>
+<p>When we equate the coefficients, we get:</p>
+<p><span class="math display">\begin{align*}
 \begin{cases}
 (k_1 + k_4 - 1.8) = -1 \\
 0.1k_3 - k_4 - 0.8k_1 + k_1k_4 - k_2k_3 + 0.8 = 0.24
 \end{cases}
-\end{align*}
-</span></p>
-</div>
-<div class="fragment">
+\end{align*}</span></p>
+<!-- . . . -->
 <div class="callout callout-important callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -442,8 +429,7 @@ x(kT+T) = (G-HK)x(kT)
 </div>
 </div>
 </div>
-</div>
-<div class="fragment">
+<!-- . . . -->
 <p>This seems like a good idea, but it is not. The problem is that different choices of <span class="math inline">K</span>, even if they lead to the same <strong>eigenvalues</strong>, can lead to different <strong>eigenvectors</strong>. The closed-loop system’s <strong>eigenvectors</strong> directly affect the <strong>response</strong> of the system.</p>
 </div>
 <div class="fragment">
@@ -451,12 +437,12 @@ x(kT+T) = (G-HK)x(kT)
 K_1 = \begin{bmatrix} 0.6 &amp; 0 \\ 0 &amp; 0.2 \end{bmatrix}, \quad K_2 = \begin{bmatrix} 0.4 &amp; 0 \\ 0 &amp; 0.4 \end{bmatrix}
 </span></p>
 <p>Both of which lead to the same eigenvalues we wanted. But let’s simulate the system with both <span class="math inline">K_1</span> and <span class="math inline">K_2</span>.</p>
-<div id="5b69cb82" class="cell columns column-output-location" data-results="hold" data-execution_count="1">
+<div id="code400" class="cell columns column-output-location" data-results="hold" data-execution_count="1">
 <div class="column">
 <div class="sourceCode cell-code" id="cb1" data-code-line-numbers="1-3|5-8|9-10|11-12|15-17|23-24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a></a><span class="im">import</span> control <span class="im">as</span> ctrl</span>
-<span id="cb1-4"><a></a><span class="co"># Create the system matrices</span></span>
+<span id="cb1-4"><a></a><span class="co"># Create the system matrices  </span></span>
 <span id="cb1-5"><a></a>G <span class="op">=</span> np.array([[<span class="dv">1</span>, <span class="fl">0.1</span>], [<span class="dv">0</span>, <span class="fl">0.8</span>]])</span>
 <span id="cb1-6"><a></a>H <span class="op">=</span> np.array([[<span class="dv">1</span>, <span class="dv">0</span>], [<span class="dv">0</span>, <span class="dv">1</span>]])</span>
 <span id="cb1-7"><a></a>C <span class="op">=</span> np.array([[<span class="dv">1</span>, <span class="dv">0</span>], [<span class="dv">0</span>, <span class="dv">1</span>]]) <span class="co"># Outputs are the states</span></span>
@@ -478,17 +464,20 @@ K_1 = \begin{bmatrix} 0.6 &amp; 0 \\ 0 &amp; 0.2 \end{bmatrix}, \quad K_2 = \beg
 <span id="cb1-23"><a></a>t1, y1 <span class="op">=</span> ctrl.initial_response(sys1, T<span class="op">=</span>t, X0<span class="op">=</span>x0)</span>
 <span id="cb1-24"><a></a>t2, y2 <span class="op">=</span> ctrl.initial_response(sys2, T<span class="op">=</span>t, X0<span class="op">=</span>x0)</span>
 <span id="cb1-25"><a></a></span>
-<span id="cb1-26"><a></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">8</span>))</span>
+<span id="cb1-26"><a></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
 <span id="cb1-27"><a></a>plt.plot(t1, y1[<span class="dv">0</span>, :], label<span class="op">=</span><span class="st">'K1 - x1'</span>, linewidth<span class="op">=</span><span class="dv">3</span>)</span>
 <span id="cb1-28"><a></a>plt.plot(t1, y1[<span class="dv">1</span>, :], label<span class="op">=</span><span class="st">'K1 - x2'</span>, linewidth<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb1-29"><a></a>plt.plot(t2, y2[<span class="dv">0</span>, :], label<span class="op">=</span><span class="st">'K2 - x1'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, linewidth<span class="op">=</span><span class="dv">3</span>) </span>
-<span id="cb1-30"><a></a>plt.plot(t2, y2[<span class="dv">1</span>, :], label<span class="op">=</span><span class="st">'K2 - x2'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, linewidth<span class="op">=</span><span class="dv">3</span>) </span>
-<span id="cb1-31"><a></a>plt.title(<span class="st">'Initial Condition Response ($x_0=[1, 0]^T$) with Different K Matrices'</span>, fontsize<span class="op">=</span><span class="dv">16</span>) </span>
-<span id="cb1-32"><a></a>plt.xlabel(<span class="st">'Time (steps * dt)'</span>, fontsize<span class="op">=</span><span class="dv">14</span>) </span>
-<span id="cb1-33"><a></a>plt.ylabel(<span class="st">'State Values'</span>, fontsize<span class="op">=</span><span class="dv">14</span>) </span>
-<span id="cb1-34"><a></a>plt.legend(fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb1-35"><a></a>plt.grid(<span class="va">True</span>) </span>
-<span id="cb1-36"><a></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-29"><a></a>plt.plot(t2, y2[<span class="dv">0</span>, :], label<span class="op">=</span><span class="st">'K2 - x1'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, </span>
+<span id="cb1-30"><a></a>    linewidth<span class="op">=</span><span class="dv">3</span>) </span>
+<span id="cb1-31"><a></a>plt.plot(t2, y2[<span class="dv">1</span>, :], label<span class="op">=</span><span class="st">'K2 - x2'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, </span>
+<span id="cb1-32"><a></a>    linewidth<span class="op">=</span><span class="dv">3</span>) </span>
+<span id="cb1-33"><a></a>plt.title(<span class="st">'Initial Condition Response ($x_0=[1, 0]^T$) </span><span class="op">\</span></span>
+<span id="cb1-34"><a></a><span class="st">     with Different K Matrices'</span>, fontsize<span class="op">=</span><span class="dv">16</span>) </span>
+<span id="cb1-35"><a></a>plt.xlabel(<span class="st">'Time (steps * dt)'</span>, fontsize<span class="op">=</span><span class="dv">14</span>) </span>
+<span id="cb1-36"><a></a>plt.ylabel(<span class="st">'State Values'</span>, fontsize<span class="op">=</span><span class="dv">14</span>) </span>
+<span id="cb1-37"><a></a>plt.legend(fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb1-38"><a></a>plt.grid(<span class="va">True</span>) </span>
+<span id="cb1-39"><a></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div><div class="column fragment">
 <div class="cell-output cell-output-display">
 <div>
@@ -502,9 +491,7 @@ K_1 = \begin{bmatrix} 0.6 &amp; 0 \\ 0 &amp; 0.2 \end{bmatrix}, \quad K_2 = \beg
 </section>
 <section id="mimo-systems-1" class="slide level2">
 <h2>MIMO Systems</h2>
-<p><span class="math display">
-\begin{align*} x(kT+T) &amp;= Gx(kT) + Hu(kT), \\ y(kT) &amp;= Cx(kT) + Du(kT), \end{align*}
-</span></p>
+<p><span class="math display">\begin{align*} x(kT+T) &amp;= Gx(kT) + Hu(kT), \\ y(kT) &amp;= Cx(kT) + Du(kT), \end{align*}</span></p>
 <p><span class="math inline">x(kT) \in \mathbb{R}^n, \quad u(kT) \in \mathbb{R}^m, \quad y(kT) \in \mathbb{R}^p, \quad n, m, p &gt; 1</span></p>
 <div class="fragment">
 <div class="callout callout-important callout-titled callout-style-default">
@@ -583,9 +570,8 @@ B = \frac{\partial}{\partial u}(-x + x^3 + u) \Big|_{x=0, u=0} = 1
 <p>The linearised continuous-time system is <span class="math inline">\;\boxed{\delta\dot{x}(t) = -\delta x(t) + \delta u(t)}</span>.</p>
 </div>
 <div class="fragment">
-<p><strong>2. Discretise</strong> the system with a sampling time <span class="math inline">T=0.1</span>s: <span class="math display">
-\begin{align*} x(kT+T) &amp;= Gx(kT) + Hu(kT), \quad y(kT) = x(kT) \end{align*}
-</span></p>
+<p><strong>2. Discretise</strong> the system with a sampling time <span class="math inline">T=0.1</span>s:</p>
+<p><span class="math display">\begin{align*} x(kT+T) &amp;= Gx(kT) + Hu(kT), \quad y(kT) = x(kT) \end{align*}</span></p>
 <p>where <span class="math inline">G = e^{-AT} = 0.905</span>, and <span class="math inline">H = A^{-1}(G-I)B = 0.095</span>.</p>
 <p>The discrete-time (linearised) system is <span class="math inline">\boxed{x(kT+T) = 0.905x(kT) + 0.095u(kT)}</span>.</p>
 </div>
@@ -600,9 +586,7 @@ B = \frac{\partial}{\partial u}(-x + x^3 + u) \Big|_{x=0, u=0} = 1
 </div>
 </div>
 <div class="fragment">
-<p><span class="math display">
-\begin{align*} 0.905 - 0.095 K &amp;= 0.5 \\ 0.095 K &amp;= 0.905 - 0.5 = 0.405 \\ K &amp;= \frac{0.405}{0.095} = 4.263 \end{align*}
-</span></p>
+<p><span class="math display">\begin{align*} 0.905 - 0.095 K &amp;= 0.5 \\ 0.095 K &amp;= 0.905 - 0.5 = 0.405 \\ K &amp;= \frac{0.405}{0.095} = 4.263 \end{align*}</span></p>
 <p>So, the linear controller designed for the linearized system is <span class="math inline">\boxed{u(kT) = -4.263 x(kT)}</span>.</p>
 </div>
 <div class="fragment">
@@ -621,7 +605,9 @@ B = \frac{\partial}{\partial u}(-x + x^3 + u) \Big|_{x=0, u=0} = 1
 </div>
 </div>
 </div>
-<div id="dc1d5917" class="cell columns column-output-location" data-results="hold" data-execution_count="2">
+</div>
+<div class="fragment">
+<div id="5ace12ba" class="cell columns column-output-location" data-results="hold" data-execution_count="2">
 <div class="column">
 <div class="sourceCode cell-code" id="cb2" data-code-line-numbers="1-3|8-11|13-18|20-23|29-37|42-63|104-120"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb2-2"><a></a><span class="im">from</span> scipy.integrate <span class="im">import</span> solve_ivp</span>
@@ -965,20 +951,24 @@ P = G^\intercal PG - (G^\intercal PH)(R+H^\intercal PH)^{-1}(H^\intercal PG) + Q
 <li class="fragment"><strong>Controllability</strong>: <span class="math inline">\mathcal{C} = [H,\; GH] = [0.095,\; 0.086475]</span> has full rank (<span class="math inline">\text{rank}(\mathcal{C})=1</span>).</li>
 <li class="fragment"><strong>Cost Matrices</strong>: Select <span class="math inline">Q = 10.0</span> and <span class="math inline">R = 0.1</span>.</li>
 <li class="fragment"><strong>Observability</strong>: <span class="math inline">\mathcal{O} = [V,\; VG]^\intercal</span>, where <span class="math inline">V = \sqrt{Q}</span>. Then <span class="math inline">\mathcal{O} = [3.162,\; 2.857]^\intercal</span>, which has full rank.</li>
-<li class="fragment"><strong>Solution <span class="math inline">P=P^\intercal\succeq 0</span> of the DARE</strong>: <span class="math inline">P - G^\intercal P G + (G^\intercal P H)(R + H^\intercal P H)^{-1}(H^\intercal P G) = Q</span> <span class="math display">
-\begin{align*}
+<li class="fragment"><strong>Solution <span class="math inline">P=P^\intercal\succeq 0</span> of the DARE</strong>: <span class="math inline">P - G^\intercal P G + (G^\intercal P H)(R + H^\intercal P H)^{-1}(H^\intercal P G) = Q</span></li>
+</ul>
+<div class="fragment">
+<p><span class="math display">\begin{align*}
 P - G^2 P + \frac{(G H P)^2}{R + H^2 P} &amp;= Q \\
 (P - G^2 P)(R + H^2 P) + G^2 H^2 P^2 &amp;= Q (R + H^2 P) \\
 P R + H^2 P^2 - G^2 P R - Q R - Q H^2 P &amp;= 0 \\
 (H^2) P^2 + (R - G^2 R - Q H^2) P + (- Q R) &amp;= 0 \\
 0.009 P^2 -0.0722 P - 1 &amp;= 0 \\
 P = 15.2571 \text{ or } P = -7.2624
-\end{align*}
-</span></li>
+\end{align*}</span></p>
+<ul>
 <li class="fragment"><strong>Pick the <em>positive semi-definite</em> solution</strong>: <span class="math inline">P = 15.2571</span>.</li>
 <li class="fragment"><strong>Compute the gain</strong> <span class="math inline">K = (R + H^\intercal P H)^{-1} H^\intercal P G = 5.519</span>.</li>
 </ul>
-<div id="a5a608bf" class="cell columns column-output-location" data-results="hold" data-execution_count="3">
+</div>
+<div class="fragment">
+<div id="290f7f2e" class="cell columns column-output-location" data-results="hold" data-execution_count="3">
 <div class="column">
 <div class="sourceCode cell-code" id="cb4" data-code-line-numbers="3|30-32|34-49|"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb4-2"><a></a><span class="im">from</span> scipy.integrate <span class="im">import</span> solve_ivp</span>
@@ -1135,13 +1125,13 @@ Linear Closed-Loop Pole = 0.381. (STABLE)</code></pre>
 </div>
 </div>
 </div></div>
+</div>
 </section>
 <section id="mimo-example-of-dlqr-design" class="slide level2 smaller scrollable">
 <h2>MIMO Example of DLQR Design</h2>
-<p>Consider the MIMO system with two states and two inputs: <span class="math display">
-\begin{align*} x(kT+T) &amp;= \begin{bmatrix} 1 &amp; 0.1 \\ 0 &amp; 0.8 \end{bmatrix} x(kT) + \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} u(kT) \\ y(kT) &amp;= Cx(kT) + Du(kT) \end{align*}
-</span></p>
-<div id="5d2db87c" class="cell columns column-output-location" data-results="hold" data-execution_count="4">
+<p>Consider the MIMO system with two states and two inputs:</p>
+<p><span class="math display">\begin{align*} x(kT+T) &amp;= \begin{bmatrix} 1 &amp; 0.1 \\ 0 &amp; 0.8 \end{bmatrix} x(kT) + \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} u(kT) \\ y(kT) &amp;= Cx(kT) + Du(kT) \end{align*}</span></p>
+<div id="code300" class="cell columns column-output-location" data-results="hold" data-execution_count="4">
 <div class="column">
 <div class="sourceCode cell-code" id="cb6" data-code-line-numbers=""><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb6-2"><a></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -1162,48 +1152,55 @@ Linear Closed-Loop Pole = 0.381. (STABLE)</code></pre>
 <span id="cb6-17"><a></a>R <span class="op">=</span> np.array([[<span class="fl">0.1</span>, <span class="dv">0</span>], [<span class="dv">0</span>, <span class="fl">0.1</span>]]) <span class="co"># Control weight matrix</span></span>
 <span id="cb6-18"><a></a></span>
 <span id="cb6-19"><a></a><span class="co"># Solve the Discrete Algebraic Riccati Equation (DARE)</span></span>
-<span id="cb6-20"><a></a>S <span class="op">=</span> linalg.solve_discrete_are(G, H, Q, R) <span class="co"># S is the solution to the DARE</span></span>
-<span id="cb6-21"><a></a><span class="co"># Calculate DLQR gain K</span></span>
-<span id="cb6-22"><a></a>K3 <span class="op">=</span> np.linalg.inv(R <span class="op">+</span> H.T <span class="op">@</span> S <span class="op">@</span> H) <span class="op">@</span> (H.T <span class="op">@</span> S <span class="op">@</span> G)</span>
-<span id="cb6-23"><a></a><span class="bu">print</span>(<span class="ss">f"K3 = [</span><span class="sc">{</span>K3[<span class="dv">0</span>, <span class="dv">0</span>]<span class="sc">:.3f}</span><span class="ss">, </span><span class="sc">{</span>K3[<span class="dv">0</span>, <span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">; </span><span class="sc">{</span>K3[<span class="dv">1</span>, <span class="dv">0</span>]<span class="sc">:.3f}</span><span class="ss">, </span><span class="sc">{</span>K3[<span class="dv">1</span>, <span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">]"</span>)</span>
-<span id="cb6-24"><a></a><span class="bu">print</span>(<span class="ss">f"eig(G - H @ K3) = </span><span class="sc">{</span>np<span class="sc">.</span>linalg<span class="sc">.</span>eigvals(G <span class="op">-</span> H <span class="op">@</span> K3)<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-25"><a></a></span>
-<span id="cb6-26"><a></a><span class="co"># Compute the closed-loop system matrices</span></span>
-<span id="cb6-27"><a></a>Gcl1 <span class="op">=</span> G <span class="op">-</span> H <span class="op">@</span> K1 </span>
-<span id="cb6-28"><a></a>Gcl2 <span class="op">=</span> G <span class="op">-</span> H <span class="op">@</span> K2</span>
-<span id="cb6-29"><a></a>Gcl3 <span class="op">=</span> G <span class="op">-</span> H <span class="op">@</span> K3</span>
-<span id="cb6-30"><a></a></span>
-<span id="cb6-31"><a></a>Ts <span class="op">=</span> <span class="fl">0.1</span> <span class="co"># Sampling time (seconds)</span></span>
-<span id="cb6-32"><a></a><span class="co"># Create the closed-loop LTI systems</span></span>
-<span id="cb6-33"><a></a>sys1 <span class="op">=</span> ctrl.ss(Gcl1, H, C, D, Ts) </span>
-<span id="cb6-34"><a></a>sys2 <span class="op">=</span> ctrl.ss(Gcl2, H, C, D, Ts) </span>
-<span id="cb6-35"><a></a>sys3 <span class="op">=</span> ctrl.ss(Gcl3, H, C, D, Ts)</span>
-<span id="cb6-36"><a></a></span>
-<span id="cb6-37"><a></a><span class="co"># Simulate for initial condition x0 = [1, 0]</span></span>
-<span id="cb6-38"><a></a>x0 <span class="op">=</span> np.array([<span class="fl">1.5</span>, <span class="fl">0.5</span>])</span>
-<span id="cb6-39"><a></a>t_end <span class="op">=</span> <span class="fl">1.5</span> </span>
-<span id="cb6-40"><a></a>t <span class="op">=</span> np.arange(<span class="dv">0</span>, t_end, Ts) </span>
-<span id="cb6-41"><a></a>t1, y1 <span class="op">=</span> ctrl.initial_response(sys1, T<span class="op">=</span>t, X0<span class="op">=</span>x0)</span>
-<span id="cb6-42"><a></a>t2, y2 <span class="op">=</span> ctrl.initial_response(sys2, T<span class="op">=</span>t, X0<span class="op">=</span>x0)</span>
-<span id="cb6-43"><a></a>t3, y3 <span class="op">=</span> ctrl.initial_response(sys3, T<span class="op">=</span>t, X0<span class="op">=</span>x0)</span>
-<span id="cb6-44"><a></a></span>
-<span id="cb6-45"><a></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">8</span>))</span>
-<span id="cb6-46"><a></a>plt.plot(t1, y1[<span class="dv">0</span>, :], label<span class="op">=</span><span class="st">'K1 - x1'</span>, linewidth<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb6-47"><a></a>plt.plot(t1, y1[<span class="dv">1</span>, :], label<span class="op">=</span><span class="st">'K1 - x2'</span>, linewidth<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb6-48"><a></a>plt.plot(t2, y2[<span class="dv">0</span>, :], label<span class="op">=</span><span class="st">'K2 - x1'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, linewidth<span class="op">=</span><span class="dv">3</span>) </span>
-<span id="cb6-49"><a></a>plt.plot(t2, y2[<span class="dv">1</span>, :], label<span class="op">=</span><span class="st">'K2 - x2'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, linewidth<span class="op">=</span><span class="dv">3</span>) </span>
-<span id="cb6-50"><a></a>plt.plot(t3, y3[<span class="dv">0</span>, :], label<span class="op">=</span><span class="st">'K3 - x1'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, linewidth<span class="op">=</span><span class="dv">3</span>) </span>
-<span id="cb6-51"><a></a>plt.plot(t3, y3[<span class="dv">1</span>, :], label<span class="op">=</span><span class="st">'K3 - x2'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, linewidth<span class="op">=</span><span class="dv">3</span>) </span>
-<span id="cb6-52"><a></a>plt.title(<span class="st">'Initial Condition Response ($x_0=[1, 0]^T$) with Different K Matrices'</span>, fontsize<span class="op">=</span><span class="dv">16</span>) </span>
-<span id="cb6-53"><a></a>plt.xlabel(<span class="st">'Time (steps * dt)'</span>, fontsize<span class="op">=</span><span class="dv">14</span>) </span>
-<span id="cb6-54"><a></a>plt.ylabel(<span class="st">'State Values'</span>, fontsize<span class="op">=</span><span class="dv">14</span>) </span>
-<span id="cb6-55"><a></a>plt.legend(fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb6-56"><a></a>plt.grid(<span class="va">True</span>) </span>
-<span id="cb6-57"><a></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-20"><a></a><span class="co"># S is the solution to the DARE</span></span>
+<span id="cb6-21"><a></a>S <span class="op">=</span> linalg.solve_discrete_are(G, H, Q, R) </span>
+<span id="cb6-22"><a></a><span class="co"># Calculate DLQR gain K</span></span>
+<span id="cb6-23"><a></a>K3 <span class="op">=</span> np.linalg.inv(R <span class="op">+</span> H.T <span class="op">@</span> S <span class="op">@</span> H) <span class="op">@</span> (H.T <span class="op">@</span> S <span class="op">@</span> G)</span>
+<span id="cb6-24"><a></a><span class="bu">print</span>(<span class="ss">f"K3 = [</span><span class="sc">{</span>K3[<span class="dv">0</span>, <span class="dv">0</span>]<span class="sc">:.3f}</span><span class="ss">, </span><span class="sc">{</span>K3[<span class="dv">0</span>, <span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">; </span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb6-25"><a></a>    <span class="ss">f" </span><span class="sc">{</span>K3[<span class="dv">1</span>, <span class="dv">0</span>]<span class="sc">:.3f}</span><span class="ss">, </span><span class="sc">{</span>K3[<span class="dv">1</span>, <span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">], "</span></span>
+<span id="cb6-26"><a></a>    <span class="ss">f" eig(G - H @ K3) = </span><span class="sc">{</span>np<span class="sc">.</span>linalg<span class="sc">.</span>eigvals(G <span class="op">-</span> H <span class="op">@</span> K3)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-27"><a></a></span>
+<span id="cb6-28"><a></a><span class="co"># Compute the closed-loop system matrices</span></span>
+<span id="cb6-29"><a></a>Gcl1 <span class="op">=</span> G <span class="op">-</span> H <span class="op">@</span> K1 </span>
+<span id="cb6-30"><a></a>Gcl2 <span class="op">=</span> G <span class="op">-</span> H <span class="op">@</span> K2</span>
+<span id="cb6-31"><a></a>Gcl3 <span class="op">=</span> G <span class="op">-</span> H <span class="op">@</span> K3</span>
+<span id="cb6-32"><a></a></span>
+<span id="cb6-33"><a></a>Ts <span class="op">=</span> <span class="fl">0.1</span> <span class="co"># Sampling time (seconds)</span></span>
+<span id="cb6-34"><a></a><span class="co"># Create the closed-loop LTI systems</span></span>
+<span id="cb6-35"><a></a>sys1 <span class="op">=</span> ctrl.ss(Gcl1, H, C, D, Ts) </span>
+<span id="cb6-36"><a></a>sys2 <span class="op">=</span> ctrl.ss(Gcl2, H, C, D, Ts) </span>
+<span id="cb6-37"><a></a>sys3 <span class="op">=</span> ctrl.ss(Gcl3, H, C, D, Ts)</span>
+<span id="cb6-38"><a></a></span>
+<span id="cb6-39"><a></a><span class="co"># Simulate for initial condition x0 = [1, 0]</span></span>
+<span id="cb6-40"><a></a>x0 <span class="op">=</span> np.array([<span class="fl">1.5</span>, <span class="fl">0.5</span>])</span>
+<span id="cb6-41"><a></a>t_end <span class="op">=</span> <span class="fl">1.5</span> </span>
+<span id="cb6-42"><a></a>t <span class="op">=</span> np.arange(<span class="dv">0</span>, t_end, Ts) </span>
+<span id="cb6-43"><a></a>t1, y1 <span class="op">=</span> ctrl.initial_response(sys1, T<span class="op">=</span>t, X0<span class="op">=</span>x0)</span>
+<span id="cb6-44"><a></a>t2, y2 <span class="op">=</span> ctrl.initial_response(sys2, T<span class="op">=</span>t, X0<span class="op">=</span>x0)</span>
+<span id="cb6-45"><a></a>t3, y3 <span class="op">=</span> ctrl.initial_response(sys3, T<span class="op">=</span>t, X0<span class="op">=</span>x0)</span>
+<span id="cb6-46"><a></a></span>
+<span id="cb6-47"><a></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>))</span>
+<span id="cb6-48"><a></a>plt.plot(t1, y1[<span class="dv">0</span>, :], label<span class="op">=</span><span class="st">'K1 - x1'</span>, linewidth<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb6-49"><a></a>plt.plot(t1, y1[<span class="dv">1</span>, :], label<span class="op">=</span><span class="st">'K1 - x2'</span>, linewidth<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb6-50"><a></a>plt.plot(t2, y2[<span class="dv">0</span>, :], label<span class="op">=</span><span class="st">'K2 - x1'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, </span>
+<span id="cb6-51"><a></a>    linewidth<span class="op">=</span><span class="dv">3</span>) </span>
+<span id="cb6-52"><a></a>plt.plot(t2, y2[<span class="dv">1</span>, :], label<span class="op">=</span><span class="st">'K2 - x2'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, </span>
+<span id="cb6-53"><a></a>    linewidth<span class="op">=</span><span class="dv">3</span>) </span>
+<span id="cb6-54"><a></a>plt.plot(t3, y3[<span class="dv">0</span>, :], label<span class="op">=</span><span class="st">'K3 - x1'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, </span>
+<span id="cb6-55"><a></a>    linewidth<span class="op">=</span><span class="dv">3</span>) </span>
+<span id="cb6-56"><a></a>plt.plot(t3, y3[<span class="dv">1</span>, :], label<span class="op">=</span><span class="st">'K3 - x2'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, </span>
+<span id="cb6-57"><a></a>    linewidth<span class="op">=</span><span class="dv">3</span>) </span>
+<span id="cb6-58"><a></a>plt.title(<span class="st">'Initial Condition Response ($x_0=[1, 0]^T$)'</span> </span>
+<span id="cb6-59"><a></a>    <span class="st">'with Different K Matrices'</span>, fontsize<span class="op">=</span><span class="dv">16</span>) </span>
+<span id="cb6-60"><a></a>plt.xlabel(<span class="st">'Time (steps * dt)'</span>, fontsize<span class="op">=</span><span class="dv">14</span>) </span>
+<span id="cb6-61"><a></a>plt.ylabel(<span class="st">'State Values'</span>, fontsize<span class="op">=</span><span class="dv">14</span>) </span>
+<span id="cb6-62"><a></a>plt.legend(fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb6-63"><a></a>plt.grid(<span class="va">True</span>) </span>
+<span id="cb6-64"><a></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div><div class="column fragment">
 <div class="cell-output cell-output-stdout">
-<pre><code>K3 = [0.990, 0.099; 0.000, 0.792]
-eig(G - H @ K3) = [0.00980006 0.0078745 ]</code></pre>
+<pre><code>K3 = [0.990, 0.099; 
+ 0.000, 0.792],  eig(G - H @ K3) = [0.00980006 0.0078745 ]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
@@ -1232,7 +1229,7 @@ eig(G - H @ K3) = [0.00980006 0.0078745 ]</code></pre>
 </section>
 <section id="quick-example-of-dlqr-tuning" class="slide level2">
 <h2>Quick Example of DLQR Tuning</h2>
-<div id="25ac7a1c" class="cell" data-code-block-height="300px" data-results="hold" data-execution_count="5">
+<div id="e049e77f" class="cell" data-code-block-height="300px" data-results="hold" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8" data-code-line-numbers=""><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a><span class="co"># Iterate over different Q values and simulate the system</span></span>
@@ -1279,15 +1276,20 @@ eig(G - H @ K3) = [0.00980006 0.0078745 ]</code></pre>
 
 </div>
 <img data-src="lecture9_files/figure-revealjs/cell-6-output-1.png" class="r-stretch"></section>
-<section id="limitations-of-lqr-control-saturation" class="slide level2 smaller scrollable">
+<section id="limitations-of-lqr-control-saturation" class="slide level2 smaller">
 <h2>Limitations of LQR: Control Saturation</h2>
-<!-- The *Linear* Quadratic Regulator may not be suitable for all systems, however. -->
+<p>The <em>Linear</em> Quadratic Regulator may not be suitable for all systems, however.</p>
 <p>Consider the system <span class="math inline">\; \ddot x = x - c\dot x + u</span>, where <span class="math inline">u_{\min} \le u(kT) \le u_{\max}</span>.</p>
-<div class="panel-tabset">
-<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">Unsaturated LQR</a></li><li><a href="#tabset-1-2">Saturated LQR</a></li><li><a href="#tabset-1-3">MPC</a></li></ul>
-<div class="tab-content">
-<div id="tabset-1-1">
-<div id="0c90ad95" class="cell columns column-output-location" data-execution_count="6">
+<p>Let’s compare the simulations:</p>
+<ul>
+<li><strong>Unconstrained LQR</strong>: No control saturation applied.</li>
+<li><strong>Saturated LQR</strong>: Control effort limited to <span class="math inline">u_{\min} \le u(kT) \le u_{\max}</span>.</li>
+<li><strong>Model Predictive Control (MPC)</strong>: Control effort limited to <span class="math inline">u_{\min} \le u(kT) \le u_{\max}</span>, but with a prediction horizon.</li>
+</ul>
+</section>
+<section id="unsaturated-lqr" class="slide level2 smaller">
+<h2>Unsaturated LQR</h2>
+<div id="b8da46b2" class="cell columns column-output-location" data-execution_count="6">
 <div class="column">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a><span class="co"># Scenario 1: Unconstrained LQR for Nonzero Regulation (Damped 2nd Order System)</span></span>
 <span id="cb9-2"><a></a></span>
@@ -1298,7 +1300,7 @@ eig(G - H @ K3) = [0.00980006 0.0078745 ]</code></pre>
 <span id="cb9-7"><a></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb9-8"><a></a><span class="im">import</span> time</span>
 <span id="cb9-9"><a></a></span>
-<span id="cb9-10"><a></a><span class="bu">print</span>(<span class="st">"--- Running Scenario 1: Unconstrained LQR (Nonzero Setpoint, Damped System) ---"</span>)</span>
+<span id="cb9-10"><a></a><span class="co"># print("--- Running Scenario 1: Unconstrained LQR (Nonzero Setpoint, Damped System) ---")</span></span>
 <span id="cb9-11"><a></a></span>
 <span id="cb9-12"><a></a><span class="co"># --- 1. System Definition ---</span></span>
 <span id="cb9-13"><a></a><span class="co"># Continuous system: dx/dt = Ac*x + Bc*u</span></span>
@@ -1319,9 +1321,9 @@ eig(G - H @ K3) = [0.00980006 0.0078745 ]</code></pre>
 <span id="cb9-28"><a></a><span class="co"># --- 2. Discretization ---</span></span>
 <span id="cb9-29"><a></a>Ts <span class="op">=</span> <span class="fl">0.1</span> <span class="co"># Sampling time</span></span>
 <span id="cb9-30"><a></a>Ad, Bd, _, _, _ <span class="op">=</span> cont2discrete((Ac, Bc, np.eye(n_states), np.zeros((n_states, m_inputs))), Ts, method<span class="op">=</span><span class="st">'zoh'</span>)</span>
-<span id="cb9-31"><a></a><span class="bu">print</span>(<span class="st">"--- Discrete Model ---"</span>)</span>
-<span id="cb9-32"><a></a><span class="bu">print</span>(<span class="ss">f"Ad = </span><span class="ch">\n</span><span class="sc">{</span>Ad<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb9-33"><a></a><span class="bu">print</span>(<span class="ss">f"Bd = </span><span class="ch">\n</span><span class="sc">{</span>Bd<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb9-31"><a></a><span class="co"># print("--- Discrete Model ---")</span></span>
+<span id="cb9-32"><a></a><span class="co"># print(f"Ad = \n{Ad}")</span></span>
+<span id="cb9-33"><a></a><span class="co"># print(f"Bd = \n{Bd}")</span></span>
 <span id="cb9-34"><a></a></span>
 <span id="cb9-35"><a></a><span class="co"># --- 3. Setpoint ---</span></span>
 <span id="cb9-36"><a></a>x_ref <span class="op">=</span> np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]) <span class="co"># Target state y=1, y_dot=0</span></span>
@@ -1332,7 +1334,7 @@ eig(G - H @ K3) = [0.00980006 0.0078745 ]</code></pre>
 <span id="cb9-41"><a></a>    u_ref_vec <span class="op">=</span> np.linalg.pinv(Bd) <span class="op">@</span> (np.eye(n_states) <span class="op">-</span> Ad) <span class="op">@</span> x_ref</span>
 <span id="cb9-42"><a></a>    u_ref <span class="op">=</span> u_ref_vec[<span class="dv">0</span>] <span class="co"># Extract scalar</span></span>
 <span id="cb9-43"><a></a>    <span class="co"># Verify continuous u_ref = -x1_ref = -1</span></span>
-<span id="cb9-44"><a></a>    <span class="bu">print</span>(<span class="ss">f"Setpoint: x_ref = </span><span class="sc">{</span>x_ref<span class="sc">.</span>T<span class="sc">}</span><span class="ss">, requires discrete u_ref = </span><span class="sc">{</span>u_ref<span class="sc">:.3f}</span><span class="ss"> (cont. u_ref=-1.0)"</span>)</span>
+<span id="cb9-44"><a></a>    <span class="co"># print(f"Setpoint: x_ref = {x_ref.T}, requires discrete u_ref = {u_ref:.3f} (cont. u_ref=-1.0)")</span></span>
 <span id="cb9-45"><a></a><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
 <span id="cb9-46"><a></a>    <span class="bu">print</span>(<span class="ss">f"Could not calculate discrete u_ref: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">. Using continuous u_ref."</span>)</span>
 <span id="cb9-47"><a></a>    u_ref <span class="op">=</span> <span class="op">-</span>x_ref[<span class="dv">0</span>] <span class="co"># Use continuous calculation</span></span>
@@ -1418,7 +1420,7 @@ eig(G - H @ K3) = [0.00980006 0.0078745 ]</code></pre>
 <span id="cb9-127"><a></a>    ylims_x2 <span class="op">=</span> (<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">1.5</span>)</span>
 <span id="cb9-128"><a></a>    ylims_u <span class="op">=</span> (<span class="op">-</span><span class="dv">4</span>, <span class="dv">1</span>) <span class="co"># Adjusted for u_ref=-1 and expected transient</span></span>
 <span id="cb9-129"><a></a></span>
-<span id="cb9-130"><a></a>    plt.figure(<span class="st">"Unconstrained LQR (Nonzero Setpoint, Damped)"</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">9</span>))</span>
+<span id="cb9-130"><a></a>    plt.figure(<span class="st">"Unconstrained LQR (Nonzero Setpoint, Damped)"</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">8</span>))</span>
 <span id="cb9-131"><a></a>    plt.rcParams.update({<span class="st">'font.size'</span>: <span class="dv">12</span>})</span>
 <span id="cb9-132"><a></a></span>
 <span id="cb9-133"><a></a>    plt.subplot(<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">1</span>)</span>
@@ -1447,18 +1449,9 @@ eig(G - H @ K3) = [0.00980006 0.0078745 ]</code></pre>
 <span id="cb9-156"><a></a>    <span class="bu">print</span>(<span class="st">"Simulation failed, not plotting."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div><div class="column">
 <div class="cell-output cell-output-stdout">
-<pre><code>--- Running Scenario 1: Unconstrained LQR (Nonzero Setpoint, Damped System) ---
---- Discrete Model ---
-Ad = 
-[[1.00492178 0.09770379]
- [0.09770379 0.95606989]]
-Bd = 
-[[0.00492178]
- [0.09770379]]
-Setpoint: x_ref = [1. 0.], requires discrete u_ref = -1.000 (cont. u_ref=-1.0)
-DLQR Gain for error K = [[8.76224795 4.36193866]]
+<pre><code>DLQR Gain for error K = [[8.76224795 4.36193866]]
 Running simulation...
-Simulation loop time: 0.02 s</code></pre>
+Simulation loop time: 0.01 s</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
@@ -1468,9 +1461,10 @@ Simulation loop time: 0.02 s</code></pre>
 </div>
 </div>
 </div></div>
-</div>
-<div id="tabset-1-2">
-<div id="ffaad4fd" class="cell columns column-output-location" data-execution_count="7">
+</section>
+<section id="saturated-lqr" class="slide level2 smaller">
+<h2>Saturated LQR</h2>
+<div id="ca108552" class="cell columns column-output-location" data-execution_count="7">
 <div class="column">
 <div class="sourceCode cell-code" id="cb11" data-code-line-numbers=""><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a></a><span class="co"># Scenario 2: Saturated LQR for Nonzero Regulation (Damped 2nd Order System)</span></span>
 <span id="cb11-2"><a></a></span>
@@ -1596,7 +1590,7 @@ Simulation loop time: 0.02 s</code></pre>
 <span id="cb11-122"><a></a>    ylims_x2 <span class="op">=</span> (<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">1.5</span>)</span>
 <span id="cb11-123"><a></a>    ylims_u <span class="op">=</span> (<span class="op">-</span><span class="dv">4</span>, <span class="dv">1</span>) <span class="co"># Keep wide limits to see desired vs saturated</span></span>
 <span id="cb11-124"><a></a></span>
-<span id="cb11-125"><a></a>    plt.figure(<span class="st">"Saturated LQR (Nonzero Setpoint, Damped)"</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">9</span>))</span>
+<span id="cb11-125"><a></a>    plt.figure(<span class="st">"Saturated LQR (Nonzero Setpoint, Damped)"</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">8</span>))</span>
 <span id="cb11-126"><a></a>    plt.rcParams.update({<span class="st">'font.size'</span>: <span class="dv">12</span>})</span>
 <span id="cb11-127"><a></a></span>
 <span id="cb11-128"><a></a>    plt.subplot(<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">1</span>)</span>
@@ -1640,9 +1634,10 @@ Simulation loop time: 0.03 s</code></pre>
 </div>
 </div>
 </div></div>
-</div>
-<div id="tabset-1-3">
-<div id="750d464f" class="cell columns column-output-location" data-execution_count="8">
+</section>
+<section id="mpc" class="slide level2 smaller">
+<h2>MPC</h2>
+<div id="fefecc29" class="cell columns column-output-location" data-execution_count="8">
 <div class="column">
 <div class="sourceCode cell-code" id="cb13" data-code-line-numbers=""><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a></a><span class="co"># Scenario 3: MPC for Nonzero Regulation (Damped 2nd Order System)</span></span>
 <span id="cb13-2"><a></a></span>
@@ -1804,7 +1799,7 @@ Simulation loop time: 0.03 s</code></pre>
 <span id="cb13-158"><a></a>    ylims_x2 <span class="op">=</span> (<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">1.5</span>)</span>
 <span id="cb13-159"><a></a>    ylims_u <span class="op">=</span> (<span class="op">-</span><span class="dv">4</span>, <span class="dv">1</span>) <span class="co"># Use same limits</span></span>
 <span id="cb13-160"><a></a></span>
-<span id="cb13-161"><a></a>    plt.figure(<span class="st">"MPC (Nonzero Setpoint, Damped)"</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">9</span>))</span>
+<span id="cb13-161"><a></a>    plt.figure(<span class="st">"MPC (Nonzero Setpoint, Damped)"</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">8</span>))</span>
 <span id="cb13-162"><a></a>    plt.rcParams.update({<span class="st">'font.size'</span>: <span class="dv">12</span>})</span>
 <span id="cb13-163"><a></a></span>
 <span id="cb13-164"><a></a>    plt.subplot(<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">1</span>)</span>
@@ -1836,22 +1831,17 @@ Simulation loop time: 0.03 s</code></pre>
 </div><div class="column">
 <div class="cell-output cell-output-stdout">
 <pre><code>Control Limits: [-2.5, 0.5]
-MPC CVXPY Problem defined.</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>MPC Simulation loop time: 13.07 s</code></pre>
+MPC CVXPY Problem defined.
+MPC Simulation loop time: 7.97 s</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure>
-<p><img data-src="lecture9_files/figure-revealjs/cell-9-output-3.png"></p>
+<p><img data-src="lecture9_files/figure-revealjs/cell-9-output-2.png"></p>
 </figure>
 </div>
 </div>
 </div></div>
-</div>
-</div>
-</div>
 </section></section>
 <section>
 <section id="model-predictive-control-mpc" class="title-slide slide level1 center">
@@ -1874,14 +1864,14 @@ MPC CVXPY Problem defined.</code></pre>
 <section id="how-mpc-works" class="slide level2 scrollable">
 <h2>How MPC Works</h2>
 <ol type="1">
-<li class="fragment">MPC solves an <strong>optimization problem</strong> at each time step to find the optimal control sequence over a finite horizon.</li>
+<li class="fragment">Finds an optimal control sequence for a finite-horizon problem.</li>
 <li class="fragment">The first control input of the optimal sequence is applied to the system.</li>
-<li class="fragment">The process is repeated at the next time step, using the current state as the new initial condition.</li>
+<li class="fragment">Repeats at the next time step, using the current state as the new initial condition.</li>
 </ol>
 <div class="fragment">
 <p><strong>MPC vs LQR:</strong></p>
 <ul>
-<li class="fragment">MPC handles <strong>constraints</strong> (e.g.&nbsp;input saturation, <strong>state constraints</strong>, rate of change limits, etc).</li>
+<li class="fragment">MPC handles <strong>constraints</strong> (saturation, <strong>state limits</strong>, rates of change, etc).</li>
 <li class="fragment">MPC is more complex and computationally intensive than LQR.</li>
 <li class="fragment">MPC’s performance depends on the accuracy of the system model.</li>
 </ul>
@@ -1923,11 +1913,9 @@ J = \sum_{k=0}^{\infty} (x(k)^\intercal Q x(k) + u(k)^\intercal R u(k))
 <p>Consider <span class="math inline">x(k) = [x_1(k), x_2(k)]^\intercal</span> and <span class="math inline">u(k) = [u_1(k), u_2(k)]^\intercal</span>. The cost function can be expressed as:</p>
 </div>
 <div class="fragment">
-<p><span class="math display">
-\begin{align*}
+<p><span class="math display">\begin{align*}
 J &amp;= \sum_{k=0}^{\infty} (q_{1,1}x_1(k)^2 + q_{1,2}x_1(k)x_2(k) + q_{2,1}x_2(k)x_1(k) + q_{2,2}x_2(k)^2 \\ &amp;+ r_{1,1}u_1(k)^2 + r_{1,2}u_1(k)u_2(k) + r_{2,1}u_2(k)u_1(k) + r_{2,2}u_2(k)^2)
-\end{align*}
-</span></p>
+\end{align*}</span></p>
 </div>
 <div class="fragment">
 <p>Notice that you have freedom to <strong>tune</strong> the individual weights <span class="math inline">q_{i,j}</span> and <span class="math inline">r_{i,j}</span> in the cost function.</p>

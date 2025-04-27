@@ -1,11 +1,14 @@
 ---
 format:
+#   pdf: default
   revealjs:
     # revealjs-plugins:
     #   - plugin/OneTimer
     # embed-resources: true
     chalkboard: true
     scrollable: true
+    # pdf-separate-fragments: true
+    # pdf-max-pages-per-slide: 100
 --- 
 
 ## Title Slide {data-state="titleslide" .title-slide-custom}
@@ -56,66 +59,61 @@ format:
 . . .
 
 **Continuous-time system:**
-$$ 
-\begin{align*}\dot{x}(t) &= f(x, u), \\ y(t) &= g(x, u) \end{align*} 
-$$
+\begin{align*}
+\dot{x}(t) &= f(x, u), \\ 
+y(t) &= g(x, u) 
+\end{align*}
 
 . . . 
 
 **Linearised system:**
-$$ 
 \begin{align*} 
 \delta\dot{x}(t) &= A\delta x(t) + B \delta u(t),  \\ 
 \delta y(t) &= C\delta x(t) + D\delta u(t),
 \end{align*} 
-$$
+
 
 where $\delta x = x - \bar x$, $\delta u = u - \bar u$, $\delta y = y - \bar y$, and the $A$, $B$, $C$, $D$ are the matrices
-$$ 
+ 
 \begin{align*}
 A = \frac{\partial f}{\partial x} \bigg|_{\bar x, \bar u}
 B = \frac{\partial f}{\partial u} \bigg|_{\bar x, \bar u}
 C = \frac{\partial g}{\partial x} \bigg|_{\bar x, \bar u}
 D = \frac{\partial g}{\partial u} \bigg|_{\bar x, \bar u} 
 \end{align*}
-$$
 
-. . . 
+<!-- . . .  -->
+## {.smaller}
 
 **Discrete-time system:**
-$$
+
 \begin{align*} x(kT+T) &= Gx(kT) + Hu(kT), \\ y(kT) &= Cx(kT) + Du(kT), \end{align*}
-$$  
+  
 
 where 
-$$
+
 \begin{align*}
 G = e^{AT}, \quad H = \left[\int_0^T e^{A\tau} d\tau\right] B \quad \left(\text{or, if $A$ is invertible, } H = A^{-1} (G-I)B\right)
 \end{align*}
-$$
+
 
 . . .
 
-**State-feedback controller:**
-$$ 
-\begin{align*}
-u(kT) = -Kx(kT) 
-\end{align*}
-$$
+**State-feedback controller:** $\;u(kT) = -Kx(kT)$,
 
 where $K$ is the feedback gain matrix that is designed to arbitrarily move the poles of the closed-loop system 
-$$
 \begin{align*}
 x(kT+T) = (G-HK)x(kT)
 \end{align*}
-$$ 
+ 
+## {.smaller}
 
-for example, by equating the characteristic polynomial of the closed-loop system to a desired polynomial,
-$$
+This is achieved, for example, by equating the characteristic polynomial of the closed-loop system to a desired polynomial,
+
 \begin{align*}
 \det(zI - (G-HK)) = (z - z_1)(z - z_2) \cdots (z - z_n) 
 \end{align*}
-$$
+
 
 . . .
 
@@ -154,7 +152,9 @@ The solution exists if the system is controllable, i.e. if the **controllability
 
 ::::
 
-. . .
+<!-- . . . -->
+
+## {.smaller}
 
 We also saw the **Internal Model Principle** (e.g. **Integral Action**) to reject disturbances (or follow references) with a known model (e.g. a step input, a ramp input, a sinusoidal input, etc.). Those still relied on the **pole placement** approach.
 
@@ -177,13 +177,13 @@ We also saw the **Internal Model Principle** (e.g. **Integral Action**) to rejec
 - **Higher-order systems** (4th order, 5th order, etc.)
 - **MIMO systems** (Multiple Input Multiple Output)
 - *Stiff* systems (e.g. with very different time constants, e.g. 1ms and 1s)
-- **Highly nonlinear systems** (i.e. when the linearisation quickly becomes invalid.)
+- **Highly nonlinear systems** (i.e. linearisation quickly becomes invalid.)
 :::
  
 ## Higher-Order Systems
-$$
+
 \begin{align*} x(kT+T) &= Gx(kT) + Hu(kT), \\ y(kT) &= Cx(kT) + Du(kT), \end{align*}
-$$  
+  
 
 where $\quad x(kT) \in \mathbb{R}^n, \quad u(kT) \in \mathbb{R}, \quad y(kT) \in \mathbb{R}, \quad n > 3$
 
@@ -200,55 +200,64 @@ The link between pole locations and desired time-domain response becomes less cl
 Let's start with an example.
 
 Consider a simple MIMO system with two states and two inputs:
-$$
+
 \begin{align*} x(kT+T) &= \begin{bmatrix} 1 & 0.1 \\ 0 & 0.8 \end{bmatrix} x(kT) + \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} u(kT)
 \end{align*} 
-$$
+
 
 We want to place the poles at $0.4$ and $0.6$, by using $u(kT) = -Kx(kT)$, where $K = \begin{bmatrix} k_1 & k_2 \\ k_3 & k_4\end{bmatrix}$. 
 
 . . .
 
 The characteristic polynomial is given by: 
-$$
+
 \begin{align*}
 &\det(zI - (G-HK)) = \det\left(\begin{bmatrix} z-1+k_1 & k_2-0.1 \\ k_3 & z-0.8+k_4\end{bmatrix}\right) \\
 &= z^2 + (k_1 + k_4 - 1.8)z + (0.1k_3 - k_4 - 0.8k_1 + k_1k_4 - k_2k_3 + 0.8)
 \end{align*}
-$$
 
+::: {.content-visible when-profile="print"}
+## {.smaller}
+:::
+::: {.content-hidden when-profile="print"}
 . . .
+:::
 
 The desired characteristic polynomial is given by:
-$$
+
 \begin{align*}
 (z-0.4)(z-0.6) = z^2 - 1z + 0.24
 \end{align*}
-$$
 
-. . .
 
 When we equate the coefficients, we get:
-$$
+
 \begin{align*}
 \begin{cases}
 (k_1 + k_4 - 1.8) = -1 \\
 0.1k_3 - k_4 - 0.8k_1 + k_1k_4 - k_2k_3 + 0.8 = 0.24
 \end{cases}
 \end{align*}
-$$
 
-. . .
+
+<!-- . . . -->
 
 ::: {.callout-important}
 Note that we have **two equations** and **four unknowns**. This means that we have **degrees of freedom** in the design. We can choose two of the four variables arbitrarily, and then solve for the other two.
 :::
 
-. . .
+<!-- . . . -->
 
 This seems like a good idea, but it is not. The problem is that different choices of $K$, even if they lead to the same **eigenvalues**, can lead to different **eigenvectors**. The closed-loop system's **eigenvectors** directly affect the **response** of the system.
 
+::: {.content-visible when-profile="print"}
+## {.smaller}
+:::
+::: {.content-hidden when-profile="print"}
 . . .
+:::
+
+
 
 Let $k_2 = k_3 = 0$ and consider the following two cases of gains matrices $K_1$ and $K_2$, both of which lead assign the closed-loop eigenvalues to the desired values:
 $$
@@ -262,10 +271,11 @@ Both of which lead to the same eigenvalues we wanted. But let's simulate the sys
 #| output-location: column-fragment
 #| results: hold
 #| echo: true
+#| id: code400
 import numpy as np
 import matplotlib.pyplot as plt
 import control as ctrl
-# Create the system matrices
+# Create the system matrices  
 G = np.array([[1, 0.1], [0, 0.8]])
 H = np.array([[1, 0], [0, 1]])
 C = np.array([[1, 0], [0, 1]]) # Outputs are the states
@@ -287,12 +297,15 @@ t = np.arange(0, t_end, Ts)
 t1, y1 = ctrl.initial_response(sys1, T=t, X0=x0)
 t2, y2 = ctrl.initial_response(sys2, T=t, X0=x0)
 
-plt.figure(figsize=(10, 8))
+plt.figure(figsize=(10, 6))
 plt.plot(t1, y1[0, :], label='K1 - x1', linewidth=3)
 plt.plot(t1, y1[1, :], label='K1 - x2', linewidth=3)
-plt.plot(t2, y2[0, :], label='K2 - x1', linestyle='--', linewidth=3) 
-plt.plot(t2, y2[1, :], label='K2 - x2', linestyle='--', linewidth=3) 
-plt.title('Initial Condition Response ($x_0=[1, 0]^T$) with Different K Matrices', fontsize=16) 
+plt.plot(t2, y2[0, :], label='K2 - x1', linestyle='--', 
+    linewidth=3) 
+plt.plot(t2, y2[1, :], label='K2 - x2', linestyle='--', 
+    linewidth=3) 
+plt.title('Initial Condition Response ($x_0=[1, 0]^T$) \
+     with Different K Matrices', fontsize=16) 
 plt.xlabel('Time (steps * dt)', fontsize=14) 
 plt.ylabel('State Values', fontsize=14) 
 plt.legend(fontsize=12)
@@ -300,12 +313,13 @@ plt.grid(True)
 plt.show()
 ```
 
+
 ---
  
 ## MIMO Systems
-$$
+
 \begin{align*} x(kT+T) &= Gx(kT) + Hu(kT), \\ y(kT) &= Cx(kT) + Du(kT), \end{align*}
-$$  
+  
 
 $x(kT) \in \mathbb{R}^n, \quad u(kT) \in \mathbb{R}^m, \quad y(kT) \in \mathbb{R}^p, \quad n, m, p > 1$
 
@@ -380,12 +394,18 @@ $$
 
 The linearised continuous-time system is $\;\boxed{\delta\dot{x}(t) = -\delta x(t) + \delta u(t)}$.
 
+::: {.content-visible when-profile="print"}
+##  {.smaller}
+:::
+::: {.content-hidden when-profile="print"}
 . . .
+:::
+
 
 **2. Discretise** the system with a sampling time $T=0.1$s:
-$$
+
 \begin{align*} x(kT+T) &= Gx(kT) + Hu(kT), \quad y(kT) = x(kT) \end{align*}
-$$
+
 
 where $G = e^{-AT} = 0.905$, and $H = A^{-1}(G-I)B = 0.095$. 
 
@@ -405,11 +425,17 @@ We want the closed-loop pole to be equal to $p=0.5$:
 Try to do this through equating the characteristic polynomials: $\det(zI - (G-HK)) = (z-p)$.
 :::
 
-. . . 
+::: {.content-visible when-profile="print"}
+## {.smaller}
+:::
+::: {.content-hidden when-profile="print"}
+. . .
+:::
 
-$$
+
+
 \begin{align*} 0.905 - 0.095 K &= 0.5 \\ 0.095 K &= 0.905 - 0.5 = 0.405 \\ K &= \frac{0.405}{0.095} = 4.263 \end{align*}
-$$
+
 
 So, the linear controller designed for the linearized system is $\boxed{u(kT) = -4.263 x(kT)}$.
 
@@ -422,6 +448,14 @@ Simulate the continuous nonlinear dynamics, but apply the control input $u(kT) =
 ::: {.callout-important}
 Note that the controller was derived for the **linearised** system, which **ignores** the $x^3$ term. The linear model is only accurate for small $x$ (close to the equilibrium $x=0$). When $|x|$ becomes large, the $x^3$ term can dominate, and the linear controller may fail.
 :::
+
+::: {.content-visible when-profile="print"}
+## {.smaller}
+:::
+::: {.content-hidden when-profile="print"}
+. . .
+:::
+
 
 ```{python}
 #| code-line-numbers: "1-3|8-11|13-18|20-23|29-37|42-63|104-120"
@@ -738,7 +772,16 @@ $$
 - **Cost Matrices**: Select $Q = 10.0$ and $R = 0.1$.
 - **Observability**: $\mathcal{O} = [V,\; VG]^\intercal$, where $V = \sqrt{Q}$. Then $\mathcal{O} = [3.162,\; 2.857]^\intercal$, which has full rank. 
 - **Solution $P=P^\intercal\succeq 0$ of the DARE**: $P - G^\intercal P G + (G^\intercal P H)(R + H^\intercal P H)^{-1}(H^\intercal P G) = Q$ 
-$$
+:::
+
+::: {.content-visible when-profile="print"}
+## {.smaller}
+:::
+::: {.content-hidden when-profile="print"}
+. . .
+:::
+
+
 \begin{align*}
 P - G^2 P + \frac{(G H P)^2}{R + H^2 P} &= Q \\
 (P - G^2 P)(R + H^2 P) + G^2 H^2 P^2 &= Q (R + H^2 P) \\
@@ -747,10 +790,19 @@ P R + H^2 P^2 - G^2 P R - Q R - Q H^2 P &= 0 \\
 0.009 P^2 -0.0722 P - 1 &= 0 \\ 
 P = 15.2571 \text{ or } P = -7.2624
 \end{align*}
-$$
+
+::: {.incremental}
 - **Pick the *positive semi-definite* solution**: $P = 15.2571$. 
 - **Compute the gain** $K = (R + H^\intercal P H)^{-1} H^\intercal P G = 5.519$.
 :::
+
+::: {.content-visible when-profile="print"}
+## {.smaller}
+:::
+::: {.content-hidden when-profile="print"}
+. . .
+:::
+
 
 ```{python}
 #| code-line-numbers: "3|30-32|34-49|"
@@ -903,17 +955,15 @@ plt.show()
 ## MIMO Example of DLQR Design {.smaller .scrollable}
 
 Consider the MIMO system with two states and two inputs:
-$$
+
 \begin{align*} x(kT+T) &= \begin{bmatrix} 1 & 0.1 \\ 0 & 0.8 \end{bmatrix} x(kT) + \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} u(kT) \\ y(kT) &= Cx(kT) + Du(kT) \end{align*}
-$$
-
-
 
 ```{python}
 #| code-line-numbers: ""
 #| output-location: column-fragment
 #| results: hold
 #| echo: true
+#| id: code300
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.linalg as linalg
@@ -933,11 +983,13 @@ Q = np.array([[10, 0], [0, 10]]) # State weight matrix
 R = np.array([[0.1, 0], [0, 0.1]]) # Control weight matrix
 
 # Solve the Discrete Algebraic Riccati Equation (DARE)
-S = linalg.solve_discrete_are(G, H, Q, R) # S is the solution to the DARE
+# S is the solution to the DARE
+S = linalg.solve_discrete_are(G, H, Q, R) 
 # Calculate DLQR gain K
 K3 = np.linalg.inv(R + H.T @ S @ H) @ (H.T @ S @ G)
-print(f"K3 = [{K3[0, 0]:.3f}, {K3[0, 1]:.3f}; {K3[1, 0]:.3f}, {K3[1, 1]:.3f}]")
-print(f"eig(G - H @ K3) = {np.linalg.eigvals(G - H @ K3)}")
+print(f"K3 = [{K3[0, 0]:.3f}, {K3[0, 1]:.3f}; \n"
+    f" {K3[1, 0]:.3f}, {K3[1, 1]:.3f}], "
+    f" eig(G - H @ K3) = {np.linalg.eigvals(G - H @ K3)}")
 
 # Compute the closed-loop system matrices
 Gcl1 = G - H @ K1 
@@ -958,14 +1010,19 @@ t1, y1 = ctrl.initial_response(sys1, T=t, X0=x0)
 t2, y2 = ctrl.initial_response(sys2, T=t, X0=x0)
 t3, y3 = ctrl.initial_response(sys3, T=t, X0=x0)
 
-plt.figure(figsize=(10, 8))
+plt.figure(figsize=(10, 4))
 plt.plot(t1, y1[0, :], label='K1 - x1', linewidth=3)
 plt.plot(t1, y1[1, :], label='K1 - x2', linewidth=3)
-plt.plot(t2, y2[0, :], label='K2 - x1', linestyle='--', linewidth=3) 
-plt.plot(t2, y2[1, :], label='K2 - x2', linestyle='--', linewidth=3) 
-plt.plot(t3, y3[0, :], label='K3 - x1', linestyle=':', linewidth=3) 
-plt.plot(t3, y3[1, :], label='K3 - x2', linestyle=':', linewidth=3) 
-plt.title('Initial Condition Response ($x_0=[1, 0]^T$) with Different K Matrices', fontsize=16) 
+plt.plot(t2, y2[0, :], label='K2 - x1', linestyle='--', 
+    linewidth=3) 
+plt.plot(t2, y2[1, :], label='K2 - x2', linestyle='--', 
+    linewidth=3) 
+plt.plot(t3, y3[0, :], label='K3 - x1', linestyle=':', 
+    linewidth=3) 
+plt.plot(t3, y3[1, :], label='K3 - x2', linestyle=':', 
+    linewidth=3) 
+plt.title('Initial Condition Response ($x_0=[1, 0]^T$)' 
+    'with Different K Matrices', fontsize=16) 
 plt.xlabel('Time (steps * dt)', fontsize=14) 
 plt.ylabel('State Values', fontsize=14) 
 plt.legend(fontsize=12)
@@ -1033,14 +1090,19 @@ plt.grid(True)
 plt.show()
 ```
 
-## Limitations of LQR: Control Saturation {.smaller .scrollable}
+## Limitations of LQR: Control Saturation {.smaller}
 
-<!-- The *Linear* Quadratic Regulator may not be suitable for all systems, however. -->
+The *Linear* Quadratic Regulator may not be suitable for all systems, however.
 
 Consider the system $\; \ddot x = x - c\dot x + u$, where $u_{\min} \le u(kT) \le u_{\max}$. 
 
-::: {.panel-tabset}
-### Unsaturated LQR
+Let's compare the simulations:
+
+- **Unconstrained LQR**: No control saturation applied.
+- **Saturated LQR**: Control effort limited to $u_{\min} \le u(kT) \le u_{\max}$.
+- **Model Predictive Control (MPC)**: Control effort limited to $u_{\min} \le u(kT) \le u_{\max}$, but with a prediction horizon.
+
+## Unsaturated LQR {.smaller}
 ```{python}
 #| output-location: column
 #| echo: true
@@ -1053,7 +1115,7 @@ from scipy.signal import cont2discrete
 import matplotlib.pyplot as plt
 import time
 
-print("--- Running Scenario 1: Unconstrained LQR (Nonzero Setpoint, Damped System) ---")
+# print("--- Running Scenario 1: Unconstrained LQR (Nonzero Setpoint, Damped System) ---")
 
 # --- 1. System Definition ---
 # Continuous system: dx/dt = Ac*x + Bc*u
@@ -1074,9 +1136,9 @@ def system_ode(t, x, u, Ac_mat, Bc_mat):
 # --- 2. Discretization ---
 Ts = 0.1 # Sampling time
 Ad, Bd, _, _, _ = cont2discrete((Ac, Bc, np.eye(n_states), np.zeros((n_states, m_inputs))), Ts, method='zoh')
-print("--- Discrete Model ---")
-print(f"Ad = \n{Ad}")
-print(f"Bd = \n{Bd}")
+# print("--- Discrete Model ---")
+# print(f"Ad = \n{Ad}")
+# print(f"Bd = \n{Bd}")
 
 # --- 3. Setpoint ---
 x_ref = np.array([1.0, 0.0]) # Target state y=1, y_dot=0
@@ -1087,7 +1149,7 @@ try:
     u_ref_vec = np.linalg.pinv(Bd) @ (np.eye(n_states) - Ad) @ x_ref
     u_ref = u_ref_vec[0] # Extract scalar
     # Verify continuous u_ref = -x1_ref = -1
-    print(f"Setpoint: x_ref = {x_ref.T}, requires discrete u_ref = {u_ref:.3f} (cont. u_ref=-1.0)")
+    # print(f"Setpoint: x_ref = {x_ref.T}, requires discrete u_ref = {u_ref:.3f} (cont. u_ref=-1.0)")
 except Exception as e:
     print(f"Could not calculate discrete u_ref: {e}. Using continuous u_ref.")
     u_ref = -x_ref[0] # Use continuous calculation
@@ -1173,7 +1235,7 @@ if success_run:
     ylims_x2 = (-0.5, 1.5)
     ylims_u = (-4, 1) # Adjusted for u_ref=-1 and expected transient
 
-    plt.figure("Unconstrained LQR (Nonzero Setpoint, Damped)", figsize=(10, 9))
+    plt.figure("Unconstrained LQR (Nonzero Setpoint, Damped)", figsize=(10, 8))
     plt.rcParams.update({'font.size': 12})
 
     plt.subplot(3, 1, 1)
@@ -1202,8 +1264,7 @@ else:
     print("Simulation failed, not plotting.")
 ```
 
-
-### Saturated LQR
+## Saturated LQR {.smaller}
 
 ```{python}
 #| code-line-numbers: ""
@@ -1333,7 +1394,7 @@ if success_run:
     ylims_x2 = (-0.5, 1.5)
     ylims_u = (-4, 1) # Keep wide limits to see desired vs saturated
 
-    plt.figure("Saturated LQR (Nonzero Setpoint, Damped)", figsize=(10, 9))
+    plt.figure("Saturated LQR (Nonzero Setpoint, Damped)", figsize=(10, 8))
     plt.rcParams.update({'font.size': 12})
 
     plt.subplot(3, 1, 1)
@@ -1365,7 +1426,7 @@ else:
     print("Simulation failed, not plotting.")
 ```
 
-### MPC
+## MPC {.smaller} 
 
 ```{python}
 #| code-line-numbers: ""
@@ -1531,7 +1592,7 @@ if success_run:
     ylims_x2 = (-0.5, 1.5)
     ylims_u = (-4, 1) # Use same limits
 
-    plt.figure("MPC (Nonzero Setpoint, Damped)", figsize=(10, 9))
+    plt.figure("MPC (Nonzero Setpoint, Damped)", figsize=(10, 8))
     plt.rcParams.update({'font.size': 12})
 
     plt.subplot(3, 1, 1)
@@ -1562,9 +1623,6 @@ else:
     print("Simulation failed, not plotting.")
 ```
 
-
-:::
-
 # Model Predictive Control (MPC)
 
 MPC is a powerful control strategy that uses an **optimization problem** to determine the control input at each time step. It is particularly useful for systems with constraints and nonlinearities.
@@ -1576,9 +1634,9 @@ While LQR solves the infinite-horizon optimal control problem, MPC solves a **fi
 ## How MPC Works
 
 ::: {.incremental}
-1. MPC solves an **optimization problem** at each time step to find the optimal control sequence over a finite horizon.
+1. Finds an optimal control sequence for a finite-horizon problem.
 2. The first control input of the optimal sequence is applied to the system.
-3. The process is repeated at the next time step, using the current state as the new initial condition.
+3. Repeats at the next time step, using the current state as the new initial condition.
 :::
 
 . . .
@@ -1586,7 +1644,7 @@ While LQR solves the infinite-horizon optimal control problem, MPC solves a **fi
 **MPC vs LQR:**
 
 ::: {.incremental}
-- MPC handles **constraints** (e.g. input saturation, **state constraints**, rate of change limits, etc).
+- MPC handles **constraints** (saturation, **state limits**, rates of change, etc).
 - MPC is more complex and computationally intensive than LQR.
 - MPC's performance depends on the accuracy of the system model.
 :::
@@ -1629,11 +1687,11 @@ Consider $x(k) = [x_1(k), x_2(k)]^\intercal$ and $u(k) = [u_1(k), u_2(k)]^\inter
 
 . . .
 
-$$
+
 \begin{align*}
 J &= \sum_{k=0}^{\infty} (q_{1,1}x_1(k)^2 + q_{1,2}x_1(k)x_2(k) + q_{2,1}x_2(k)x_1(k) + q_{2,2}x_2(k)^2 \\ &+ r_{1,1}u_1(k)^2 + r_{1,2}u_1(k)u_2(k) + r_{2,1}u_2(k)u_1(k) + r_{2,2}u_2(k)^2) 
 \end{align*}
-$$
+
 
 . . .
 
