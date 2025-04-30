@@ -9,7 +9,7 @@
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-b719d3d4935f2b08311a76135e2bf442.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.7.28">
 
-  <title>EGH445 Modern Control – week9</title>
+  <title>EGH445 Modern Control – week9_workshop</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -29,9 +29,27 @@
     }
   </style>
   <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-f5ae8f0e29dcd40588cf042051caf7c6.css">
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
   <link href="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
@@ -44,6 +62,7 @@
     }
     .reveal .slide:not(.center) {
       height: 100%;
+      overflow-y: auto;
     }
     .reveal .slide.scrollable {
       overflow-y: auto;
@@ -137,12 +156,233 @@
     <div class="slides">
 
 
-<section id="diversity-in-stem" class="slide level2" data-header-left="Week 9" data-header-right="Events">
+<section id="title-slide" class="slide level2 title-slide-custom center" data-state="titleslide">
+<h2>Title Slide</h2>
+<div class="logo-container-title">
+<p><img src="../qut_logo.jpg" alt="QUT Logo"></p>
+</div>
+<div class="title-block">
+<h1>
+Modern Control
+</h1>
+<h2>
+Week 9 Workshop
+</h2>
+</div>
+<div class="author-block-title">
+<p>Dr Guilherme Froes Silva<br> School of Electrical Engineering &amp; Robotics<br> Queensland University of Technology</p>
+</div>
+<div class="course-code-title">
+<p>EGH445 - Modern Control</p>
+</div>
+<!-- <div class="website-link-title">
+  <a href="../index.html">
+    Website
+  </a>
+</div> -->
+<div class="contact-box-title">
+<p>Consultation: GP-S1111<br> Email: g.froessilva@qut.edu.au</p>
+</div>
+</section>
+<section id="overview" class="title-slide slide level1 center">
+<h1>Overview</h1>
+<ul>
+<li class="fragment">Opportunities and Events</li>
+<li class="fragment">Lecture Highlights</li>
+<li class="fragment">Workshop Examples</li>
+</ul>
+</section>
+
+<section>
+<section id="opportunities-and-events" class="title-slide slide level1 center">
+<h1>Opportunities and Events</h1>
+
+</section>
+<section id="diversity-in-stem" class="slide level2">
 <h2>Diversity in STEM</h2>
-<p><a href="https://events.humanitix.com/diversity-in-stem-night"><img data-src="images/paste-1.png" alt="Diversity in STEM Banner"></a></p>
+<p><a href="https://events.humanitix.com/diversity-in-stem-night"><img data-src="images/paste-1.png" alt="Diversity in STEM Banner" height="550"></a></p>
+</section></section>
+<section>
+<section id="lecture-highlights-week-9" class="title-slide slide level1 smaller center">
+<h1>Lecture Highlights (Week 9)</h1>
+<p><img data-src="images/2025_Schedule.png" alt="2025 Schedule" height="550"></p>
+<!-- ::: {.table-striped}
+| Week | Lecture/Tutorial         | Lab                   | Assessment           |
+|:-----|:-------------------------|:----------------------|:---------------------|
+| 1    | Introduction and Models  | No Lab                |                      |
+| 2    | System Analysis          | Intro Simulation      |                      |
+| 3    | Linear and Nonlinear Dyn | CT System Analysis    |                      |
+| 4    | DT Modelling             | Linear and Nonlinear  |                      |
+| 5    | DT Analysis              | DT System Modelling   |                      |
+| 6    | Control Design 1         | DT System Analysis    |                      |
+| 7    | Control Design 2         | DT Regulation Control |                      |
+|      | **Mid Semester Break**   |                       |                      |
+| 8    | **No Classes**           |                       | Mid-Sem Exam (20%)   |
+| 9    | Control Design 3         | DT Tracking Control   |                      |
+| 10   | State Estimation         | DT Optimal Control    |                      |
+| 11   | Practical Considerations | Output Feedback Ctrl  |                      |
+| 12   | Advanced Topics          | Demo                  | Ass 2.A Demo (20%)   |
+| 13   | Revision                 | No Lab                | Ass 2.B Report (20%) |
+:::
+ 
+: test {.table-striped .hover} -->
+</section>
+<section id="discrete-time-control-design-3-lecture-content" class="slide level2">
+<h2>Discrete-Time Control Design 3: Lecture Content</h2>
+<div class="columns">
+<div class="column">
+<p><img data-src="images/lec9.png" alt="Lecture 9 Title Slide"></p>
+</div><div class="column">
+<p><strong>Overview</strong></p>
+<ul>
+<li>Some content review</li>
+<li>Limitations of pole placement</li>
+<li>Optimal Control
+<ul>
+<li>Linear Quadratic Regulator (LQR)</li>
+<li>Model Predictive Control (MPC)</li>
+</ul></li>
+</ul>
+</div></div>
+</section>
+<section id="why-move-beyond-pole-placement" class="slide level2">
+<h2>Why Move Beyond Pole Placement?</h2>
+<div class="columns">
+<div class="column">
+<p><strong>Theoretical</strong></p>
+<hr>
+<ul>
+<li class="fragment"><em>Works well:</em>
+<ul>
+<li class="fragment">SISO, low-order systems</li>
+</ul></li>
+<li class="fragment"><em>Does not work well:</em>
+<ul>
+<li class="fragment">Higher-order systems</li>
+<li class="fragment">MIMO systems</li>
+<li class="fragment">Highly nonlinear systems</li>
+</ul></li>
+</ul>
+</div><div class="column">
+<p><strong>Practical Implications</strong></p>
+<hr>
+<ul>
+<li class="fragment"><em>Complexity</em>
+<ul>
+<li class="fragment">Tuning difficult for complex systems.</li>
+</ul></li>
+<li class="fragment"><em>Resource Constraints</em>
+<ul>
+<li class="fragment">Does not limit control effort.</li>
+</ul></li>
+<li class="fragment"><em>Trade-offs</em>
+<ul>
+<li class="fragment">No systematic way to manage.</li>
+</ul></li>
+</ul>
+</div></div>
+</section>
+<section id="linear-quadratic-regulator-lqr" class="slide level2 smaller scrollable">
+<h2>Linear Quadratic Regulator (LQR)</h2>
+<div class="columns">
+<div class="column">
+<p><strong>Theoretical</strong></p>
+<hr>
+<ul>
+<li class="fragment">Seeks the <em>best</em> controller that minimizes <span class="math inline">J</span><sup>1</sup>.</li>
+<li class="fragment">Cost function <span class="math inline">J</span> quantifies <em>performance goals</em>.
+<ul>
+<li class="fragment"><span class="math inline">x^\intercal Q x</span> penalizes state deviations.</li>
+<li class="fragment"><span class="math inline">u^\intercal R u</span> penalizes control effort.</li>
+</ul></li>
+<li class="fragment">Solution needs the unique, positive semi-definite solution of the <em>Riccati equation</em>.</li>
+<li class="fragment">Control law <span class="math inline">K = (R+H^\intercal PH)^{-1}H^\intercal P G</span>.</li>
+</ul>
+</div><div class="column">
+<p><strong>Practical Implications</strong></p>
+<hr>
+<ul>
+<li class="fragment">LQR forces explicit definition of <em>performance</em> by selection of <span class="math inline">Q</span> and <span class="math inline">R</span>.</li>
+<li class="fragment">Systematic way to manage trade-offs.</li>
+<li class="fragment">Computational tools are necessary to solve the Riccati equation.</li>
+</ul>
+</div></div>
+<aside><ol class="aside-footnotes"><li id="fn1"><p><span class="math inline">J=\sum_{t=0}^{\infty} (x^\intercal Q x + u^\intercal R u)</span></p></li></ol></aside></section>
+<section id="lqr-design" class="slide level2 smaller scrollable">
+<h2>LQR Design</h2>
+<div class="columns">
+<div class="column">
+<p><strong>Theoretical</strong></p>
+<hr>
+<ul>
+<li class="fragment">Controllability of <span class="math inline">(G,H)</span> is necessary.</li>
+<li class="fragment">Observability<sup>1</sup> of <span class="math inline">(G,V)</span> is necessary.
+<ul>
+<li class="fragment"><span class="math inline">Q = V^\intercal V</span>. This captures which states are <br> <em>seen</em> by the cost function.</li>
+</ul></li>
+<li class="fragment">The ratio of <span class="math inline">Q</span> and <span class="math inline">R</span> determines the trade-off.</li>
+<li class="fragment">Tuning involves adjusting <span class="math inline">Q</span> and <span class="math inline">R</span> and simulating.</li>
+</ul>
+</div><div class="column">
+<p><strong>Practical Implications</strong></p>
+<hr>
+<ul>
+<li class="fragment">Need <em>accurate</em> linear model.</li>
+<li class="fragment">Consideration of which states need to converge faster (or cannot deviate much).</li>
+<li class="fragment">Consideration of which control effort is acceptable.</li>
+<li class="fragment">The weights might be physically meaningful.
+<ul>
+<li class="fragment"><span class="math inline">R</span> – energy cost of actuators.</li>
+<li class="fragment"><span class="math inline">Q</span> – square error penalties of states in metres.</li>
+</ul></li>
+</ul>
+</div></div>
+<aside><ol class="aside-footnotes"><li id="fn2"><p>Cost-related observability.</p></li></ol></aside></section>
+<section id="beyond-lqr-model-predictive-control-mpc" class="slide level2 smaller">
+<h2>Beyond LQR: Model Predictive Control (MPC)</h2>
+<div class="columns">
+<div class="column">
+<p><strong>Theoretical</strong></p>
+<hr>
+<ul>
+<li class="fragment">LQR is a <em>static</em> controller.
+<ul>
+<li class="fragment">Unconstrained optmimisation problem.</li>
+<li class="fragment"><em>Infinite-horizon</em> cost function.</li>
+</ul></li>
+<li class="fragment">MPC is a <em>dynamic</em> controller.
+<ul>
+<li class="fragment">Explcitly considers constraints.</li>
+<li class="fragment"><em>Finite-horizon</em> cost function.
+<ul>
+<li class="fragment">Calculates optimal control sequence.</li>
+<li class="fragment">Applies only the first control action.</li>
+<li class="fragment">Repeats (receding horizon).</li>
+</ul></li>
+</ul></li>
+</ul>
+</div><div class="column">
+<p><strong>Practical Implications</strong></p>
+<hr>
+<ul>
+<li class="fragment">Real systems have physical limitations.</li>
+<li class="fragment">States might have bounds (e.g., safety zones).</li>
+<li class="fragment">MPC is significantly more complex and computationally expensive.</li>
+<li class="fragment">MPC also relies on <em>accurate</em> models (nonlinear extensions do exist).</li>
+</ul>
+</div></div>
+</section></section>
+<section id="assignment-help" class="title-slide slide level1 center">
+<h1>Assignment Help</h1>
+<ul>
+<li class="fragment">Questions?</li>
+<li class="fragment">Go over the MSD example.</li>
+</ul>
 
 
 </section>
+
+
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
@@ -157,6 +397,7 @@
   <script src="../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
   <script src="../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
   <script src="../site_libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
@@ -177,7 +418,8 @@
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
-'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
 'smaller': false,
  
         // Display controls in the bottom right corner
@@ -331,7 +573,7 @@
         margin: 0.1,
 
         // reveal.js plugins
-        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
 
           RevealNotes,
           RevealSearch,

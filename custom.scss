@@ -339,3 +339,10 @@ body.titleslide .slide-footer {
 #code450 code.sourceCode {
   height: 450px;
 }
+
+/*-- scss:rules --*/
+.table-striped {
+  > tbody > tr:nth-of-type(odd) > * {
+    background-color: #f2f2f2;
+  }
+}

@@ -1,0 +1,235 @@
+---
+format:
+    revealjs:
+        chalkboard: true
+        scrollable: true
+---
+
+## Title Slide {.title-slide-custom data-state="titleslide"}
+
+::: logo-container-title
+<img src="../qut_logo.jpg" alt="QUT Logo"/>
+:::
+
+::: title-block
+<h1>Modern Control</h1>
+
+<h2>Week 9 Workshop</h2>
+:::
+
+::: author-block-title
+Dr Guilherme Froes Silva<br/> School of Electrical Engineering & Robotics<br/> Queensland University of Technology
+:::
+
+::: course-code-title
+EGH445 - Modern Control
+:::
+
+```{=html}
+<!-- <div class="website-link-title">
+  <a href="../index.html">
+    Website
+  </a>
+</div> -->
+```
+
+::: contact-box-title
+Consultation: GP-S1111<br/> Email: g.froessilva\@qut.edu.au
+:::
+
+# Overview
+
+::: incremental
+-   Opportunities and Events
+-   Lecture Highlights
+-   Workshop Examples
+:::
+
+# Opportunities and Events
+
+## Diversity in STEM
+
+[![](images/paste-1.png){fig-alt="Diversity in STEM Banner" height="550px"}](https://events.humanitix.com/diversity-in-stem-night)
+
+# Lecture Highlights (Week 9) {.smaller}
+![](images/2025_Schedule.png){fig-alt="2025 Schedule" height=550px}
+
+<!-- ::: {.table-striped}
+| Week | Lecture/Tutorial         | Lab                   | Assessment           |
+|:-----|:-------------------------|:----------------------|:---------------------|
+| 1    | Introduction and Models  | No Lab                |                      |
+| 2    | System Analysis          | Intro Simulation      |                      |
+| 3    | Linear and Nonlinear Dyn | CT System Analysis    |                      |
+| 4    | DT Modelling             | Linear and Nonlinear  |                      |
+| 5    | DT Analysis              | DT System Modelling   |                      |
+| 6    | Control Design 1         | DT System Analysis    |                      |
+| 7    | Control Design 2         | DT Regulation Control |                      |
+|      | **Mid Semester Break**   |                       |                      |
+| 8    | **No Classes**           |                       | Mid-Sem Exam (20%)   |
+| 9    | Control Design 3         | DT Tracking Control   |                      |
+| 10   | State Estimation         | DT Optimal Control    |                      |
+| 11   | Practical Considerations | Output Feedback Ctrl  |                      |
+| 12   | Advanced Topics          | Demo                  | Ass 2.A Demo (20%)   |
+| 13   | Revision                 | No Lab                | Ass 2.B Report (20%) |
+:::
+ 
+: test {.table-striped .hover} -->
+
+## Discrete-Time Control Design 3: Lecture Content
+
+::::: columns
+::: column
+![](images/lec9.png){fig-alt="Lecture 9 Title Slide"}
+:::
+
+::: column
+**Overview**
+
+-   Some content review
+-   Limitations of pole placement
+-   Optimal Control
+    -   Linear Quadratic Regulator (LQR)
+    -   Model Predictive Control (MPC)
+:::
+:::::
+
+## Why Move Beyond Pole Placement?
+
+::::: columns
+::: column
+**Theoretical**
+
+------------------------------------------------------------------------
+
+::: {.incremental}
+- *Works well:*
+  - SISO, low-order systems
+- *Does not work well:*
+  - Higher-order systems
+  - MIMO systems
+  - Highly nonlinear systems
+:::
+:::
+
+::: column
+**Practical Implications**
+
+------------------------------------------------------------------------
+
+::: {.incremental}
+- *Complexity*
+  - Tuning difficult for complex systems.
+- *Resource Constraints*
+  - Does not limit control effort.
+- *Trade-offs*
+  - No systematic way to manage.
+:::
+:::
+:::::
+
+## Linear Quadratic Regulator (LQR) {.smaller}
+
+:::::: columns
+::: column
+
+**Theoretical**
+
+---
+
+::: {.incremental}
+- Seeks the *best* controller that minimizes $J$^[$J=\sum_{t=0}^{\infty} (x^\intercal Q x + u^\intercal R u)$].
+- Cost function $J$ quantifies *performance goals*.
+  - $x^\intercal Q x$ penalizes state deviations.
+  - $u^\intercal R u$ penalizes control effort.
+- Solution needs the unique, positive semi-definite solution of the *Riccati equation*.
+- Control law $K = (R+H^\intercal PH)^{-1}H^\intercal P G$.
+:::
+:::
+::: column
+**Practical Implications**
+
+---
+
+::: {.incremental}
+- LQR forces explicit definition of *performance* by selection of $Q$ and $R$.
+- Systematic way to manage trade-offs.
+- Computational tools are necessary to solve the Riccati equation.
+:::
+:::
+:::::
+
+## LQR Design {.smaller}
+
+:::::: columns
+::: column
+
+**Theoretical**
+
+---
+
+::: {.incremental}
+- Controllability of $(G,H)$ is necessary.
+- Observability^[Cost-related observability.] of $(G,V)$ is necessary.
+  - $Q = V^\intercal V$. This captures which states are <br> *seen* by the cost function.
+- The ratio of $Q$ and $R$ determines the trade-off.
+- Tuning involves adjusting $Q$ and $R$ and simulating.
+:::
+:::
+::: column
+**Practical Implications**
+
+---
+
+::: {.incremental}
+- Need *accurate* linear model.
+- Consideration of which states need to converge faster (or cannot deviate much).
+- Consideration of which control effort is acceptable.
+- The weights might be physically meaningful.
+  - $R$ -- energy cost of actuators.
+  - $Q$ -- square error penalties of states in metres.
+:::
+:::
+:::::
+
+## Beyond LQR: Model Predictive Control (MPC) {.smaller}
+:::::: columns
+::: column
+**Theoretical**
+
+---
+
+::: {.incremental}
+- LQR is a *static* controller.
+  - Unconstrained optmimisation problem.
+  - *Infinite-horizon* cost function.
+- MPC is a *dynamic* controller.
+  - Explcitly considers constraints.
+  - *Finite-horizon* cost function.
+    - Calculates optimal control sequence.
+    - Applies only the first control action.
+    - Repeats (receding horizon).
+:::
+
+:::
+
+::: column
+
+**Practical Implications**
+
+---
+
+::: {.incremental}
+- Real systems have physical limitations.
+- States might have bounds (e.g., safety zones).
+- MPC is significantly more complex and computationally expensive.
+- MPC also relies on *accurate* models (nonlinear extensions do exist).
+:::
+:::
+:::::
+
+# Assignment Help
+
+::: {.incremental}
+- Questions?
+- Go over the MSD example.
+:::

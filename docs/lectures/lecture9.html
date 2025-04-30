@@ -6,8 +6,8 @@
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.27">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-b719d3d4935f2b08311a76135e2bf442.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.28">
 
   <title>EGH445 Modern Control – lecture9</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -94,7 +94,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-340579894df40c8a7e696098a2e3717d.css">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-f5ae8f0e29dcd40588cf042051caf7c6.css">
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
@@ -482,7 +482,7 @@ K_1 = \begin{bmatrix} 0.6 &amp; 0 \\ 0 &amp; 0.2 \end{bmatrix}, \quad K_2 = \beg
 <div class="cell-output cell-output-display">
 <div>
 <figure>
-<p><img data-src="lecture9_files/figure-revealjs/cell-2-output-1.png"></p>
+<p><img data-src="lecture9_files/figure-revealjs/cell-2-output-1.png" width="817" height="536"></p>
 </figure>
 </div>
 </div>
@@ -607,7 +607,7 @@ B = \frac{\partial}{\partial u}(-x + x^3 + u) \Big|_{x=0, u=0} = 1
 </div>
 </div>
 <div class="fragment">
-<div id="5ace12ba" class="cell columns column-output-location" data-results="hold" data-execution_count="2">
+<div id="e8949819" class="cell columns column-output-location" data-results="hold" data-execution_count="2">
 <div class="column">
 <div class="sourceCode cell-code" id="cb2" data-code-line-numbers="1-3|8-11|13-18|20-23|29-37|42-63|104-120"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb2-2"><a></a><span class="im">from</span> scipy.integrate <span class="im">import</span> solve_ivp</span>
@@ -758,7 +758,7 @@ B = \frac{\partial}{\partial u}(-x + x^3 + u) \Big|_{x=0, u=0} = 1
 <div class="cell-output cell-output-display">
 <div>
 <figure>
-<p><img data-src="lecture9_files/figure-revealjs/cell-3-output-2.png"></p>
+<p><img data-src="lecture9_files/figure-revealjs/cell-3-output-2.png" width="938" height="744"></p>
 </figure>
 </div>
 </div>
@@ -968,7 +968,7 @@ P = 15.2571 \text{ or } P = -7.2624
 </ul>
 </div>
 <div class="fragment">
-<div id="290f7f2e" class="cell columns column-output-location" data-results="hold" data-execution_count="3">
+<div id="2dfb01d5" class="cell columns column-output-location" data-results="hold" data-execution_count="3">
 <div class="column">
 <div class="sourceCode cell-code" id="cb4" data-code-line-numbers="3|30-32|34-49|"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb4-2"><a></a><span class="im">from</span> scipy.integrate <span class="im">import</span> solve_ivp</span>
@@ -1120,7 +1120,7 @@ Linear Closed-Loop Pole = 0.381. (STABLE)</code></pre>
 <div class="cell-output cell-output-display">
 <div>
 <figure>
-<p><img data-src="lecture9_files/figure-revealjs/cell-4-output-2.png"></p>
+<p><img data-src="lecture9_files/figure-revealjs/cell-4-output-2.png" width="920" height="744"></p>
 </figure>
 </div>
 </div>
@@ -1205,7 +1205,7 @@ Linear Closed-Loop Pole = 0.381. (STABLE)</code></pre>
 <div class="cell-output cell-output-display">
 <div>
 <figure>
-<p><img data-src="lecture9_files/figure-revealjs/cell-5-output-2.png"></p>
+<p><img data-src="lecture9_files/figure-revealjs/cell-5-output-2.png" width="837" height="394"></p>
 </figure>
 </div>
 </div>
@@ -1229,7 +1229,7 @@ Linear Closed-Loop Pole = 0.381. (STABLE)</code></pre>
 </section>
 <section id="quick-example-of-dlqr-tuning" class="slide level2">
 <h2>Quick Example of DLQR Tuning</h2>
-<div id="e049e77f" class="cell" data-code-block-height="300px" data-results="hold" data-execution_count="5">
+<div id="65250ff3" class="cell" data-code-block-height="300px" data-results="hold" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8" data-code-line-numbers=""><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a><span class="co"># Iterate over different Q values and simulate the system</span></span>
@@ -1273,9 +1273,15 @@ Linear Closed-Loop Pole = 0.381. (STABLE)</code></pre>
 <span id="cb8-39"><a></a>plt.grid(<span class="va">True</span>)</span>
 <span id="cb8-40"><a></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-
+<div class="cell-output cell-output-display">
+<div>
+<figure>
+<p><img data-src="lecture9_files/figure-revealjs/cell-6-output-1.png" width="837" height="538"></p>
+</figure>
 </div>
-<img data-src="lecture9_files/figure-revealjs/cell-6-output-1.png" class="r-stretch"></section>
+</div>
+</div>
+</section>
 <section id="limitations-of-lqr-control-saturation" class="slide level2 smaller">
 <h2>Limitations of LQR: Control Saturation</h2>
 <p>The <em>Linear</em> Quadratic Regulator may not be suitable for all systems, however.</p>
@@ -1289,7 +1295,7 @@ Linear Closed-Loop Pole = 0.381. (STABLE)</code></pre>
 </section>
 <section id="unsaturated-lqr" class="slide level2 smaller">
 <h2>Unsaturated LQR</h2>
-<div id="b8da46b2" class="cell columns column-output-location" data-execution_count="6">
+<div id="a6c9aa59" class="cell columns column-output-location" data-execution_count="6">
 <div class="column">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a><span class="co"># Scenario 1: Unconstrained LQR for Nonzero Regulation (Damped 2nd Order System)</span></span>
 <span id="cb9-2"><a></a></span>
@@ -1456,7 +1462,7 @@ Simulation loop time: 0.01 s</code></pre>
 <div class="cell-output cell-output-display">
 <div>
 <figure>
-<p><img data-src="lecture9_files/figure-revealjs/cell-7-output-2.png"></p>
+<p><img data-src="lecture9_files/figure-revealjs/cell-7-output-2.png" width="943" height="754"></p>
 </figure>
 </div>
 </div>
@@ -1464,7 +1470,7 @@ Simulation loop time: 0.01 s</code></pre>
 </section>
 <section id="saturated-lqr" class="slide level2 smaller">
 <h2>Saturated LQR</h2>
-<div id="ca108552" class="cell columns column-output-location" data-execution_count="7">
+<div id="258488da" class="cell columns column-output-location" data-execution_count="7">
 <div class="column">
 <div class="sourceCode cell-code" id="cb11" data-code-line-numbers=""><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a></a><span class="co"># Scenario 2: Saturated LQR for Nonzero Regulation (Damped 2nd Order System)</span></span>
 <span id="cb11-2"><a></a></span>
@@ -1624,12 +1630,12 @@ Simulation loop time: 0.01 s</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>DLQR Gain for error K = [[8.76224795 4.36193866]]
 Control Limits: [-2.5, 0.5]
-Simulation loop time: 0.03 s</code></pre>
+Simulation loop time: 0.01 s</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure>
-<p><img data-src="lecture9_files/figure-revealjs/cell-8-output-2.png"></p>
+<p><img data-src="lecture9_files/figure-revealjs/cell-8-output-2.png" width="943" height="754"></p>
 </figure>
 </div>
 </div>
@@ -1637,7 +1643,7 @@ Simulation loop time: 0.03 s</code></pre>
 </section>
 <section id="mpc" class="slide level2 smaller">
 <h2>MPC</h2>
-<div id="fefecc29" class="cell columns column-output-location" data-execution_count="8">
+<div id="162ae1ea" class="cell columns column-output-location" data-execution_count="8">
 <div class="column">
 <div class="sourceCode cell-code" id="cb13" data-code-line-numbers=""><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a></a><span class="co"># Scenario 3: MPC for Nonzero Regulation (Damped 2nd Order System)</span></span>
 <span id="cb13-2"><a></a></span>
@@ -1831,13 +1837,15 @@ Simulation loop time: 0.03 s</code></pre>
 </div><div class="column">
 <div class="cell-output cell-output-stdout">
 <pre><code>Control Limits: [-2.5, 0.5]
-MPC CVXPY Problem defined.
-MPC Simulation loop time: 7.97 s</code></pre>
+MPC CVXPY Problem defined.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>MPC Simulation loop time: 7.64 s</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure>
-<p><img data-src="lecture9_files/figure-revealjs/cell-9-output-2.png"></p>
+<p><img data-src="lecture9_files/figure-revealjs/cell-9-output-3.png" width="943" height="754"></p>
 </figure>
 </div>
 </div>

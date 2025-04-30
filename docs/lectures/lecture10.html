@@ -6,8 +6,8 @@
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.27">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-b719d3d4935f2b08311a76135e2bf442.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.28">
 
   <title>EGH445 Modern Control – lecture10</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -27,8 +27,74 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-d59d6928062b490bf0514977e5c5463f.css">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-f5ae8f0e29dcd40588cf042051caf7c6.css">
   <link href="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -168,11 +234,59 @@ Optimal Control
 <p>Consultation: GP-S1111<br> Email: g.froessilva@qut.edu.au</p>
 </div>
 </section>
+<section>
 <section id="overview" class="title-slide slide level1 center" data-state="overview">
 <h1>Overview</h1>
-
-
+<ul>
+<li>Testing code</li>
+</ul>
 </section>
+<section id="python-code" class="slide level2">
+<h2>Python Code</h2>
+<div id="code200" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt </span>
+<span id="cb1-3"><a></a><span class="co"># 2</span></span>
+<span id="cb1-4"><a></a><span class="co"># 1</span></span>
+<span id="cb1-5"><a></a><span class="co"># 1</span></span>
+<span id="cb1-6"><a></a><span class="co"># 1</span></span>
+<span id="cb1-7"><a></a><span class="co"># 1 </span></span>
+<span id="cb1-8"><a></a><span class="co"># 1</span></span>
+<span id="cb1-9"><a></a><span class="co"># 1</span></span>
+<span id="cb1-10"><a></a><span class="co"># 1</span></span>
+<span id="cb1-11"><a></a><span class="co"># 1</span></span>
+<span id="cb1-12"><a></a><span class="co"># 1# 1</span></span>
+<span id="cb1-13"><a></a><span class="co"># 1</span></span>
+<span id="cb1-14"><a></a><span class="co"># 1</span></span>
+<span id="cb1-15"><a></a><span class="co"># 1</span></span>
+<span id="cb1-16"><a></a><span class="co"># 1 </span></span>
+<span id="cb1-17"><a></a><span class="co"># 1</span></span>
+<span id="cb1-18"><a></a><span class="co"># 1</span></span>
+<span id="cb1-19"><a></a><span class="co"># 1</span></span>
+<span id="cb1-20"><a></a><span class="co"># 1</span></span>
+<span id="cb1-21"><a></a><span class="co"># 1# 1</span></span>
+<span id="cb1-22"><a></a><span class="co"># 1</span></span>
+<span id="cb1-23"><a></a><span class="co"># 1</span></span>
+<span id="cb1-24"><a></a><span class="co"># 1</span></span>
+<span id="cb1-25"><a></a><span class="co"># 1 </span></span>
+<span id="cb1-26"><a></a><span class="co"># 1</span></span>
+<span id="cb1-27"><a></a><span class="co"># 1</span></span>
+<span id="cb1-28"><a></a><span class="co"># 1</span></span>
+<span id="cb1-29"><a></a><span class="co"># 1</span></span>
+<span id="cb1-30"><a></a><span class="co"># 1# 1</span></span>
+<span id="cb1-31"><a></a><span class="co"># 1</span></span>
+<span id="cb1-32"><a></a><span class="co"># 1</span></span>
+<span id="cb1-33"><a></a><span class="co"># 1</span></span>
+<span id="cb1-34"><a></a><span class="co"># 1 </span></span>
+<span id="cb1-35"><a></a><span class="co"># 1</span></span>
+<span id="cb1-36"><a></a><span class="co"># 1</span></span>
+<span id="cb1-37"><a></a><span class="co"># 1</span></span>
+<span id="cb1-38"><a></a><span class="co"># 1</span></span>
+<span id="cb1-39"><a></a><span class="co"># 1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+
+
+</section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
