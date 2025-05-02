@@ -56,7 +56,7 @@ format:
   revealjs:
     # --- Widescreen Settings ---
     width: 1280  # Example for 16:9
-    height: 720   # Example for 16:9
+    height: 700   # Example for 16:9
     # Apply the custom theme
     theme: [default, custom.scss] # Use default reveal theme + custom overrides
     # --- Standard Options from your PPTX ---

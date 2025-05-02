@@ -207,14 +207,14 @@
     "href": "lectures/lecture10.html#title-slide",
     "title": "EGH445 Modern Control",
     "section": "Title Slide",
-    "text": "Title Slide\n\n\n\n\n\nDiscrete-Time Control Design 3\n\n\nOptimal Control\n\n\n\nDr Guilherme Froes Silva School of Electrical Engineering & Robotics Queensland University of Technology\n\n\nEGH445 - Modern Control\n\n\n\nConsultation: GP-S1111 Email: g.froessilva@qut.edu.au"
+    "text": "Title Slide\n\n\n\n\n\nState Estimation\n\n\nObservers and Output Feedback\n\n\n\nDr Guilherme Froes Silva School of Electrical Engineering & Robotics Queensland University of Technology\n\n\nEGH445 - Modern Control\n\n\n\nConsultation: GP-S1111 Email: g.froessilva@qut.edu.au"
   },
   {
     "objectID": "lectures/lecture10.html#python-code",
     "href": "lectures/lecture10.html#python-code",
     "title": "EGH445 Modern Control",
     "section": "Python Code",
-    "text": "Python Code\n\nimport numpy as np\nimport matplotlib.pyplot as plt \n# 2\n# 1\n# 1\n# 1\n# 1 \n# 1\n# 1\n# 1\n# 1\n# 1# 1\n# 1\n# 1\n# 1\n# 1 \n# 1\n# 1\n# 1\n# 1\n# 1# 1\n# 1\n# 1\n# 1\n# 1 \n# 1\n# 1\n# 1\n# 1\n# 1# 1\n# 1\n# 1\n# 1\n# 1 \n# 1\n# 1\n# 1\n# 1\n# 1"
+    "text": "Python Code\nimport numpy as np\nimport matplotlib.pyplot as plt \n# 2\n# 1\n# 1\n# 1\n# 1 \n# 1\n# 1\n# 1\n# 1\n# 1# 1\n# 1\n# 1\n# 1\n# 1 \n# 1\n# 1\n# 1\n# 1\n# 1# 1\n# 1\n# 1\n# 1\n# 1 \n# 1\n# 1\n# 1\n# 1\n# 1# 1\n# 1\n# 1\n# 1\n# 1 \n# 1\n# 1\n# 1\n# 1\n# 1"
   },
   {
     "objectID": "lectures/lecture9.html#section-6",
@@ -243,5 +243,229 @@
     "title": "EGH445 Modern Control",
     "section": "",
     "text": "import numpy as np\nfrom scipy.integrate import solve_ivp\nfrom scipy.linalg import solve_discrete_are # Import DARE solver\nimport matplotlib.pyplot as plt\n\n# Set default font size for plots\nplt.rcParams['font.size'] = 14 \n\n# 1. Nonlinear System Dynamics\ndef nonlinear_system(x, u):\n    # Scalar system dynamics: dx/dt = -x + x^3 + u\n    return -x + x**3 + u\n\n# 2. Linear Controller Parameters (derived above)\nAd = 0.905\nBd = 0.095\nK = 4.263\nTs = 0.1\nx_eq = 0.0 # Equilibrium state\n\n# 3. Simulation Setup\nt_start = 0\nt_end = 1.0 # Shorter simulation time might be enough\nn_steps = int(t_end / Ts)\n\n# Initial Conditions to compare\nx0_small = 2\nx0_large = 2.4\n\n# --- DLQR Controller Design ---\nQd = 10.0  # State weight\nRd = 0.1  # Control weight\n\n# Solve Discrete Algebraic Riccati Equation (DARE)\n# Need to pass arguments as 2D arrays for the solver\nA_dare = np.array([[Ad]])\nB_dare = np.array([[Bd]])\nQ_dare = np.array([[Qd]])\nR_dare = np.array([[Rd]])\n\nS = solve_discrete_are(A_dare, B_dare, Q_dare, R_dare)\nS_scalar = S[0, 0] # Extract scalar value\n\n# Calculate DLQR gain Kd\n# Kd = (R + B'SB)^-1 B'SA\nKd_term1 = R_dare + B_dare.T @ S @ B_dare\nKd_term2 = B_dare.T @ S @ A_dare\nKd = np.linalg.inv(Kd_term1) @ Kd_term2\nK_lqr = Kd[0, 0] # Extract scalar gain\n\n# Check closed-loop stability for the linear system\nAcl_lqr = Ad - Bd * K_lqr\nprint(f\"DARE Solution S = {S_scalar:.3f} (for Q={Qd}, R={Rd})\")\nprint(f\"DLQR Gain K = {K_lqr:.3f}\")\nif abs(Acl_lqr) &lt; 1:\n    print(f\"Linear Closed-Loop Pole = {Acl_lqr:.3f}. (STABLE)\")\nelse:\n    print(f\"Linear Closed-Loop Pole = {Acl_lqr:.3f}. (UNSTABLE)\")\n# --- End DLQR Design ---\n\n# Function to run the simulation (same as before, just uses K_lqr)\ndef run_simulation(x0_val, K_gain):\n    t_history = [t_start]\n    x_history = [x0_val]\n    u_history = []\n    current_t = t_start\n    current_x = np.array([x0_val]) # State needs to be array\n\n    for k in range(n_steps):\n        x_deviation = current_x[0] - x_eq\n        u_k = -K_gain * x_deviation\n        u_history.append(u_k)\n\n        def ode_interval(t, y):\n            return np.array([nonlinear_system(y[0], u_k)])\n\n        t_interval = (current_t, current_t + Ts)\n        sol_interval = solve_ivp(\n            ode_interval, t_interval, current_x, method='RK45',\n            t_eval=[current_t + Ts]\n        )\n\n        if sol_interval.status != 0:\n            print(f\"Simulation failed at step {k} (t={current_t:.2f}) for x(0)={x0_val}\")\n            # Pad history...\n            failed_steps = n_steps - k\n            t_history.extend(np.linspace(current_t + Ts, t_end, failed_steps))\n            x_history.extend([np.nan] * failed_steps)\n            u_history.extend([np.nan] * failed_steps)\n            break\n\n        current_t += Ts\n        current_x = sol_interval.y[:, -1]\n        t_history.append(current_t)\n        x_history.append(current_x[0])\n\n        if abs(current_x[0]) &gt; 10: # Stop if diverging\n            print(f\"State diverging at step {k} (t={current_t:.2f}) for x(0)={x0_val}. Stopping.\")\n            failed_steps = n_steps - k -1\n            if failed_steps &gt; 0:\n                 t_history.extend(np.linspace(current_t + Ts, t_end, failed_steps))\n                 x_history.extend([np.nan] * failed_steps)\n            break\n\n    return np.array(t_history), np.array(x_history), np.array(u_history)\n\n# Run both simulations with DLQR gain\nt_small, x_small, u_small = run_simulation(x0_small, K_lqr)\nt_large, x_large, u_large = run_simulation(x0_large, K_lqr)\n\n# 4. Plotting Results\nplt.figure(figsize=(10, 8))\nplt.subplot(2, 1, 1)\nplt.plot(t_small, x_small, label=f'State x(t) (x0={x0_small})', linewidth=2)\nplt.plot(t_large, x_large, label=f'State x(t) (x0={x0_large})', linewidth=2, linestyle='--')\nplt.axhline(0, color='black', linewidth=0.5, linestyle=':')\nplt.ylabel('State x')\nplt.title(f'Scalar Nonlinear System with DLQR Controller (Q={Qd}, R={Rd})')\nplt.grid(True)\nplt.legend()\nplt.ylim(min(np.nanmin(x_small), np.nanmin(x_large), -1) - 0.5, max(np.nanmax(x_small), np.nanmax(x_large), 1) + 0.5)\n\nplt.subplot(2, 1, 2)\nfinal_idx_small = len(u_small)\nif final_idx_small &gt; 0:\n    # Use step plot for control signal visualization\n    plt.step(t_small[:final_idx_small], u_small[:final_idx_small], where='post',\n             label=f'Control u[k] (x0={x0_small})', linewidth=2)\n\nfinal_idx_large = len(u_large)\nif final_idx_large &gt; 0:\n    plt.step(t_large[:final_idx_large], u_large[:final_idx_large], where='post',\n             label=f'Control u[k] (x0={x0_large})', linewidth=2, linestyle='--')\n\nplt.ylabel('Control Input u')\nplt.xlabel('Time (s)')\nplt.grid(True)\nplt.legend()\n\nplt.tight_layout()\nplt.show()\n\n\nDARE Solution S = 15.257 (for Q=10.0, R=0.1)\nDLQR Gain K = 5.519\nLinear Closed-Loop Pole = 0.381. (STABLE)"
+  },
+  {
+    "objectID": "lectures/lecture10.html#state-availability-problem",
+    "href": "lectures/lecture10.html#state-availability-problem",
+    "title": "EGH445 Modern Control",
+    "section": "State Availability Problem",
+    "text": "State Availability Problem\n\n\n\n\n\n\nImportant\n\n\nHow can we implement state-feedback, u(kT) = -Kx(kT), when x(kT) is not directly measured?\n\n\n\n\nCan we calculate the state from the output?\nGiven the output equation for a discrete-time system: \ny(kT) = Cx(kT) + Du(kT)\n\nAssuming D=0 for simplicity, could we  simply invert C?\n\n\\hat{x}(kT) \\overset{?}{=} C^{-1}y(kT)"
+  },
+  {
+    "objectID": "lectures/lecture10.html#can-we-calculate-the-state-from-the-output",
+    "href": "lectures/lecture10.html#can-we-calculate-the-state-from-the-output",
+    "title": "EGH445 Modern Control",
+    "section": "Can we calculate the state from the output?",
+    "text": "Can we calculate the state from the output?\n\nThis is not possible in general!\nAs the matrix C\\in\\mathbb{R}^{p \\times n} is often not square.\n\n\nConsider a system with two states (n=2) and one output (p=1): \n\\begin{align*}\n\\underbrace{\\begin{bmatrix}x_1(t) \\\\ x_2(t)\\end{bmatrix}}_{x(t)\\in\\mathbb{R}^n} &= \\begin{bmatrix} 0 & 1 \\\\ -0.1 & -0.2 \\end{bmatrix} \\begin{bmatrix}x_1(t) \\\\ x_2(t)\\end{bmatrix} + \\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix} u(t) \\\\\n\\underbrace{y(t)}_{y(t)\\in\\mathbb{R}^p} &= \\begin{bmatrix} 1 & 0 \\end{bmatrix}_{\\textcolor{red}{p\\times n}} \\begin{bmatrix}x_1(t) \\\\ x_2(t)\\end{bmatrix}\n\\end{align*}"
+  },
+  {
+    "objectID": "lectures/lecture10.html#section",
+    "href": "lectures/lecture10.html#section",
+    "title": "EGH445 Modern Control",
+    "section": "",
+    "text": "Observer Error Dynamics:\nThe observer equation is: \n\\begin{align*}\n\\hat{x}(kT+T) &= G\\hat{x}(kT) + Hu(kT) + L (Cx(kT) - C\\hat{x}(kT)) \\\\\n\\color{green}\n\\hat{x}(kT+T) &= \\color{green}(G - L C)\\hat{x}(kT) + Hu(kT) + L C x(kT)\n\\end{align*}\n\nNow, let’s find the dynamics of the estimation error e(kT) = x(kT) - \\hat{x}(kT): \\begin{align*}\ne(kT+T) &= x(kT+T) - \\hat{x}(kT+T) \\\\\n&= \\textcolor{blue}{(Gx(kT) + Hu(kT))} - \\textcolor{green}{((G - L C)\\hat{x}(kT) + Hu(kT) + L C x(kT))} \\\\\n&= G(x(kT) - \\hat{x}(kT)) - L C (x(kT) - \\hat{x}(kT)) \\\\\n&= \\textcolor{red}{(G - L C)} e(kT)\n\\end{align*}\n\n\n\n\n\n\nImportant\n\n\nThe observer error dynamics are governed by the matrix (G - L C). We want to choose the observer gain L such that the error e(kT) converges to zero quickly, i.e., the eigenvalues of (G - L C) are stable (magnitude less than 1) and have desired dynamics."
+  },
+  {
+    "objectID": "lectures/lecture10.html#can-we-calculate-the-state-from-the-input",
+    "href": "lectures/lecture10.html#can-we-calculate-the-state-from-the-input",
+    "title": "EGH445 Modern Control",
+    "section": "Can we calculate the state from the input?",
+    "text": "Can we calculate the state from the input?\nThat is, can we simulate the system and use the states?\n\n\n\nConsider the discrete-time system: \n\\textcolor{blue}{x(kT+T) = Gx(kT) + Hu(kT)}\n Let’s build a “copy” of the system to estimate the state \\hat{x}(kT): \n\\textcolor{green}{\\hat{x}(kT+T) = G\\hat{x}(kT) + Hu(kT)}\n\n\n\n\nThis is an open-loop observer or predictor."
+  },
+  {
+    "objectID": "lectures/lecture10.html#open-loop-estimation-error",
+    "href": "lectures/lecture10.html#open-loop-estimation-error",
+    "title": "EGH445 Modern Control",
+    "section": "Open-loop estimation error",
+    "text": "Open-loop estimation error\nDefine the estimation error e(kT) = \\textcolor{blue}{x(kT)} - \\textcolor{green}{\\hat{x}(kT)}.\nNow, let’s find the dynamics of the estimation error: \\begin{align*}\ne(kT+T) &= \\textcolor{blue}{x(kT+T)} - \\textcolor{green}{\\hat{x}(kT+T)} \\\\\n&= \\textcolor{blue}{(Gx(kT) + Hu(kT))} - \\textcolor{green}{(G\\hat{x}(kT) + Hu(kT))} \\\\\n&= G\\left(x(kT) - \\hat{x}(kT)\\right) \\\\\n&= G e(kT)\n\\end{align*}\nProblem: The error dynamics are given by the open-loop system matrix G.\n\nIf G has eigenvalues outside the unit circle (unstable system), the estimation error e(kT) will diverge, regardless of the initial estimate \\hat{x}(0).\nEven if G is stable, the error might converge too slowly for effective control."
+  },
+  {
+    "objectID": "lectures/lecture10.html#discrete-time-luenberger-observer",
+    "href": "lectures/lecture10.html#discrete-time-luenberger-observer",
+    "title": "EGH445 Modern Control",
+    "section": "Discrete-Time Luenberger Observer",
+    "text": "Discrete-Time Luenberger Observer\n\n\nConsider the system: \\begin{align*}\n\\textcolor{blue}{x(kT+T)} &= \\textcolor{blue}{Gx(kT) + Hu(kT)} \\\\\n\\textcolor{blue}{y(kT)} &= \\textcolor{blue}{Cx(kT)}\n\\end{align*} (Assuming D=0 for simplicity, can be added back later). Luenberger Observer:  \\color{green}\n\\hat{x}(kT+T) = G\\hat{x}(kT) + Hu(kT) + \\textcolor{red}{L \\big(y(kT) - \\hat{y}(kT)\\big)}\n\n\n\n\n\n\n\n\\hat{x}(kT) is the state estimate at time kT.\nL is the observer gain matrix (to be designed).\n\n\n\ny(kT) is the actual measured output.\n\\hat{y}(kT) = C\\hat{x}(kT) is the estimated output."
+  },
+  {
+    "objectID": "lectures/lecture10.html#section-1",
+    "href": "lectures/lecture10.html#section-1",
+    "title": "EGH445 Modern Control",
+    "section": "",
+    "text": "Case 1: Position Measurement\nLet C_1 = \\begin{bmatrix} 1 & 0 \\end{bmatrix}.\n\\mathcal{O}_1 = \\begin{bmatrix} C_1 \\\\ C_1 G \\end{bmatrix} =\n\\begin{bmatrix}\n1.0000    &     0 \\\\\n1.0000  &  0.0975\n\\end{bmatrix}.\n\\det(\\mathcal{O}_1) = 1 \\times 0.0975 - 0 \\times 1 = 0.0975 \\neq 0.\nRank is 2. System is observable when measuring position.\n\nCase 2: Velocity Measurement\nC_2 = \\begin{bmatrix} 0 & 1 \\end{bmatrix}.\n\\mathcal{O}_2 = \\begin{bmatrix} C_2 \\\\ C_2 G \\end{bmatrix} =\n\\begin{bmatrix}\n  0  &  1.0000 \\\\\n  0  &  0.9512\n\\end{bmatrix}.\n\\det(\\mathcal{O}_2) = 0 \\times 0.9512 - 0 \\times 1 = 0.\nRank is 1. System is not observable when measuring velocity."
+  },
+  {
+    "objectID": "lectures/lecture10.html#observer-block-diagram",
+    "href": "lectures/lecture10.html#observer-block-diagram",
+    "title": "EGH445 Modern Control",
+    "section": "Observer Block Diagram",
+    "text": "Observer Block Diagram\n[Diagram adapted from]\n\n\n\n\n\ngraph TD\n    subgraph System\n        u_sys[u(kT)] --&gt; B_sys(H)\n        B_sys --&gt; sum_sys(+)\n        x_prev[x(kT)] --&gt; G_sys(G)\n        G_sys --&gt; sum_sys\n        sum_sys --&gt; delay_sys{z^-1}\n        delay_sys --&gt; x_curr[x(kT+T)]\n        delay_sys --&gt; C_sys(C)\n        C_sys --&gt; y_sys[y(kT)]\n    end\n\n    subgraph Observer\n        u_obs[u(kT)] --&gt; B_obs(H)\n        B_obs --&gt; sum_obs1(+)\n        xhat_prev[ê(kT)] --&gt; G_obs(G)\n        G_obs --&gt; sum_obs1\n        Ld[Ld] --&gt; sum_obs2(-)\n        y_obs[y(kT)] --&gt; sum_obs2\n        xhat_prev --&gt; Chat_obs(C)\n        Chat_obs --&gt; yhat_obs[ŷ(kT)]\n        yhat_obs --&gt; sum_obs2\n        sum_obs2 --&gt; sum_obs1\n        sum_obs1 --&gt; delay_obs{z^-1}\n        delay_obs --&gt; xhat_curr[ê(kT+T)]\n    end\n\n    u_sys --&gt; u_obs\n    y_sys --&gt; y_obs"
+  },
+  {
+    "objectID": "lectures/lecture10.html#block-diagrams",
+    "href": "lectures/lecture10.html#block-diagrams",
+    "title": "EGH445 Modern Control",
+    "section": "Block Diagrams",
+    "text": "Block Diagrams\n\nThe observer essentially runs a simulation of the system, but with a correction term L (y(kT) - \\hat{y}(kT)) that pushes the estimated state \\hat{x}(kT) towards the true state x(kT)."
+  },
+  {
+    "objectID": "lectures/lecture10.html#revisiting-observability-discrete-time",
+    "href": "lectures/lecture10.html#revisiting-observability-discrete-time",
+    "title": "EGH445 Modern Control",
+    "section": "Revisiting Observability (Discrete-Time)",
+    "text": "Revisiting Observability (Discrete-Time)\n\n\n\n\n\n\nAnalogy\n\n\nFor state feedback u = -Kx, we could arbitrarily place the eigenvalues of (G - HK) if and only if the system (G, H) was controllable.\nFor observer design, the ability to place the eigenvalues of (G - L_d C) depends on the system (G,C) being observable.\n\n\n\n\n\n\n\n\n\n\nObservability\n\n\nA discrete-time system, \\,x(kT+T) = Gx(kT) + Hu(kT), \\quad y(kT) = Cx(kT), is completely observable if, for any initial time k_0 T, the initial state x(k_0 T) can be uniquely determined from the knowledge of the input sequence u(kT) and the output sequence y(kT) for a finite number of steps."
+  },
+  {
+    "objectID": "lectures/lecture10.html#determining-observability",
+    "href": "lectures/lecture10.html#determining-observability",
+    "title": "EGH445 Modern Control",
+    "section": "Determining Observability",
+    "text": "Determining Observability\n\n\n\n\n\n\nTheorem\n\n\nThe pair (G, C) is completely observable if and only if the observability matrix \\mathcal{O} has rank n, where n is the dimension of the state vector x.\n\n\n\n\nHow to check:\n\nConstruct the matrix \\mathcal{O} = \\begin{bmatrix} C \\;\\; CG \\;\\; CG^2 \\; \\dots \\; CG^{n-1} \\end{bmatrix}^\\intercal.\nCalculate its rank\n\nnumpy.linalg.matrix_rank(ObsvMatrix) (Python)\nrank(ObsvMatrix) (MATLAB).\n\nIf \\mathcal{O} is square, it is full rank if and only if \\det(\\mathcal{O}) \\neq 0.\nIf \\text{rank}(\\mathcal{O}) &lt; n, the system is not completely observable."
+  },
+  {
+    "objectID": "lectures/lecture10.html#example-observability-check",
+    "href": "lectures/lecture10.html#example-observability-check",
+    "title": "EGH445 Modern Control",
+    "section": "Example: Observability Check",
+    "text": "Example: Observability Check\nConsider a discrete-time model for a vehicle, with m=1, b=0.5.\nAssume a sampling time T=0.1.\nContinuous: A = \\begin{bmatrix} 0 & 1 \\\\ 0 & -b/m \\end{bmatrix} = \\begin{bmatrix} 0 & 1 \\\\ 0 & -0.5 \\end{bmatrix}, \\quad B = \\begin{bmatrix} 0 \\\\ 1/m \\end{bmatrix} = \\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix}.\nDiscretised (using c2d(...) in MATLAB): G = \\begin{bmatrix} 1 & 0 \\\\ 0.0975 & 0.9512 \\end{bmatrix}, \\quad H = \\begin{bmatrix} 0.0049 \\\\ 0.0975 \\end{bmatrix}."
+  },
+  {
+    "objectID": "lectures/lecture10.html#section-2",
+    "href": "lectures/lecture10.html#section-2",
+    "title": "EGH445 Modern Control",
+    "section": "",
+    "text": "Closed-Loop Simulation:\n\nImplement the observer and controller u(kT) = -K\\hat{x}(kT). The overall system state includes x and e.\nG_{cl} = \\begin{bmatrix} G-HK & HK \\\\ {0} & G-L C \\end{bmatrix}, \\quad x(0) = [1, 0]^T.\nInitial estimate error: e(0) = x(0) - \\hat{x}(0) = [1, 0]^T - [0, 0]^T = [1, 0]^T (assume observer starts at 0).\n\n\n\n% MATLAB code\nG = [1 0.0975; 0 0.9512]; % System matrix\nH = [0.0049; 0.0975]; % Input matrix\nC = [1 0]; % Output matrix\n\nK = place(G, H, [0.8, 0.7]); % Controller gain\nL = place(G', C', [0.2, 0.3])'; % Observer gain\n\nGcl = [G - H*K, H*K; zeros(2), G - L*C]; % Closed-loop system matrix\nx0 = [1; 0]; % Initial state\ne0 = [1; 0]; % Initial estimation error\n\nTs = 0.1; % Sampling time\nSys = ss(Gcl, zeros(4,1), eye(4), zeros(4,1), Ts); % State-space system\n\nt = 0:Ts:3; % Time vector\n[y, t] = initial(Sys, [x0; e0], t); % Simulate system response\n\n% Plot position state and estimation\nplot(t, y(:,1), t, y(:,1)-y(:,3), '--', LineWidth=4); \nxlabel('Time (s)');\nylabel('Position (m)');\nlegend(\"True\", 'Estimate');"
+  },
+  {
+    "objectID": "lectures/lecture10.html#design-steps",
+    "href": "lectures/lecture10.html#design-steps",
+    "title": "EGH445 Modern Control",
+    "section": "Design Steps",
+    "text": "Design Steps\n\n\nCheck Observability: Verify that \\text{rank}(\\mathcal{O}) = n.\nChoose Desired Observer Poles:\n\nSelect stable pole locations p_{d1}, p_{d2}, \\dots, p_{dn} within the unit circle (e.g., |\\lambda_{di}| &lt; 1).\nThese poles dictate the speed of convergence of the estimation error e(kT). Typically chosen 5-10 times faster (closer to the origin) than the desired controller poles.\n\nForm Desired Characteristic Polynomial: \\alpha_{des}(z) = (z - p_{d1})(z - p_{d2}) \\cdots (z - p_{dn}).\nDetermine Observer Gain L: Find L such that the characteristic polynomial of (G - L_d C) matches \\alpha_{des}(z): \\det(zI - (G - L_d C)) = \\alpha_{des}(z). This can be done using methods analogous to controller pole placement (e.g., Ackermann’s formula, direct comparison of coefficients) or leveraging duality."
+  },
+  {
+    "objectID": "lectures/lecture10.html#luenberger-observer-design-steps",
+    "href": "lectures/lecture10.html#luenberger-observer-design-steps",
+    "title": "EGH445 Modern Control",
+    "section": "Luenberger Observer: Design Steps",
+    "text": "Luenberger Observer: Design Steps\n\n\nCheck Observability: Verify that \\text{rank}(\\mathcal{O}) = n.\nChoose Desired Observer Poles:\n\nSelect stable pole locations z_{1}, z_{2}, \\dots, z_{n} within the unit circle, |z_{i}| &lt; 1.\nThese poles dictate the speed of convergence of the estimation error e(kT).\nTypically chosen 5-10 times faster (closer to the origin) than the desired controller poles.\n\nForm Desired Characteristic Polynomial: (z - z_{1})(z - z_{2}) \\cdots (z - z_{n}).\nDetermine Observer Gain L:\n\nFind L such that the characteristic polynomial of (G - L C) matches the desired characteristic polynomial. (place in MATLAB and control.place in Python)."
+  },
+  {
+    "objectID": "lectures/lecture10.html#duality-in-discrete-time",
+    "href": "lectures/lecture10.html#duality-in-discrete-time",
+    "title": "EGH445 Modern Control",
+    "section": "Duality in Discrete-Time",
+    "text": "Duality in Discrete-Time\n\n\nState-feedback control problem\nFind K to place eigenvalues of (G - HK).\nThis requires (G, H) to be controllable.\n\nObserver design problem\nFind L to place eigenvalues of (G - L C).\nThis requires (G, C) to be observable.\n\n\n\n\n\n\n\nDuality Property\n\n\nThe eigenvalues of a matrix are the same as the eigenvalues of its transpose. \\quad \\text{eig}(G - L C) = \\text{eig}((G - L C)^\\intercal) = \\text{eig}(G^\\intercal - C^\\intercal L^T)\n\n\n\n\nDuality Property: The eigenvalues of a matrix are the same as the eigenvalues of its transpose. \n\\text{eig}(G - L_d C) = \\text{eig}((G - L_d C)^T) = \\text{eig}(G^T - C^T L_d^T)\n\n\n\nNotice the structure: \\text{eig}(A_{cl}) = \\text{eig}(G^T - C^T K_{obs}), where A_{cl} = G - L_d C and K_{obs} = L_d^T.\nThis means: Designing an observer gain L_d for the system (G, C) to achieve desired poles for (G - L_d C) is dual to designing a state-feedback controller gain K_{obs} for the “dual system” (G^T, C^T) to achieve the same desired poles for (G^T - C^T K_{obs})."
+  },
+  {
+    "objectID": "lectures/lecture10.html#duality-in-design",
+    "href": "lectures/lecture10.html#duality-in-design",
+    "title": "EGH445 Modern Control",
+    "section": "Duality in Design",
+    "text": "Duality in Design\n\n\nState-feedback control problem\nFind K to place eigenvalues of (G - HK).\nThis requires (G, H) to be controllable.\n\nObserver design problem\nFind L to place eigenvalues of (G - L C).\nThis requires (G, C) to be observable.\n\n\n\n\n\n\n\nDuality Property\n\n\nThe eigenvalues of a matrix are the same as the eigenvalues of its transpose. \\quad \\text{eig}(G - L C) = \\text{eig}((G - L C)^\\intercal) = \\text{eig}(G^\\intercal - C^\\intercal L^\\intercal)\n\n\n\n\nThis means that designing a gain L to achieve desired poles for (G - L C) is dual to designing a gain K_{obs} to achieve the same desired poles for (G^\\intercal - C^\\intercal K_{obs}^\\intercal).\n\n\n\n\n\n\nTip\n\n\n\n\nControl Design:\nK = place(G, H, p)\n\nObserver Design:\nL = place(G', C', p)'"
+  },
+  {
+    "objectID": "lectures/lecture10.html#closed-loop-dynamics",
+    "href": "lectures/lecture10.html#closed-loop-dynamics",
+    "title": "EGH445 Modern Control",
+    "section": "Closed-Loop Dynamics",
+    "text": "Closed-Loop Dynamics\n\nThe state variables are the actual system state x(kT) and the estimation error e(kT) = x(kT) - \\hat{x}(kT).\n\n\nx(kT+T) = Gx(kT) + Hu(kT)\ne(kT+T) = (G - L C)e(kT)\n\n\n\\begin{align*}\nu(kT) &= -K\\hat{x}(kT) \\\\&= -K(\\textcolor{blue}{x(kT) - e(kT)})\n\\end{align*}\n\n\n\n\n\nSubstitute u(kT) above:\n\n\\begin{align*}\nx(kT+T) &= Gx(kT) + H(-K(x(kT) - e(kT))) \\\\\n&= Gx(kT) - HKx(kT) + HKe(kT) \\\\\n&= \\textcolor{blue}{(G - HK)}x(kT) + HKe(kT)\n\\end{align*}\n\n\n\nCombining the dynamics for x(kT) and e(kT) in matrix form: \n\\begin{bmatrix} x(kT+T) \\\\ e(kT+T) \\end{bmatrix} = \\begin{bmatrix} \\textcolor{blue}{G-HK} & HK \\\\ 0 & \\textcolor{blue}{G-LC}  \\end{bmatrix} \\begin{bmatrix} x(kT) \\\\ e(kT) \\end{bmatrix}"
+  },
+  {
+    "objectID": "lectures/lecture10.html#separation-principle-discrete-time",
+    "href": "lectures/lecture10.html#separation-principle-discrete-time",
+    "title": "EGH445 Modern Control",
+    "section": "Separation Principle (Discrete-Time)",
+    "text": "Separation Principle (Discrete-Time)\n\n\\begin{bmatrix} x(kT+T) \\\\ e(kT+T) \\end{bmatrix} = \\begin{bmatrix} \\textcolor{blue}{G-HK} & HK \\\\ 0 & \\textcolor{blue}{G-LC}  \\end{bmatrix} \\begin{bmatrix} x(kT) \\\\ e(kT) \\end{bmatrix}\n The closed-loop system matrix is block triangular. Therefore, the eigenvalues of the overall closed-loop system are the union of:\n\nThe eigenvalues of the state-feedback controller (eigenvalues of G-HK).\nThe eigenvalues of the observer error dynamics (eigenvalues of G-L_d C).\n\n\n\n\n\n\n\nTip\n\n\nThis means we can design the controller gain K and the observer gain L_d independently. The controller design determines the system response poles, and the observer design determines the error convergence poles."
+  },
+  {
+    "objectID": "lectures/lecture10.html#separation-principle",
+    "href": "lectures/lecture10.html#separation-principle",
+    "title": "EGH445 Modern Control",
+    "section": "Separation Principle",
+    "text": "Separation Principle\n\n\\begin{bmatrix} x(kT+T) \\\\ e(kT+T) \\end{bmatrix} = \\begin{bmatrix} \\textcolor{blue}{G-HK} & HK \\\\ 0 & \\textcolor{blue}{G-LC}  \\end{bmatrix} \\begin{bmatrix} x(kT) \\\\ e(kT) \\end{bmatrix}\n The closed-loop system matrix is block triangular. Therefore, the eigenvalues of the overall closed-loop system are the union of:\n\nThe eigenvalues of the state-feedback controller (eigenvalues of G-HK).\nThe eigenvalues of the observer error dynamics (eigenvalues of G-L C).\n\n\n\n\n\n\n\n\nCertainty Equivalence Principle\n\n\nThis means we can design the controller gain K and the observer gain L independently. The controller design determines the system response poles, and the observer design determines the error convergence poles."
+  },
+  {
+    "objectID": "lectures/lecture10.html#example-observer-based-control",
+    "href": "lectures/lecture10.html#example-observer-based-control",
+    "title": "EGH445 Modern Control",
+    "section": "Example: Observer-based Control",
+    "text": "Example: Observer-based Control\nSystem: Vehicle from previous example. G = \\begin{bmatrix}\n    1.0000  &  0.0975 \\\\\n         0  &  0.9512\n\\end{bmatrix}, \\quad H = \\begin{bmatrix} 0.0049 \\\\ 0.0975 \\end{bmatrix}, \\quad C = \\begin{bmatrix} 1 & 0 \\end{bmatrix}.\n\n\n\nController Design (Pole Placement), desired controller poles at \\{0.8, 0.7\\}:\n\nK = place(G, H, [0.8, 0.7]) \\rightarrow K = \\begin{bmatrix} 6.1512 & 4.3159 \\end{bmatrix}\n\n\n\nObserver Design (Pole Placement), desired observer poles (faster than controller): \\{0.2, 0.3\\}.\n\nL = place(G', C', [0.2, 0.3])' \\rightarrow L = \\begin{bmatrix}1.4418 & 4.7007\\end{bmatrix}^\\intercal"
+  },
+  {
+    "objectID": "lectures/lecture10.html#section-3",
+    "href": "lectures/lecture10.html#section-3",
+    "title": "EGH445 Modern Control",
+    "section": "",
+    "text": "Closed-Loop Simulation:\n\nImplement the observer and controller u(kT) = -K\\hat{x}(kT). The overall system state includes x and e.\nG_{cl} = \\begin{bmatrix} G-HK & HK \\\\ {0} & G-L C \\end{bmatrix}, \\quad x(0) = [1, 0]^T.\nInitial estimate error: e(0) = x(0) - \\hat{x}(0) = [1, 0]^T - [0, 0]^T = [1, 0]^T (assume observer starts at 0).\n\n\n% MATLAB code\nG = [1 0.0975; 0 0.9512]; % System matrix\nH = [0.0049; 0.0975]; % Input matrix\nC = [1 0]; % Output matrix\n\nK = place(G, H, [0.8, 0.7]); % Controller gain\nL = place(G', C', [0.2, 0.3])'; % Observer gain\n\nGcl = [G - H*K, H*K; zeros(2), G - L*C]; % Closed-loop system matrix\nx0 = [1; 0]; % Initial state\ne0 = [1; 0]; % Initial estimation error\n\nTs = 0.1; % Sampling time\nSys = ss(Gcl, zeros(4,1), eye(4), zeros(4,1), Ts); % State-space system\n\nt = 0:Ts:3; % Time vector\n[y, t] = initial(Sys, [x0; e0], t); % Simulate system response\n\n% Plot position state and estimation\nplot(t, y(:,1), t, y(:,1)-y(:,3), '--', LineWidth=4); \nxlabel('Time (s)');\nylabel('Position (m)');\nlegend(\"True\", 'Estimate');"
+  },
+  {
+    "objectID": "lectures/lecture10.html#kalman-filter",
+    "href": "lectures/lecture10.html#kalman-filter",
+    "title": "EGH445 Modern Control",
+    "section": "Kalman Filter",
+    "text": "Kalman Filter\n\n\n\n\n\n\nKey Ideas\n\n\n\nRecursive: Uses previous estimate and current measurement.\nPredictor-Corrector Structure:\n\nPredict: Project state estimate and error covariance forward in time based on the model (G, H, Q).\nCorrect: Update the predicted estimate using the actual measurement y(kT), weighted by the Kalman Gain (K_k).\n\nOptimal Gain: K_k is calculated at each step to minimise the estimated error covariance P_k, considering the relative uncertainties (Q vs R). It optimally balances trusting the model prediction vs. trusting the noisy measurement.\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\nKF vs Luenberger: KF finds the optimal gain based on noise statistics (Q, R), while Luenberger uses pole placement to determine gain (L_d) for desired deterministic error dynamics. KF is the standard for stochastic estimation."
+  },
+  {
+    "objectID": "lectures/lecture10.html#kalman-filter-kf",
+    "href": "lectures/lecture10.html#kalman-filter-kf",
+    "title": "EGH445 Modern Control",
+    "section": "Kalman Filter (KF)",
+    "text": "Kalman Filter (KF)\n\n\n\n\n\n\nKey Ideas\n\n\n\nRecursive: Uses previous estimate and current measurement.\nPredictor-Corrector Structure:\n\nPredict: Project state estimate and error covariance forward in time based on the model (G, H, Q).\nCorrect: Update the predicted estimate using the actual measurement y(kT), weighted by the Kalman Gain (K_k).\n\nOptimal Gain: K_k is calculated at each step to minimise the estimated error covariance P_k, considering the relative uncertainties (Q vs R). It optimally balances trusting the model prediction vs. trusting the noisy measurement.\n\n\n\n\n\n\n\n\n\n\n\nKF vs Luenberger\n\n\nKF finds the optimal gain based on noise statistics (Q, R), while Luenberger uses pole placement to determine gain (L_d) for desired deterministic error dynamics. KF is the standard for stochastic estimation."
+  },
+  {
+    "objectID": "lectures/lecture10.html#observer-based-control-with-reference-tracking",
+    "href": "lectures/lecture10.html#observer-based-control-with-reference-tracking",
+    "title": "EGH445 Modern Control",
+    "section": "Observer-Based Control with Reference Tracking",
+    "text": "Observer-Based Control with Reference Tracking\nFor non-zero setpoint tracking, y(kT) \\to r(kT), we can adapt the controller structure.\nUsing the certainty equivalence, we replace x with \\hat{x} in the setpoint regulation schemes discussed previously.\nUsing feedforward gain K_{r}: u(kT) = -K\\hat{x}(kT) + K_{r}r(kT)\nWhere K_{r} is chosen to ensure steady-state output matches r(kT).\n\n\n\n\n\n\n\nImportant\n\n\nFinding K_{r} now requires considering the combined controller-observer dynamics. Often, integral action is preferred for robustness."
+  },
+  {
+    "objectID": "lectures/lecture10.html#integral-action-with-observers",
+    "href": "lectures/lecture10.html#integral-action-with-observers",
+    "title": "EGH445 Modern Control",
+    "section": "Integral Action with Observers",
+    "text": "Integral Action with Observers\nObservers can be used to estimate disturbances, which can then be used to effectively implement integral action.\n\nThe idea is to augment the observer with a state that estimates the disturbance, \\hat z(kT) = \\begin{bmatrix} \\hat x(kT), \\hat w(kT)\\end{bmatrix}^\\intercal.\n\n\n\n\n\n\\begin{align*}\n\\hat{z}(kT+T) &=\n\\begin{bmatrix}\nG & I \\\\ 0 & 0\n\\end{bmatrix} \\hat{z}(kT) +\n\\begin{bmatrix}\nH \\\\ 0 \\end{bmatrix} u(kT), \\\\\n\\hat y(kT) &= \\begin{bmatrix} C & 0 \\end{bmatrix} \\hat{z}(kT)\n\\end{align*}\n\n\n\n\n\n\n\n\nTip\n\n\nAlternatively, you can simply use \\hat x(kT) and dynamic extension (like before) to achieve integral action."
+  },
+  {
+    "objectID": "lectures/lecture10.html#the-kalman-filter-kf",
+    "href": "lectures/lecture10.html#the-kalman-filter-kf",
+    "title": "EGH445 Modern Control",
+    "section": "The Kalman Filter (KF)",
+    "text": "The Kalman Filter (KF)\nAn optimal estimator for linear systems subject to Gaussian noise, which explicitly models:\n\nProcess Noise \\,w(kT): Uncertainty in the system dynamics model. Characterised by covariance Q.\nMeasurement Noise \\,v(kT): Uncertainty in the sensor measurements. Characterised by covariance R.\n\n\n\n\\begin{align*}\n{x}(kT+T) &= G{x}(kT) + H{u}(kT) + {w}(kT) \\\\\n{y}(kT) &= C{x}(kT) + {v}(kT)\n\\end{align*}\n\n\n\n\n\n\n\n\n\nKey Ideas\n\n\n\nRecursive: Uses previous estimate and current measurement.\nPredictor-Corrector Structure:\n\nPredict: Project state estimate and error covariance forward in time based on the model (G, H, Q).\nCorrect: Update the predicted estimate using the actual measurement y(kT), weighted by the Kalman Gain (K_k).\n\nOptimal Gain: K_k is calculated at each step to minimise the estimated error covariance P_k, considering the relative uncertainties (Q vs R). It optimally balances trusting the model prediction vs. trusting the noisy measurement."
+  },
+  {
+    "objectID": "lectures/lecture10.html#how-the-kalman-filter-works-predict-correct",
+    "href": "lectures/lecture10.html#how-the-kalman-filter-works-predict-correct",
+    "title": "EGH445 Modern Control",
+    "section": "How the Kalman Filter Works: Predict & Correct",
+    "text": "How the Kalman Filter Works: Predict & Correct\n\n\n\n\nPrediction (Time Update):\nUses the system (G, H) and process noise covariance (Q).\nGoal: Predict \\hat{{x}}(kT) and error covariance P(kT) at kT based on previous estimate.\n\n\n\n\n\n\n\nPredict\n\n\n\n\\begin{align*}\n\\hat{{x}}^-(kT) &= G\\hat{{x}}(kT-T) + H{u}(kT-T) \\quad &\\text{(Predicted State)} \\\\\nP^-(kT) &= G P(kT-T) G^\\intercal + Q \\quad &\\text{(Predicted Covariance)}\n\\end{align*}\n\n\n\n\n\n\n\n\n\nUpdate (Measurement Update / Correction):\nUses the measurement model (C) and measurement noise covariance (R).\nGoal: Correct the predicted state and error covariance using the actual measurement {y}(kT).\n\n\n\n\n\n\n\nUpdate\n\n\n\n\\begin{align*}\nK_k &= P^-(kT) C^T (C P^-(kT) C^T + R)^{-1} \\quad &\\text{(Kalman Gain)} \\\\\n\\hat{{x}}(kT) &= \\hat{{x}}^-(kT) + K_k \\big({y}(kT) - C\\hat{{x}}(kT)^-\\big) \\quad &\\text{(Updated State)} \\\\\nP(kT) &= (I - K_k C) P^-(kT) \\quad &\\text{(Updated Covariance)}\n\\end{align*}\n\n\n\n\n\n\n\n\nCycle: The updated state \\hat{{x}}(kT) and covariance P(kT) become the inputs for the prediction step at the next time instant kT+T.\nKF finds the optimal gain based on noise statistics (Q, R), while Luenberger uses pole placement."
+  },
+  {
+    "objectID": "lectures/lecture10.html#summary-of-kalman-filter-steps",
+    "href": "lectures/lecture10.html#summary-of-kalman-filter-steps",
+    "title": "EGH445 Modern Control",
+    "section": "Summary of Kalman Filter Steps",
+    "text": "Summary of Kalman Filter Steps\n\n\n\n\nPredict:\n\n\\begin{align*}\n\\hat{{x}}(kT)^- &= G\\hat{{x}}(kT-T) + H{u}(kT-T) \\quad &\\text{(Predicted State)} \\\\\nP(kT)^- &= G P(kT-T) G^\\intercal + Q \\quad &\\text{(Predicted Covariance)}\n\\end{align*}\n\nUpdate:\n\n\\begin{align*}\nK_k &= P(kT)^- C^T (C P(kT)^- C^T + R)^{-1} \\quad &\\text{(Kalman Gain)} \\\\\n\\hat{{x}}(kT) &= \\hat{{x}}(kT)^- + K_k \\big({y}(kT) - C\\hat{{x}}(kT)^-\\big) \\quad &\\text{(Updated State)} \\\\\nP(kT) &= (I - K_k C) P(kT)^- \\quad &\\text{(Updated Covariance)}\n\\end{align*}"
+  },
+  {
+    "objectID": "lectures/lecture10.html#handling-nonlinearity-extended-kalman-filter-ekf",
+    "href": "lectures/lecture10.html#handling-nonlinearity-extended-kalman-filter-ekf",
+    "title": "EGH445 Modern Control",
+    "section": "Handling Nonlinearity: Extended Kalman Filter (EKF)",
+    "text": "Handling Nonlinearity: Extended Kalman Filter (EKF)\nWhat if the system dynamics or measurement model are nonlinear? \n\\begin{align*}\n{x}(kT+T) &= f({x}(kT), {u}(kT)) + {w}(kT) \\\\\n{y}(kT) &= h({x}(kT)) + {v}(kT)\n\\end{align*}\n \n\nApproach: Linearise the nonlinear functions f and h around the state estimate \\hat{{x}}(kT) at each time step. \n\\begin{align*}\nG_k = \\frac{\\partial f}{\\partial {x}} \\bigg|_{\\hat{{x}}(kT), {u}(kT)} \\qquad\nH_k = \\frac{\\partial h}{\\partial {x}} \\bigg|_{\\hat{{x}}(kT)}\n\\end{align*}\n\nApply the standard KF equations using these time-varying Jacobians (G_k, H_k).\n\n\n\n\n\n\n\n\nTip\n\n\n\nEKF is widely used for nonlinear estimation (e.g., navigation, target tracking).\nEKF does not guarantee optimality like the linear KF. The linearization introduces approximations.\nEKF can diverge if nonlinearities are severe or initial estimates are poor.\nEKF is more computationally intensive due to Jacobian calculations at each step.\nOther nonlinear filters exist (e.g., Unscented Kalman Filter - UKF, Particle Filter) that avoid direct linearization but are computationally more complex. EKF is often a good starting point for mildly nonlinear systems."
+  },
+  {
+    "objectID": "lectures/lecture10.html#handling-nonlinearity-extended-kalman-filter",
+    "href": "lectures/lecture10.html#handling-nonlinearity-extended-kalman-filter",
+    "title": "EGH445 Modern Control",
+    "section": "Handling Nonlinearity: Extended Kalman Filter",
+    "text": "Handling Nonlinearity: Extended Kalman Filter\nWhat if the system dynamics or measurement model are nonlinear? \n\\begin{align*}\n{x}(kT+T) &= f({x}(kT), {u}(kT)) + {w}(kT) \\\\\n{y}(kT) &= h({x}(kT)) + {v}(kT)\n\\end{align*}\n \n\nApproach: Linearise the nonlinear functions f and h around the state estimate \\hat{{x}}(kT) at each time step. \n\\begin{align*}\nG_k = \\frac{\\partial f}{\\partial {x}} \\bigg|_{\\hat{{x}}(kT), {u}(kT)} \\qquad\nH_k = \\frac{\\partial h}{\\partial {x}} \\bigg|_{\\hat{{x}}(kT)}\n\\end{align*}\n\nApply the standard KF equations using these time-varying Jacobians (G_k, H_k).\n\n\n\n\n\n\n\n\nTip\n\n\n\nWidely used for nonlinear estimation (e.g., navigation, target tracking).\nNot guaranteed optimal like the linear KF. The linearization introduces approximations.\nCan diverge if nonlinearities are severe or initial estimates are poor.\nComputationally more intensive due to Jacobian calculations at each step.\nOther nonlinear filters exist (e.g., Unscented Kalman Filter - UKF, Particle Filter) that avoid direct linearization but are computationally more complex. EKF is often a good starting point for mildly nonlinear systems."
+  },
+  {
+    "objectID": "lectures/lecture10.html#revisiting-observability",
+    "href": "lectures/lecture10.html#revisiting-observability",
+    "title": "EGH445 Modern Control",
+    "section": "Revisiting Observability",
+    "text": "Revisiting Observability\n\n\n\n\n\n\nAnalogy\n\n\nFor state feedback u = -Kx, we could arbitrarily place the eigenvalues of (G - HK) if and only if the system (G, H) was controllable.\nFor observer design, the ability to place the eigenvalues of (G - L C) depends on the system (G,C) being observable.\n\n\n\n\n\n\n\n\n\n\nObservability\n\n\nA discrete-time system, \\,x(kT+T) = Gx(kT) + Hu(kT), \\quad y(kT) = Cx(kT), is completely observable if, for any initial time k_0 T, the initial state x(k_0 T) can be uniquely determined from the knowledge of the input sequence u(kT) and the output sequence y(kT) for a finite number of steps."
   }
 ]

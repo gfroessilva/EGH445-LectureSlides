@@ -32,7 +32,7 @@ $highlight-box-border: #A0C4E4; // Slightly darker blue border (guess)
 .reveal {
   .slide-content {
     position: relative; // Ensure content is positioned relative to the slide
-    padding-top: 80px; /* Add padding to avoid header overlap */
+    padding-top: 120px; /* Add padding to avoid header overlap */
     padding-bottom: 50px; /* Add padding to avoid footer overlap */
   }
 }

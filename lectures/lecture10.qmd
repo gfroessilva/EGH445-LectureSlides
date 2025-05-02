@@ -18,7 +18,7 @@ format:
 </div>
 
 <div class="title-block">
-  <h1>Discrete-Time Control Design 3</h1> <h2>Optimal Control</h2> 
+  <h1>State Estimation</h1> <h2>Observers and Output Feedback</h2> 
 </div>
 
 <div class="author-block-title">
@@ -44,50 +44,772 @@ format:
 
 # Overview {data-state="overview"}
 
-- Testing code
+::: {.incremental}
+- The need for state estimation and observability.
+- Discrete-Time Luenberger Observer.
+- Observer Design via Pole Placement.
+- Output Feedback Control: Combining Controller and Observer.
+- The Separation and Certainty Equivalence principles.
+- Observer-based control with reference tracking.
+- Handling disturbances with observers (Integral Action revisited).
+- Optimum Observer Design (Linear Quadratic Estimator -- The Kalman Filter).
+:::
 
-## Python Code
+# The Need for State Estimation {data-state="need"}
 
-```{python}
-#| echo: true
-#| id: code200
-import numpy as np
-import matplotlib.pyplot as plt 
-# 2
-# 1
-# 1
-# 1
-# 1 
-# 1
-# 1
-# 1
-# 1
-# 1# 1
-# 1
-# 1
-# 1
-# 1 
-# 1
-# 1
-# 1
-# 1
-# 1# 1
-# 1
-# 1
-# 1
-# 1 
-# 1
-# 1
-# 1
-# 1
-# 1# 1
-# 1
-# 1
-# 1
-# 1 
-# 1
-# 1
-# 1
-# 1
-# 1
+So far, we've designed controllers assuming **full state availability**:
+
+::: {.incremental}
+- Pole Placement: $u(kT) = -Kx(kT)$.
+- LQR: $u(kT) = -Kx(kT)$.
+- Integral Action: $u(kT) = -K_x x(kT) - K_q q(kT)$.
+:::
+
+::: {.content-visible when-profile="print"}
+<!-- ## State Availability Problem {.smaller} -->
+**State Availability Problem:**
+:::
+::: {.content-hidden when-profile="print"}
+. . .
+
+**State Availability Problem:**
+:::
+
+We often cannot measure all states directly and only have access to **outputs**:
+
+$$
+y(kT) = Cx(kT) + Du(kT)
+$$
+
+## State Availability Problem {data-state="state-availability" .scrollable}
+
+::: {.callout-important}
+How can we implement state-feedback, $u(kT) = -Kx(kT)$, when $x(kT)$ is not directly measured?
+:::
+
+. . .
+
+**Can we calculate the state from the output?**
+
+Given the output equation for a discrete-time system:
+$$
+y(kT) = Cx(kT) + Du(kT)
+$$
+
+Assuming $D=0$ for simplicity, could we 
+<!-- estimate the state $\hat{x}(kT)$ by  -->
+simply invert $C$? 
+
+
+$$
+\hat{x}(kT) \overset{?}{=} C^{-1}y(kT)
+$$
+
+## Can we calculate the state from the output?
+<!-- **** -->
+
+[**This is not possible in general!**]{.fragment}
+
+[As the matrix $C\in\mathbb{R}^{p \times n}$ is often **not square**.]{.fragment}
+
+<!-- - Even if square, $C$ is frequently **not invertible** (singular, $\det(C)=0$).
+  - The number of outputs ($p$) is less than the number of states ($n$), $C \in \mathbb{R}^{p \times n}$. -->
+
+. . .
+
+Consider a system with two states ($n=2$) and one output ($p=1$):
+$$
+\begin{align*}
+\underbrace{\begin{bmatrix}x_1(t) \\ x_2(t)\end{bmatrix}}_{x(t)\in\mathbb{R}^n} &= \begin{bmatrix} 0 & 1 \\ -0.1 & -0.2 \end{bmatrix} \begin{bmatrix}x_1(t) \\ x_2(t)\end{bmatrix} + \begin{bmatrix} 0 \\ 1 \end{bmatrix} u(t) \\
+\underbrace{y(t)}_{y(t)\in\mathbb{R}^p} &= \begin{bmatrix} 1 & 0 \end{bmatrix}_{\textcolor{red}{p\times n}} \begin{bmatrix}x_1(t) \\ x_2(t)\end{bmatrix}
+\end{align*} 
+$$
+
+<!-- $y(t) = x_1(t)$, while there are two states, $x(t) = [x_1(t),\; x_2(t)]^\intercal$. -->
+
+## Can we calculate the state from the input?
+
+*That is, can we simulate the system and use the states?*
+
+. . .
+
+:::: {.columns}
+::: {.column width="50%" style="font-size: 0.8em;"}
+Consider the discrete-time system:
+$$
+\textcolor{blue}{x(kT+T) = Gx(kT) + Hu(kT)}
+$$
+Let's build a "copy" of the system to estimate the state $\hat{x}(kT)$:
+$$
+\textcolor{green}{\hat{x}(kT+T) = G\hat{x}(kT) + Hu(kT)}
+$$
+:::
+::: {.column width="50%"}
+![](images/lec10_ObsvInput.png){fig-alt="Estimating from Input"}
+:::
+::::
+
+This is an **open-loop observer** or **predictor**.
+
+
+
+
+## Open-loop estimation error {.smaller}
+
+Define the estimation error $e(kT) = \textcolor{blue}{x(kT)} - \textcolor{green}{\hat{x}(kT)}$.
+
+Now, let's find the dynamics of the estimation error:
+\begin{align*}
+e(kT+T) &= \textcolor{blue}{x(kT+T)} - \textcolor{green}{\hat{x}(kT+T)} \\
+&= \textcolor{blue}{(Gx(kT) + Hu(kT))} - \textcolor{green}{(G\hat{x}(kT) + Hu(kT))} \\
+&= G\left(x(kT) - \hat{x}(kT)\right) \\
+&= G e(kT)
+\end{align*}
+
+**Problem:** The error dynamics are given by the open-loop system matrix $G$.
+
+::: {.incremental}
+- If $G$ has eigenvalues outside the unit circle (unstable system), the estimation error $e(kT)$ will **diverge**, regardless of the initial estimate $\hat{x}(0)$.
+- Even if $G$ is stable, the error might converge **too slowly** for effective control.
+:::
+
+# The Luenberger Observer {data-state="luenberger"}
+::: {.callout-tip}
+# Idea
+Use the **measured** output $y(kT)$ to *correct* the state estimate $\hat{x}(kT)$.
+:::
+
+## Discrete-Time Luenberger Observer {.smaller}
+
+:::: {.columns}
+::: {.column width="50%" style="font-size: 0.8em;"}   
+Consider the system:
+\begin{align*}
+\textcolor{blue}{x(kT+T)} &= \textcolor{blue}{Gx(kT) + Hu(kT)} \\
+\textcolor{blue}{y(kT)} &= \textcolor{blue}{Cx(kT)}
+\end{align*}
+(Assuming $D=0$ for simplicity, can be added back later).
+**Luenberger Observer:**
+$$ \color{green}
+\hat{x}(kT+T) = G\hat{x}(kT) + Hu(kT) + \textcolor{red}{L \big(y(kT) - \hat{y}(kT)\big)}
+$$
+:::
+::: {.column width="50%"}
+![](images/lec10_obsvLuen.png){fig-alt="Luenberger Observer"}
+:::
+::::
+
+
+
+
+
+:::: {.columns}
+::: {.column width="50%"}
+- $\hat{x}(kT)$ is the state *estimate* at time $kT$.
+- $L$ is the **observer gain** matrix (to be designed).
+:::
+::: {.column width="50%"}
+- $y(kT)$ is the *actual* measured output.
+- $\hat{y}(kT) = C\hat{x}(kT)$ is the *estimated* output.
+:::
+::::
+
+##  {.smaller}
+
+**Observer Error Dynamics:**
+
+The observer equation is:
+$$
+\begin{align*}
+\hat{x}(kT+T) &= G\hat{x}(kT) + Hu(kT) + L (Cx(kT) - C\hat{x}(kT)) \\
+\color{green}
+\hat{x}(kT+T) &= \color{green}(G - L C)\hat{x}(kT) + Hu(kT) + L C x(kT)
+\end{align*}
+$$
+
+Now, let's find the dynamics of the estimation error $e(kT) = x(kT) - \hat{x}(kT)$:
+\begin{align*}
+e(kT+T) &= x(kT+T) - \hat{x}(kT+T) \\
+&= \textcolor{blue}{(Gx(kT) + Hu(kT))} - \textcolor{green}{((G - L C)\hat{x}(kT) + Hu(kT) + L C x(kT))} \\
+&= G(x(kT) - \hat{x}(kT)) - L C (x(kT) - \hat{x}(kT)) \\
+&= \textcolor{red}{(G - L C)} e(kT)
+\end{align*}
+
+::: {.callout-important}
+The observer error dynamics are governed by the matrix $(G - L C)$. 
+We want to choose the observer gain $L$ such that the error $e(kT)$ converges to zero quickly, *i.e.*, the eigenvalues of $(G - L C)$ are stable (magnitude less than 1) and have desired dynamics.
+:::
+
+# Observability {data-state="observability"}
+::: {.callout-important}
+# Question
+Can we always find an observer gain $L$ to place the eigenvalues of $(G - L C)$ arbitrarily?
+:::
+
+## Revisiting Observability {data-state="observability"}
+
+::: {.callout-tip}
+# Analogy
+For state feedback $u = -Kx$, we could arbitrarily place the eigenvalues of $(G - HK)$ *if and only if* the system $(G, H)$ was controllable.
+
+For observer design, the ability to place the eigenvalues of $(G - L C)$ depends on the system $(G,C)$ being observable.
+:::
+
+. . .
+
+::: {.callout-note}
+# Observability
+A discrete-time system, $\,x(kT+T) = Gx(kT) + Hu(kT), \quad y(kT) = Cx(kT),$
+is completely observable if, for any initial time $k_0 T$, the initial state $x(k_0 T)$ can be *uniquely* determined from the knowledge of the input sequence $u(kT)$ and the output sequence $y(kT)$ for a finite number of steps.
+:::
+
+## Determining Observability {data-state="observability"}
+::: {.callout-note}
+# Theorem
+The pair $(G, C)$ is completely observable *if and only if* the observability matrix $\mathcal{O}$ has rank $n$, where $n$ is the dimension of the state vector $x$.
+:::
+
+
+
+::: {.incremental .list-style-numbered style="font-size: 0.8em;"}
+**How to check:**
+
+- Construct the matrix $\mathcal{O} = \begin{bmatrix} C \;\; CG \;\; CG^2 \; \dots \; CG^{n-1} \end{bmatrix}^\intercal$.
+- Calculate its rank
+  - `numpy.linalg.matrix_rank(ObsvMatrix)` (Python) 
+  - `rank(ObsvMatrix)` (MATLAB).
+- If $\mathcal{O}$ is square, it is full rank *if and only if* $\det(\mathcal{O}) \neq 0$.
+- If $\text{rank}(\mathcal{O}) < n$, the system is not completely observable.
+:::
+
+## Example: Observability Check {.smaller .scrollable}
+Consider a discrete-time model for a vehicle, with $m=1$, $b=0.5$. 
+
+Assume a sampling time $T=0.1$.
+
+Continuous: 
+$$A = \begin{bmatrix} 0 & 1 \\ 0 & -b/m \end{bmatrix} = \begin{bmatrix} 0 & 1 \\ 0 & -0.5 \end{bmatrix}, \quad B = \begin{bmatrix} 0 \\ 1/m \end{bmatrix} = \begin{bmatrix} 0 \\ 1 \end{bmatrix}.$$
+
+Discretised (using `c2d(...)` in MATLAB):
+$$G = \begin{bmatrix} 1 & 0 \\ 0.0975 & 0.9512 \end{bmatrix}, \quad H = \begin{bmatrix} 0.0049 \\ 0.0975 \end{bmatrix}.$$
+
+::: {.content-visible when-profile="print"}
+##  {.smaller}
+:::
+::: {.content-hidden when-profile="print"}
+. . .
+
+:::
+**Case 1: Position Measurement**
+
+Let $C_1 = \begin{bmatrix} 1 & 0 \end{bmatrix}$. 
+
+$$\mathcal{O}_1 = \begin{bmatrix} C_1 \\ C_1 G \end{bmatrix} = 
+\begin{bmatrix} 
+1.0000    &     0 \\
+1.0000  &  0.0975
+\end{bmatrix}.$$
+
+$\det(\mathcal{O}_1) = 1 \times 0.0975 - 0 \times 1 = 0.0975 \neq 0$.
+
+[Rank is 2]{style="color:blue"}. System is observable when measuring position.
+
+. . .
+
+**Case 2: Velocity Measurement**
+
+$C_2 = \begin{bmatrix} 0 & 1 \end{bmatrix}$.
+
+$$\mathcal{O}_2 = \begin{bmatrix} C_2 \\ C_2 G \end{bmatrix} = 
+\begin{bmatrix} 
+  0  &  1.0000 \\
+  0  &  0.9512
+\end{bmatrix}.$$
+
+$\det(\mathcal{O}_2) = 0 \times 0.9512 - 0 \times 1 = 0$.
+
+[Rank is 1]{style="color:red"}. System is [not]{style="color:red"} observable when measuring velocity.
+
+# Observer Design via Pole Placement {data-state="observer-design"}
+::: {.callout-note}
+# Goal
+Choose the observer gain $L$ such that the error dynamics $e(kT+T) = (G - L C) e(kT)$ are stable and converge quickly.
+:::
+
+. . .
+
+::: {.callout-tip}
+# Theorem
+If the pair $(G, C)$ is completely observable, then we can arbitrarily assign the eigenvalues of $(G - L C)$ by choosing the appropriate observer gain $L$.
+:::
+
+## Luenberger Observer: Design Steps {data-state="obsv-design-steps"}
+
+::: {.incremental .list-style-numbered style="font-size: 0.8em;"}
+- Check Observability: Verify that $\text{rank}(\mathcal{O}) = n$.
+- Choose Desired Observer Poles: 
+  - Select stable pole locations $z_{1}, z_{2}, \dots, z_{n}$ within the unit circle, $|z_{i}| < 1$. 
+  - These poles dictate the speed of convergence of the estimation error $e(kT)$. 
+  - Typically chosen 5-10 times faster (closer to the origin) than the desired controller poles.
+- Form Desired Characteristic Polynomial: $(z - z_{1})(z - z_{2}) \cdots (z - z_{n})$.
+- Determine Observer Gain $L$: 
+  - Find $L$ such that the characteristic polynomial of $(G - L C)$ matches the desired characteristic polynomial. (`place` in MATLAB and `control.place` in Python).
+:::
+
+## Duality in Design { .smaller}
+
+:::: {.columns}
+::: {.column width="50%"}
+**State-feedback control problem**
+
+Find $K$ to place eigenvalues of $(G - HK)$. 
+
+This requires $(G, H)$ to be controllable.
+:::
+::: {.column width="50%"}
+**Observer design problem**
+
+Find $L$ to place eigenvalues of $(G - L C)$. 
+
+This requires $(G, C)$ to be observable.
+:::
+::::
+
+::: {.callout-tip}
+# Duality Property
+The eigenvalues of a matrix are the same as the eigenvalues of its transpose.
+$\quad \text{eig}(G - L C) = \text{eig}((G - L C)^\intercal) = \text{eig}(G^\intercal - C^\intercal L^\intercal)$
+:::
+
+. . .
+
+This means that designing a gain $L$ to achieve desired poles for $(G - L C)$ is dual to designing a gain $K_{obs}$ to achieve the same desired poles for $(G^\intercal - C^\intercal K_{obs}^\intercal)$.
+
+::: {.callout-tip}
+:::: {.columns}
+::: {.column width="50%"}
+**Control Design:**
+
+`K = place(G, H, p)`
+:::
+::: {.column width="50%"}
+**Observer Design:**
+
+`L = place(G', C', p)'`
+:::
+::::
+:::
+
+# Output Feedback Control {data-state="output-feedback"}
+::: {.callout-tip}
+# Idea
+Now we combine the state-feedback controller with the state observer.
+
+Since we cannot measure $x(kT)$, we use its estimate $\hat{x}(kT)$ (provided by the observer) in the control law.
+:::
+
+Observer: [$\hat{x}(kT+T) = (G - L C)\hat{x}(kT) + Hu(kT) + L y(kT)$]{.fragment}
+
+Control Law: [$\quad u(kT) = -K\hat{x}(kT)$]{.fragment}
+
+. . .
+
+$K$ is the state-feedback gain (designed assuming $x(kT)$ was available)
+
+. . .
+
+$L$ is the observer gain.
+
+## Closed-Loop Dynamics {data-state="output-dynamics" .smaller}
+
+<!-- Let's analyze the overall system dynamics with the observer-based controller.  -->
+
+The state variables are the actual system state $x(kT)$ and the estimation error $e(kT) = x(kT) - \hat{x}(kT)$.
+
+:::: {.columns}
+::: {.column width="50%"}
+$x(kT+T) = Gx(kT) + Hu(kT)$
+
+$e(kT+T) = (G - L C)e(kT)$
+:::
+::: {.column width="50%"}
+$$
+\begin{align*}
+u(kT) &= -K\hat{x}(kT) \\&= -K(\textcolor{blue}{x(kT) - e(kT)})
+\end{align*}
+$$
+:::
+::::
+
+. . .
+
+:::: {.columns}
+::: {.column width="40%"}
+Substitute $u(kT)$ above:
+:::
+::: {.column width="60%"}
+\begin{align*}
+x(kT+T) &= Gx(kT) + H(-K(x(kT) - e(kT))) \\
+&= Gx(kT) - HKx(kT) + HKe(kT) \\
+&= \textcolor{blue}{(G - HK)}x(kT) + HKe(kT)
+\end{align*}
+:::
+::::
+
+. . .
+
+Combining the dynamics for $x(kT)$ and $e(kT)$ in matrix form:
+$$
+\begin{bmatrix} x(kT+T) \\ e(kT+T) \end{bmatrix} = \begin{bmatrix} \textcolor{blue}{G-HK} & HK \\ 0 & \textcolor{blue}{G-LC}  \end{bmatrix} \begin{bmatrix} x(kT) \\ e(kT) \end{bmatrix}
+$$
+
+## Separation Principle {.smaller}
+$$
+\begin{bmatrix} x(kT+T) \\ e(kT+T) \end{bmatrix} = \begin{bmatrix} \textcolor{blue}{G-HK} & HK \\ 0 & \textcolor{blue}{G-LC}  \end{bmatrix} \begin{bmatrix} x(kT) \\ e(kT) \end{bmatrix}
+$$
+The closed-loop system matrix is block triangular. Therefore, the eigenvalues of the overall closed-loop system are the union of:
+
+- The eigenvalues of the state-feedback controller (eigenvalues of $G-HK$).
+- The eigenvalues of the observer error dynamics (eigenvalues of $G-L C$).
+
+. . .
+
+:::{.callout-tip}
+# Certainty Equivalence Principle
+This means we can design the controller gain $K$ and the observer gain $L$ independently. The controller design determines the system response poles, and the observer design determines the error convergence poles.
+:::
+
+# Observer Design Considerations
+
+::: {style="font-size: 0.8em;" .incremental}
+- **Speed**: The state estimates should converge quickly so the controller can respond effectively. 
+- **Noise**: Large observer gains can amplify measurements noise, leading to poor performance.
+:::
+
+. . . 
+
+::: {.callout-tip}
+# Design Trade-off
+Optimal observer design techniques (like Kalman filters) explicitly address this trade-off. For pole placement, choose poles that are fast enough but not excessively so.
+:::
+
+## Example: Observer-based Control {.smaller .scrollable}
+
+System: Vehicle from previous example.
+$$G = \begin{bmatrix} 
+    1.0000  &  0.0975 \\
+         0  &  0.9512
+\end{bmatrix}, \quad H = \begin{bmatrix} 0.0049 \\ 0.0975 \end{bmatrix}, \quad C = \begin{bmatrix} 1 & 0 \end{bmatrix}.
+$$
+
+. . .
+
+1. Controller Design (Pole Placement), desired controller poles at $\{0.8, 0.7\}$:
+
+`K = place(G, H, [0.8, 0.7])` $\rightarrow$ $K = \begin{bmatrix} 6.1512 & 4.3159 \end{bmatrix}$ 
+
+. . .
+
+2. Observer Design (Pole Placement), desired observer poles (faster than controller): $\{0.2, 0.3\}$.
+
+`L = place(G', C', [0.2, 0.3])'` $\rightarrow$ $L = \begin{bmatrix}1.4418 & 4.7007\end{bmatrix}^\intercal$ 
+
+::: {.content-visible when-profile="print"}
+##  {.smaller}
+:::
+::: {.content-hidden when-profile="print"}
+. . .
+
+:::
+
+3. Closed-Loop Simulation:
+
+Implement the observer and controller $u(kT) = -K\hat{x}(kT)$.
+The overall system state includes $x$ and $e$.
+
+$G_{cl} = \begin{bmatrix} G-HK & HK \\ {0} & G-L C \end{bmatrix}, \quad x(0) = [1, 0]^T$. 
+
+Initial estimate error: $e(0) = x(0) - \hat{x}(0) = [1, 0]^T - [0, 0]^T = [1, 0]^T$ (assume observer starts at 0).
+
+. . .
+
+:::: {.columns}
+::: {.column width="60%"}
+
+```{.matlab id="code300"}
+% MATLAB code
+G = [1 0.0975; 0 0.9512]; % System matrix
+H = [0.0049; 0.0975]; % Input matrix
+C = [1 0]; % Output matrix
+
+K = place(G, H, [0.8, 0.7]); % Controller gain
+L = place(G', C', [0.2, 0.3])'; % Observer gain
+
+Gcl = [G - H*K, H*K; zeros(2), G - L*C]; % Closed-loop system matrix
+x0 = [1; 0]; % Initial state
+e0 = [1; 0]; % Initial estimation error
+
+Ts = 0.1; % Sampling time
+Sys = ss(Gcl, zeros(4,1), eye(4), zeros(4,1), Ts); % State-space system
+
+t = 0:Ts:3; % Time vector
+[y, t] = initial(Sys, [x0; e0], t); % Simulate system response
+
+% Plot position state and estimation
+plot(t, y(:,1), t, y(:,1)-y(:,3), '--', LineWidth=4); 
+xlabel('Time (s)');
+ylabel('Position (m)');
+legend("True", 'Estimate');
 ```
+:::
+::: {.column width="40%"}
+::: {.fragment}
+![](images/lec10_ex3.png){fig-alt="Response of Example 3"}
+:::
+:::
+::::
+
+# Extensions {data-state="extensions"}
+
+::: {.incremental}
+- Observer-Based Control with Reference Tracking
+- Integral Action with Observers
+- Beyond Luenberger Observers: The Kalman Filter
+:::
+
+. . .
+
+::: {.callout-tip}
+This is content that will not be directly assessed, but it's good to know that these extensions exist.
+
+You may consider these ideas to improve your design for the assessment.
+:::
+
+## Observer-Based Control with Reference Tracking {.smaller}
+For non-zero setpoint tracking, $y(kT) \to r(kT)$, we can adapt the controller structure. 
+
+Using the *certainty equivalence*, we replace $x$ with $\hat{x}$ in the setpoint regulation schemes discussed previously.
+
+Using feedforward gain $K_{r}$: 
+$$u(kT) = -K\hat{x}(kT) + K_{r}r(kT)$$
+
+Where $K_{r}$ is chosen to ensure steady-state output matches $r(kT)$.
+
+. . .
+
+::: {.callout-important}
+Finding $K_{r}$ now requires considering the **combined controller-observer** dynamics. Often, integral action is preferred for robustness.
+:::
+
+## Integral Action with Observers 
+
+Observers can be used to estimate disturbances, which can then be used to effectively implement integral action.
+
+. . .
+
+The idea is to augment the observer with a state that estimates the disturbance, $\hat z(kT) = \begin{bmatrix} \hat x(kT), \hat w(kT)\end{bmatrix}^\intercal$. 
+
+. . .
+
+:::: {.columns}
+::: {.column width="50%" style="font-size: 0.7em;"}
+$$
+\begin{align*}
+\hat{z}(kT+T) &= 
+\begin{bmatrix}
+G & I \\ 0 & 0
+\end{bmatrix} \hat{z}(kT) +
+\begin{bmatrix}
+H \\ 0 \end{bmatrix} u(kT), \\
+\hat y(kT) &= \begin{bmatrix} C & 0 \end{bmatrix} \hat{z}(kT)
+\end{align*}
+$$
+
+
+::: {.fragment}
+:::{.callout-tip}
+Alternatively, you can simply use $\hat x(kT)$ and dynamic extension (like before) to achieve integral action.
+:::
+:::
+
+:::
+::: {.column width="50%"}
+![](images/lec10_obsvIA.png){fig-alt="Observer with Integral Action"}
+:::
+::::
+
+
+# Beyond Luenberger Observers {data-state="beyond" .smaller}
+
+**Limitations of Luenberger Observer:**
+
+::: {.incremental}
+- Assumes a **deterministic** system model (no noise).
+- The observer gain $L$ is chosen based on desired pole locations for the error dynamics, not based on noise characteristics.
+- In the presence of significant **process noise** (uncertainties in the system dynamics) or **measurement noise** (sensor errors), the Luenberger observer's performance might not be optimal. Large gains ($L$) needed for fast convergence can amplify measurement noise.
+:::
+
+. . .
+
+**Need for Stochastic Estimation:**
+
+::: {.incremental}
+- Real-world systems are inevitably affected by noise.
+- We need methods that explicitly account for these uncertainties to achieve better state estimates.
+:::
+
+## The Kalman Filter (KF) {.smaller}
+
+An **optimal estimator** for **linear systems** subject to **Gaussian noise**, which explicitly models:
+
+::: {.incremental}
+- **Process Noise** $\,w(kT)$: Uncertainty in the system dynamics model. Characterised by covariance $Q$.
+- **Measurement Noise** $\,v(kT)$: Uncertainty in the sensor measurements. Characterised by covariance $R$.
+:::
+
+. . .
+
+$$
+\begin{align*}
+{x}(kT+T) &= G{x}(kT) + H{u}(kT) + {w}(kT) \\
+{y}(kT) &= C{x}(kT) + {v}(kT)
+\end{align*}
+$$
+
+. . .
+
+:::{.callout-tip .incremental}
+# Key Ideas
+- **Recursive:** Uses previous estimate and current measurement.
+- **Predictor-Corrector Structure:**
+    1. **Predict:** Project state estimate and error covariance forward in time based on the model ($G, H, Q$).
+    2. **Correct:** Update the predicted estimate using the actual measurement $y(kT)$, weighted by the **Kalman Gain ($K_k$)**.
+- **Optimal Gain:** $K_k$ is calculated at each step to minimise the estimated error covariance $P_k$, considering the relative uncertainties ($Q$ vs $R$). It optimally balances trusting the model prediction vs. trusting the noisy measurement.
+:::
+
+## How the Kalman Filter Works: Predict & Correct {.smaller .scrollable}
+
+<!-- The KF operates recursively in two steps at each time instant $kT$:
+
+**1. Prediction (Time Update):** Uses the system model $(G, H)$ and process noise covariance $(Q)$.
+
+- **Goal:** Predict the state $\hat{{x}}(kT)$ and error covariance $P(kT)$ at the current time $kT$, based *only* on the previous estimate at $kT-T$.
+
+. . .
+
+**2. Update (Measurement Update / Correction):** Uses the measurement model $(C)$ and measurement noise covariance $(R)$.
+
+- **Goal:** Correct the predicted state using the actual measurement ${y}(kT)$ at time $kT$.
+
+- **Steps:**
+  a. Calculate the **Kalman Gain $(K_k)$**: Balances trust between prediction and measurement.
+    $$
+    K_k = P(kT) C^T (C P(kT) C^T + R)^{-1}
+    $$
+  b. Update the state estimate using the measurement ${y}(kT)$ and the gain $K_k$:
+    $$
+    \hat{{x}}(kT) = \hat{{x}}(kT) + K_k \big({y}(kT) - C\hat{{x}}(kT)\big) \quad \text{(Updated State)}
+    $$
+  c. Update the error covariance:
+    $$
+    P(kT) = (I - K_k C) P(kT) \quad \text{(Updated Covariance)}
+    $$
+
+. . . -->
+
+
+
+<!-- ## Summary of Kalman Filter Steps {.smaller .scrollable} -->
+
+:::: {.columns style="font-size: 0.8em;"}
+::: {.column width="35%"}
+**Prediction (Time Update):** 
+
+Uses the system $(G, H)$ and process noise covariance $(Q)$.
+
+**Goal:** Predict $\hat{{x}}(kT)$ and error covariance $P(kT)$ at $kT$ based on previous estimate.
+:::
+::: {.column width="65%"}
+::: {.callout-note}
+# Predict
+
+$$
+\begin{align*}
+\hat{{x}}^-(kT) &= G\hat{{x}}(kT-T) + H{u}(kT-T) \quad &\text{(Predicted State)} \\
+P^-(kT) &= G P(kT-T) G^\intercal + Q \quad &\text{(Predicted Covariance)}
+\end{align*}
+$$
+:::
+:::
+::::
+
+. . . 
+
+<!-- --- -->
+
+:::: {.columns style="font-size: 0.8em;"}
+
+::: {.column width="35%"}
+**Update (Measurement Update / Correction):** 
+
+Uses the measurement model $(C)$ and measurement noise covariance $(R)$.
+
+**Goal:** Correct the predicted state and error covariance using the actual measurement ${y}(kT)$.
+:::
+
+::: {.column width="65%"}
+::: {.callout-note}
+# Update
+
+$$
+\begin{align*}
+K_k &= P^-(kT) C^T (C P^-(kT) C^T + R)^{-1} \quad &\text{(Kalman Gain)} \\
+\hat{{x}}(kT) &= \hat{{x}}^-(kT) + K_k \big({y}(kT) - C\hat{{x}}(kT)^-\big) \quad &\text{(Updated State)} \\
+P(kT) &= (I - K_k C) P^-(kT) \quad &\text{(Updated Covariance)}
+\end{align*}
+$$
+:::
+:::
+::::
+
+. . .
+
+<!-- --- -->
+
+**Cycle:** The updated state $\hat{{x}}(kT)$ and covariance $P(kT)$ become the inputs for the prediction step at the next time instant $kT+T$. 
+
+KF finds the *optimal* gain based on noise statistics $(Q, R)$, while Luenberger uses pole placement.
+
+
+## Handling Nonlinearity: Extended Kalman Filter (EKF) {.smaller style="font-size: 0.6em;"}
+
+What if the system dynamics or measurement model are **nonlinear**?
+$$
+\begin{align*} 
+{x}(kT+T) &= f({x}(kT), {u}(kT)) + {w}(kT) \\ 
+{y}(kT) &= h({x}(kT)) + {v}(kT) 
+\end{align*} 
+$$
+<!-- The standard KF assumes linearity ($f(x,u) = Gx+Hu$, $h(x) = Cx$). -->
+
+. . .
+
+**Approach:** Linearise the nonlinear functions $f$ and $h$ around the **state estimate** $\hat{{x}}(kT)$ at each time step.
+$$
+\begin{align*}
+G_k = \frac{\partial f}{\partial {x}} \bigg|_{\hat{{x}}(kT), {u}(kT)} \qquad
+H_k = \frac{\partial h}{\partial {x}} \bigg|_{\hat{{x}}(kT)}
+\end{align*}
+$$
+
+Apply the standard KF equations using these time-varying Jacobians ($G_k, H_k$).
+
+. . .
+
+::: {.callout-tip}
+- EKF is **widely used** for nonlinear estimation (e.g., navigation, target tracking).
+- EKF **does not guarantee optimality** like the linear KF. The linearization introduces approximations.
+- EKF can **diverge** if nonlinearities are severe or initial estimates are poor.
+- EKF is more **computationally intensive** due to Jacobian calculations at each step.
+- Other nonlinear filters exist (e.g., Unscented Kalman Filter - UKF, Particle Filter) that avoid direct linearization but are computationally more complex. EKF is often a good starting point for mildly nonlinear systems.
+:::
