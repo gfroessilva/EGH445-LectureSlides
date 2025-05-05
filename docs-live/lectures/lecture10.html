@@ -273,12 +273,13 @@ Observers and Output Feedback
 <li class="fragment">LQR: <span class="math inline">u(kT) = -Kx(kT)</span>.</li>
 <li class="fragment">Integral Action: <span class="math inline">u(kT) = -K_x x(kT) - K_q q(kT)</span>.</li>
 </ul>
-<!-- ## State Availability Problem {.smaller} -->
+<div class="fragment">
 <p><strong>State Availability Problem:</strong></p>
 <p>We often cannot measure all states directly and only have access to <strong>outputs</strong>:</p>
 <p><span class="math display">
 y(kT) = Cx(kT) + Du(kT)
 </span></p>
+</div>
 </section>
 <section id="state-availability-problem" class="slide level2 scrollable" data-state="state-availability">
 <h2>State Availability Problem</h2>
@@ -512,9 +513,7 @@ e(kT+T) &amp;= x(kT+T) - \hat{x}(kT+T) \\
 <p>Assume a sampling time <span class="math inline">T=0.1</span>.</p>
 <p>Continuous: <span class="math display">A = \begin{bmatrix} 0 &amp; 1 \\ 0 &amp; -b/m \end{bmatrix} = \begin{bmatrix} 0 &amp; 1 \\ 0 &amp; -0.5 \end{bmatrix}, \quad B = \begin{bmatrix} 0 \\ 1/m \end{bmatrix} = \begin{bmatrix} 0 \\ 1 \end{bmatrix}.</span></p>
 <p>Discretised (using <code>c2d(...)</code> in MATLAB): <span class="math display">G = \begin{bmatrix} 1 &amp; 0 \\ 0.0975 &amp; 0.9512 \end{bmatrix}, \quad H = \begin{bmatrix} 0.0049 \\ 0.0975 \end{bmatrix}.</span></p>
-</section>
-<section id="section-1" class="slide level2 smaller">
-<h2></h2>
+<div class="fragment">
 <p><strong>Case 1: Position Measurement</strong></p>
 <p>Let <span class="math inline">C_1 = \begin{bmatrix} 1 &amp; 0 \end{bmatrix}</span>.</p>
 <p><span class="math display">\mathcal{O}_1 = \begin{bmatrix} C_1 \\ C_1 G \end{bmatrix} =
@@ -524,6 +523,7 @@ e(kT+T) &amp;= x(kT+T) - \hat{x}(kT+T) \\
 \end{bmatrix}.</span></p>
 <p><span class="math inline">\det(\mathcal{O}_1) = 1 \times 0.0975 - 0 \times 1 = 0.0975 \neq 0</span>.</p>
 <p><span style="color:blue">Rank is 2</span>. System is observable when measuring position.</p>
+</div>
 <div class="fragment">
 <p><strong>Case 2: Velocity Measurement</strong></p>
 <p><span class="math inline">C_2 = \begin{bmatrix} 0 &amp; 1 \end{bmatrix}</span>.</p>
@@ -764,15 +764,14 @@ x(kT+T) &amp;= Gx(kT) + H(-K(x(kT) - e(kT))) \\
 </ol>
 <p><code>L = place(G', C', [0.2, 0.3])'</code> <span class="math inline">\rightarrow</span> <span class="math inline">L = \begin{bmatrix}1.4418 &amp; 4.7007\end{bmatrix}^\intercal</span></p>
 </div>
-</section>
-<section id="section-2" class="slide level2 smaller scrollable">
-<h2></h2>
+<div class="fragment">
 <ol start="3" type="1">
 <li>Closed-Loop Simulation:</li>
 </ol>
 <p>Implement the observer and controller <span class="math inline">u(kT) = -K\hat{x}(kT)</span>. The overall system state includes <span class="math inline">x</span> and <span class="math inline">e</span>.</p>
 <p><span class="math inline">G_{cl} = \begin{bmatrix} G-HK &amp; HK \\ {0} &amp; G-L C \end{bmatrix}, \quad x(0) = [1, 0]^T</span>.</p>
 <p>Initial estimate error: <span class="math inline">e(0) = x(0) - \hat{x}(0) = [1, 0]^T - [0, 0]^T = [1, 0]^T</span> (assume observer starts at 0).</p>
+</div>
 <div class="fragment">
 <div class="columns">
 <div class="column" style="width:60%;">

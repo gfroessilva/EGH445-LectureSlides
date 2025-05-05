@@ -403,9 +403,7 @@ x(kT+T) = (G-HK)x(kT)
 &amp;= z^2 + (k_1 + k_4 - 1.8)z + (0.1k_3 - k_4 - 0.8k_1 + k_1k_4 - k_2k_3 + 0.8)
 \end{align*}</span></p>
 </div>
-</section>
-<section id="section-3" class="slide level2 smaller">
-<h2></h2>
+<div class="fragment">
 <p>The desired characteristic polynomial is given by:</p>
 <p><span class="math display">\begin{align*}
 (z-0.4)(z-0.6) = z^2 - 1z + 0.24
@@ -433,9 +431,8 @@ x(kT+T) = (G-HK)x(kT)
 </div>
 <!-- . . . -->
 <p>This seems like a good idea, but it is not. The problem is that different choices of <span class="math inline">K</span>, even if they lead to the same <strong>eigenvalues</strong>, can lead to different <strong>eigenvectors</strong>. The closed-loop system’s <strong>eigenvectors</strong> directly affect the <strong>response</strong> of the system.</p>
-</section>
-<section id="section-4" class="slide level2 smaller">
-<h2></h2>
+</div>
+<div class="fragment">
 <p>Let <span class="math inline">k_2 = k_3 = 0</span> and consider the following two cases of gains matrices <span class="math inline">K_1</span> and <span class="math inline">K_2</span>, both of which lead assign the closed-loop eigenvalues to the desired values: <span class="math display">
 K_1 = \begin{bmatrix} 0.6 &amp; 0 \\ 0 &amp; 0.2 \end{bmatrix}, \quad K_2 = \begin{bmatrix} 0.4 &amp; 0 \\ 0 &amp; 0.4 \end{bmatrix}
 </span></p>
@@ -490,6 +487,7 @@ K_1 = \begin{bmatrix} 0.6 &amp; 0 \\ 0 &amp; 0.2 \end{bmatrix}, \quad K_2 = \beg
 </div>
 </div>
 </div></div>
+</div>
 </section>
 <section id="mimo-systems-1" class="slide level2">
 <h2>MIMO Systems</h2>
@@ -571,13 +569,12 @@ B = \frac{\partial}{\partial u}(-x + x^3 + u) \Big|_{x=0, u=0} = 1
 <div class="fragment">
 <p>The linearised continuous-time system is <span class="math inline">\;\boxed{\delta\dot{x}(t) = -\delta x(t) + \delta u(t)}</span>.</p>
 </div>
-</section>
-<section id="section-5" class="slide level2 smaller">
-<h2></h2>
+<div class="fragment">
 <p><strong>2. Discretise</strong> the system with a sampling time <span class="math inline">T=0.1</span>s:</p>
 <p><span class="math display">\begin{align*} x(kT+T) &amp;= Gx(kT) + Hu(kT), \quad y(kT) = x(kT) \end{align*}</span></p>
 <p>where <span class="math inline">G = e^{-AT} = 0.905</span>, and <span class="math inline">H = A^{-1}(G-I)B = 0.095</span>.</p>
 <p>The discrete-time (linearised) system is <span class="math inline">\boxed{x(kT+T) = 0.905x(kT) + 0.095u(kT)}</span>.</p>
+</div>
 <div class="fragment">
 <p><strong>3. Design <span class="math inline">u(kT) = -K x(kT)</span></strong> to place the closed-loop pole of this <em>linearised</em> system at <span class="math inline">p = 0.5</span>.</p>
 <p><em>3.1 Design through pole placement.</em> The closed-loop is <span class="math inline">x(kT+T) = (G - H K) x(kT)</span>.</p>
@@ -588,11 +585,10 @@ B = \frac{\partial}{\partial u}(-x + x^3 + u) \Big|_{x=0, u=0} = 1
 <p>Try to do this through equating the characteristic polynomials: <span class="math inline">\det(zI - (G-HK)) = (z-p)</span>.</p>
 </div>
 </div>
-</section>
-<section id="section-6" class="slide level2 smaller">
-<h2></h2>
+<div class="fragment">
 <p><span class="math display">\begin{align*} 0.905 - 0.095 K &amp;= 0.5 \\ 0.095 K &amp;= 0.905 - 0.5 = 0.405 \\ K &amp;= \frac{0.405}{0.095} = 4.263 \end{align*}</span></p>
 <p>So, the linear controller designed for the linearized system is <span class="math inline">\boxed{u(kT) = -4.263 x(kT)}</span>.</p>
+</div>
 <div class="fragment">
 <p><strong>4. Test the controller on the original nonlinear system.</strong></p>
 <p>Simulate the continuous nonlinear dynamics, but apply the control input <span class="math inline">u(kT) = -K x(kT)</span> constant over the period <span class="math inline">[kT, kT + T)</span> (Zero-Order Hold).</p>
@@ -610,10 +606,8 @@ B = \frac{\partial}{\partial u}(-x + x^3 + u) \Big|_{x=0, u=0} = 1
 </div>
 </div>
 </div>
-</section>
-<section id="section-7" class="slide level2 smaller">
-<h2></h2>
-<div id="2703314c" class="cell columns column-output-location" data-results="hold" data-execution_count="2">
+<div class="fragment">
+<div id="d936de78" class="cell columns column-output-location" data-results="hold" data-execution_count="2">
 <div class="column">
 <div class="sourceCode cell-code" id="cb2" data-code-line-numbers="1-3|8-11|13-18|20-23|29-37|42-63|104-120"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb2-2"><a></a><span class="im">from</span> scipy.integrate <span class="im">import</span> solve_ivp</span>
@@ -769,6 +763,7 @@ B = \frac{\partial}{\partial u}(-x + x^3 + u) \Big|_{x=0, u=0} = 1
 </div>
 </div>
 </div></div>
+</div>
 </section></section>
 <section>
 <section id="optimal-control" class="title-slide slide level1 center" data-state="optimal-control">
@@ -958,9 +953,7 @@ P = G^\intercal PG - (G^\intercal PH)(R+H^\intercal PH)^{-1}(H^\intercal PG) + Q
 <li class="fragment"><strong>Observability</strong>: <span class="math inline">\mathcal{O} = [V,\; VG]^\intercal</span>, where <span class="math inline">V = \sqrt{Q}</span>. Then <span class="math inline">\mathcal{O} = [3.162,\; 2.857]^\intercal</span>, which has full rank.</li>
 <li class="fragment"><strong>Solution <span class="math inline">P=P^\intercal\succeq 0</span> of the DARE</strong>: <span class="math inline">P - G^\intercal P G + (G^\intercal P H)(R + H^\intercal P H)^{-1}(H^\intercal P G) = Q</span></li>
 </ul>
-</section>
-<section id="section-8" class="slide level2 smaller">
-<h2></h2>
+<div class="fragment">
 <p><span class="math display">\begin{align*}
 P - G^2 P + \frac{(G H P)^2}{R + H^2 P} &amp;= Q \\
 (P - G^2 P)(R + H^2 P) + G^2 H^2 P^2 &amp;= Q (R + H^2 P) \\
@@ -973,10 +966,9 @@ P = 15.2571 \text{ or } P = -7.2624
 <li class="fragment"><strong>Pick the <em>positive semi-definite</em> solution</strong>: <span class="math inline">P = 15.2571</span>.</li>
 <li class="fragment"><strong>Compute the gain</strong> <span class="math inline">K = (R + H^\intercal P H)^{-1} H^\intercal P G = 5.519</span>.</li>
 </ul>
-</section>
-<section id="section-9" class="slide level2 smaller">
-<h2></h2>
-<div id="a4fbf9e9" class="cell columns column-output-location" data-results="hold" data-execution_count="3">
+</div>
+<div class="fragment">
+<div id="7405bec4" class="cell columns column-output-location" data-results="hold" data-execution_count="3">
 <div class="column">
 <div class="sourceCode cell-code" id="cb4" data-code-line-numbers="3|30-32|34-49|"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb4-2"><a></a><span class="im">from</span> scipy.integrate <span class="im">import</span> solve_ivp</span>
@@ -1133,6 +1125,7 @@ Linear Closed-Loop Pole = 0.381. (STABLE)</code></pre>
 </div>
 </div>
 </div></div>
+</div>
 </section>
 <section id="mimo-example-of-dlqr-design" class="slide level2 smaller scrollable">
 <h2>MIMO Example of DLQR Design</h2>
@@ -1236,7 +1229,7 @@ Linear Closed-Loop Pole = 0.381. (STABLE)</code></pre>
 </section>
 <section id="quick-example-of-dlqr-tuning" class="slide level2">
 <h2>Quick Example of DLQR Tuning</h2>
-<div id="bdcb19c8" class="cell" data-code-block-height="300px" data-results="hold" data-execution_count="5">
+<div id="3964aa58" class="cell" data-code-block-height="300px" data-results="hold" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8" data-code-line-numbers=""><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a><span class="co"># Iterate over different Q values and simulate the system</span></span>
@@ -1302,7 +1295,7 @@ Linear Closed-Loop Pole = 0.381. (STABLE)</code></pre>
 </section>
 <section id="unsaturated-lqr" class="slide level2 smaller">
 <h2>Unsaturated LQR</h2>
-<div id="e28c0249" class="cell columns column-output-location" data-execution_count="6">
+<div id="4051504c" class="cell columns column-output-location" data-execution_count="6">
 <div class="column">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a><span class="co"># Scenario 1: Unconstrained LQR for Nonzero Regulation (Damped 2nd Order System)</span></span>
 <span id="cb9-2"><a></a></span>
@@ -1464,7 +1457,7 @@ Linear Closed-Loop Pole = 0.381. (STABLE)</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>DLQR Gain for error K = [[8.76224795 4.36193866]]
 Running simulation...
-Simulation loop time: 0.02 s</code></pre>
+Simulation loop time: 0.01 s</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
@@ -1477,7 +1470,7 @@ Simulation loop time: 0.02 s</code></pre>
 </section>
 <section id="saturated-lqr" class="slide level2 smaller">
 <h2>Saturated LQR</h2>
-<div id="605ebb6b" class="cell columns column-output-location" data-execution_count="7">
+<div id="061de4e3" class="cell columns column-output-location" data-execution_count="7">
 <div class="column">
 <div class="sourceCode cell-code" id="cb11" data-code-line-numbers=""><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a></a><span class="co"># Scenario 2: Saturated LQR for Nonzero Regulation (Damped 2nd Order System)</span></span>
 <span id="cb11-2"><a></a></span>
@@ -1650,7 +1643,7 @@ Simulation loop time: 0.01 s</code></pre>
 </section>
 <section id="mpc" class="slide level2 smaller">
 <h2>MPC</h2>
-<div id="48f83cba" class="cell columns column-output-location" data-execution_count="8">
+<div id="92bbef93" class="cell columns column-output-location" data-execution_count="8">
 <div class="column">
 <div class="sourceCode cell-code" id="cb13" data-code-line-numbers=""><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a></a><span class="co"># Scenario 3: MPC for Nonzero Regulation (Damped 2nd Order System)</span></span>
 <span id="cb13-2"><a></a></span>
@@ -1847,7 +1840,7 @@ Simulation loop time: 0.01 s</code></pre>
 MPC CVXPY Problem defined.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>MPC Simulation loop time: 8.20 s</code></pre>
+<pre><code>MPC Simulation loop time: 8.51 s</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>

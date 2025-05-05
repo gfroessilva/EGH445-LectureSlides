@@ -1,6 +1,6 @@
 project:
   type: website
-  output-dir: docs # Or your preferred output directory
+  output-dir: docs-live # Or your preferred output directory
 
 
 website:
