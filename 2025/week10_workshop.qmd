@@ -1,0 +1,263 @@
+---
+format:
+    revealjs:
+        chalkboard: true
+        scrollable: true
+---
+
+## Title Slide {.title-slide-custom data-state="titleslide"}
+
+::: logo-container-title
+<img src="../qut_logo.jpg" alt="QUT Logo"/>
+:::
+
+::: title-block
+<h1>Modern Control</h1>
+
+<h2>Week 10 Workshop</h2>
+:::
+
+::: author-block-title
+Dr Guilherme Froes Silva<br/> School of Electrical Engineering & Robotics<br/> Queensland University of Technology
+:::
+
+::: course-code-title
+EGH445 - Modern Control
+:::
+
+```{=html}
+<!-- <div class="website-link-title">
+  <a href="../index.html">
+    Website
+  </a>
+</div> -->
+```
+
+::: contact-box-title
+Consultation: GP-S1111<br/> Email: g.froessilva\@qut.edu.au
+:::
+
+# Overview
+
+::: incremental
+-   Student Voice Survey
+-   Lecture Highlights
+-   Workshop Examples
+:::
+
+---
+
+![](images/Survey_Slide1.PNG){fig-alt="Survey Slide 1"}
+
+---
+
+![](images/Survey_Slide2.PNG){fig-alt="Survey Slide 2"}
+
+# Lecture Highlights (Week 10) {.smaller}
+![](images/2025_Schedule.png){fig-alt="2025 Schedule" height=550px}
+
+<!-- ::: {.table-striped}
+| Week | Lecture/Tutorial         | Lab                   | Assessment           |
+|:-----|:-------------------------|:----------------------|:---------------------|
+| 1    | Introduction and Models  | No Lab                |                      |
+| 2    | System Analysis          | Intro Simulation      |                      |
+| 3    | Linear and Nonlinear Dyn | CT System Analysis    |                      |
+| 4    | DT Modelling             | Linear and Nonlinear  |                      |
+| 5    | DT Analysis              | DT System Modelling   |                      |
+| 6    | Control Design 1         | DT System Analysis    |                      |
+| 7    | Control Design 2         | DT Regulation Control |                      |
+|      | **Mid Semester Break**   |                       |                      |
+| 8    | **No Classes**           |                       | Mid-Sem Exam (20%)   |
+| 9    | Control Design 3         | DT Tracking Control   |                      |
+| 10   | State Estimation         | DT Optimal Control    |                      |
+| 11   | Practical Considerations | Output Feedback Ctrl  |                      |
+| 12   | Advanced Topics          | Demo                  | Ass 2.A Demo (20%)   |
+| 13   | Revision                 | No Lab                | Ass 2.B Report (20%) |
+:::
+ 
+: test {.table-striped .hover} -->
+
+## Discrete-Time Control Design 3: Lecture Content
+
+::::: columns
+::: column
+![](images/lec10.png){fig-alt="Lecture 10 Title Slide"}
+:::
+
+::: column
+**Overview**
+
+- Why we need state estimation.
+- The Luenberger Observer.
+- Observability.
+- Observer Design via Pole Placement.
+- Output Feedback.
+- Optimal Estimation (Kalman Filter).
+
+:::
+:::::
+
+## The Need for State Estimation {.smaller}
+
+Why can't we just use the states $x(kT)$ if our controllers $u(kT) = -Kx(kT)$ depend on them?
+
+::::: {.columns}
+::: {.column width="50%"}
+**Theoretical Background**
+
+---
+
+::: {.incremental}
+- **Full State Unavailability:** 
+    - Lack of sensors for certain states.
+    - Cost or physical constraints of sensors.
+- **Output Equation:** We only have access to outputs:
+$$
+y(kT) = Cx(kT) + Du(kT)
+$$
+- **Inverting $C$ is Not a General Solution:**
+    - $C$ is often not square (more states than outputs).
+
+:::
+:::
+
+::: {.column width="50%"}
+**Practical Implications**
+
+---
+
+::: {.incremental}
+- **Sensor Cost & Complexity:** expensive or technically impossible.
+    - *Example:* Measuring the internal temperature of a large chemical reactor at multiple points.
+- **Noise:** Measurements are often noisy; estimation can help filter the noise.
+:::
+:::
+:::::
+
+## How to Estimate States? {.smaller}
+
+:::: {.columns}
+::: {.column width="50%"}
+**Theoretical Background**
+
+**Open-Loop Observer Issues:**
+
+- Simulating the system: 
+  
+  $\hat{x}(kT+T) = G\hat{x}(kT) + Hu(kT)$.
+- Error dynamics $e(kT+T) = Ge(kT)$.
+- If $G$ is unstable, error diverges.
+- If $G$ is stable but slow, error converges too slowly.
+:::
+::: {.column width="50%"}
+**Practical Implications**
+
+- **Open-loop estimators are unreliable:**
+    - Sensitive to initial conditions $\hat{x}(0) \neq x(0)$.
+    - Sensitive to model inaccuracies.
+    - Cannot correct for disturbances.
+:::
+::::
+
+# The Luenberger Observer {data-state="luenberger" .smaller}
+:::: {.columns}
+::: {.column width="60%" style="font-size: 0.9em;"}
+**Discrete-Time Luenberger Observer Structure**
+
+The Luenberger Observer is defined as:
+$$ \color{green}
+\begin{align*}
+\hat{x}(kT+T) &= G\hat{x}(kT) + Hu(kT) \\&+ \textcolor{red}{L \big(y(kT) - \hat{y}(kT)\big)}
+\end{align*}
+$$
+Where:
+
+::: {.incremental}
+- $\hat{x}(kT)$: State estimate at time $kT$.
+- $y(kT)$: Actual measured output from the plant.
+- $\hat{y}(kT) = C\hat{x}(kT)$: Estimated output.
+- $(y(kT) - \hat{y}(kT))$: Output estimation error (the correction term).
+- $L$: The **Observer Gain Matrix**.
+:::
+:::
+
+::: {.column width="40%"}
+![](../lectures/images/lec10_obsvLuen.png){fig-alt="Luenberger Observer Block Diagram" height="350px"}
+**Key Insight:** 
+
+The term $L(y - C\hat{x})$ acts as a corrective feedback, pushing the estimate $\hat{x}$ closer to the true state $x$.
+:::
+::::
+
+## Observer: Error Dynamics & Practical Design {.smaller}
+
+With the Luenberger observer, how do we ensure $\hat{x}(kT)$ is useful?
+
+:::: {.columns}
+::: {.column width="45%"}
+**Error Dynamics Recap**
+
+---
+
+$e(kT) = x(kT) - \hat{x}(kT)$.
+
+Error dynamics:
+$$
+e(kT+T) = (G - LC)e(kT)
+$$
+
+::: {.incremental}
+- Design $L$ so $(G - LC)$:
+    - Is stable (poles inside unit circle).
+    - Converges fast.
+:::
+::: 
+
+::: {.column width="55%"}
+**Practical Tips for Observer Poles ($L$ Design)**
+
+---
+
+::: {.incremental}
+-   **Convergence Speed:**
+    -   Observer dynamics faster than controller.
+    -   *Why?* Controller needs accurate estimates.
+
+-   **Noise Sensitivity:**
+    -   Fast convergence needs large $L$.
+    -   $L(y - C\hat{x})$ uses measured $y$.
+    -   If $y$ is noisy, large $L$ amplifies noise in $\hat{x}$.
+:::
+:::
+::::
+
+## Output Feedback Control: Using the Estimate {.smaller}
+
+We've designed a controller $K$ (assuming $x(kT)$ was known) and an observer gain $L$ (to get $\hat{x}(kT)$).
+
+:::: {.columns}
+::: {.column width="60%"}
+**Luenberger State Observer:**
+$$
+\hat{x}(kT+T) = (G - LC)\hat{x}(kT) + Hu(kT) + L y(kT)
+$$
+
+
+**Control Law (Output Feedback):**
+$$
+u(kT) = -K\hat{x}(kT)
+$$
+:::
+::: {.column width="40%"}
+**Key Points:**
+
+::: {.incremental}
+-   Gain $K$ designed first as if $x(kT)$ was available.
+-   Gain $L$ designed so $\hat{x}(kT)$ converges to $x(kT)$ quickly and robustly.
+:::
+:::
+::::
+
+# Workshop Example {.scrollable}
+
+Watch the recording. We went through a Kalman Filtering example of a vehicle being driven using GPS measurements only.

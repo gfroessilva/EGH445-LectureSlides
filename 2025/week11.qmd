@@ -1,0 +1,25 @@
+---
+format:
+  revealjs:
+    scrollable: false
+---
+
+## Student Voice Surveys {header-left="Week 11" header-right="Events"}
+![](images/Survey_Slide1.PNG){width=80%}
+
+## Student Voice Surveys {header-left="Week 11" header-right="Events"}
+![](images/Survey_Slide2.PNG)
+
+## Student Support {header-left="Week 11" header-right="Opportunities"}
+
+::: {style="width: 80%"}
+[![](images/Student-Success-Writing-Help/Slide1.PNG)](qut.to/academicsupport)
+:::
+
+## Student Support {header-left="Week 11" header-right="Opportunities"}
+
+![](images/Student-Success-Writing-Help/Slide2.PNG)
+
+## Student Support {header-left="Week 11" header-right="Opportunities"}
+
+![](images/Student-Success-Writing-Help/Slide3.PNG)

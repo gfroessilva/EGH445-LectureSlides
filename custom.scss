@@ -346,3 +346,19 @@ body.titleslide .slide-footer {
     background-color: #f2f2f2;
   }
 }
+
+.vcenter-cols {
+  display: flex;       /* Enable flexbox for the columns container */
+  align-items: center; /* Vertically align items (columns) in the centre */
+}
+
+/* styles.css */
+.columns.vcenter-cols {
+  display: flex;       /* Enable flexbox for the columns container */
+  align-items: center; /* Vertically align items (columns) in the centre */
+}
+
+/* Attempt to override any inline vertical-align on the columns */
+.columns.vcenter-cols .column {
+  vertical-align: initial !important; /* Reset vertical-align */
+}

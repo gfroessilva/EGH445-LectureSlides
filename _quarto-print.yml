@@ -1,2 +1,6 @@
 project: 
   output-dir: docs
+
+format:
+  revealjs:
+    incremental: false

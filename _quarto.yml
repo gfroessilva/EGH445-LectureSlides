@@ -54,6 +54,7 @@ format:
     css: custom.scss
     toc: true
   revealjs:
+    incremental: true
     # --- Widescreen Settings ---
     width: 1280  # Example for 16:9
     height: 700   # Example for 16:9
