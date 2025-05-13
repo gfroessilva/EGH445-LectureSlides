@@ -362,3 +362,50 @@ body.titleslide .slide-footer {
 .columns.vcenter-cols .column {
   vertical-align: initial !important; /* Reset vertical-align */
 }
+
+body.print-pdf {
+  .reveal .header,
+  .reveal .footer {
+    display: flex !important; /* Your header/footer use flex for internal layout */
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: fixed !important; /* Keep them fixed as per your design */
+    background-color: $body-bg; /* Or your specific header/footer background */
+    color: $body-color;         /* Or your specific header/footer text color */
+    z-index: 1001 !important;   /* Ensure they are on top */
+    padding-left: 15px !important; /* Restore some padding if needed */
+    padding-right: 15px !important;/* Restore some padding if needed */
+  }
+
+  .reveal .header {
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 50px; /* Adjust to your header's actual height */
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    box-sizing: border-box;
+  }
+
+  .reveal .footer {
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 30px; /* Adjust to your footer's actual height */
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    box-sizing: border-box;
+  }
+
+  /* Optional: Adjust slide content area if fixed headers/footers overlay content.
+     This might not be strictly necessary if each slide is its own "page" correctly,
+     but good to be aware of. RevealJS's print mode usually handles slide scaling.
+     If you find content is hidden *under* the now-visible fixed header/footer on each page:
+  */
+  // .reveal .slides {
+  //   padding-top: 50px; /* Match header height */
+  //   padding-bottom: 30px; /* Match footer height */
+  //   box-sizing: border-box;
+  //   height: calc(var(--r-slide-height) - 80px) !important; // Adjust overall slide height
+  // }
+}

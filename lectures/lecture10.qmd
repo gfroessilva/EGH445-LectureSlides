@@ -580,7 +580,12 @@ legend("True", 'Estimate');
 . . .
 
 ::: {.callout-tip}
-This is content that will not be directly assessed, but it's good to know that these extensions exist.
+# Tip: **Edited**
+~~This is content that will not be directly assessed, but~~ it's good to know that these extensions exist.
+
+You are not expected to know the mechanics/maths of the following techniques. 
+
+You **are expected** to know *what* they do, *why/when* they're useful, and *how* to use them (e.g. tuning).
 
 You may consider these ideas to improve your design for the assessment.
 :::
