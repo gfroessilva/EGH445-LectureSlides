@@ -184,16 +184,16 @@ Implementation involves choices about:
 
 ::: {.nonincremental}
 - Common development boards
-    - [Arduino, Teensy, etc.]{.fragment fragment-index=1}
-    - [dSpace DS1104, MicroLabBox, etc.]{.fragment fragment-index=2}
+    - Arduino, Teensy, etc.
+    - dSpace DS1104, MicroLabBox, etc.
 :::
 
 ::: {.columns}
 ::: {.column}
-[![](images/tensy.jpg){height="300px"}]{.fragment fragment-index=1}
+![](images/tensy.jpg){height="300px"}
 :::
 ::: {.column}
-[![](images/dSpaceDS1104.jpeg){height="300px"}]{.fragment fragment-index=2}
+![](images/dSpaceDS1104.jpeg){height="300px"}
 :::
 :::
 
