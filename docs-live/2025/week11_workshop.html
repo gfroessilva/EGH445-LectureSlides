@@ -6,10 +6,10 @@
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.27">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-b719d3d4935f2b08311a76135e2bf442.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.28">
 
-  <title>EGH445 Modern Control – week11</title>
+  <title>EGH445 Modern Control – week11_workshop</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -28,10 +28,12 @@
       vertical-align: middle;
     }
   </style>
-  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-975a98f3d01d5216602c495b1e7ef403.css">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-82eb2921fe5a210fe360109c5a7d9c11.css">
   <link href="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
@@ -44,6 +46,7 @@
     }
     .reveal .slide:not(.center) {
       height: 100%;
+      overflow-y: auto;
     }
     .reveal .slide.scrollable {
       overflow-y: auto;
@@ -137,30 +140,52 @@
     <div class="slides">
 
 
-<section id="student-voice-surveys" class="slide level2" data-header-left="Week 11" data-header-right="Events">
-<h2>Student Voice Surveys</h2>
-
-<img data-src="images/Survey_Slide1.PNG" style="width:80.0%" class="r-stretch"></section>
-<section id="student-voice-surveys-1" class="slide level2" data-header-left="Week 11" data-header-right="Events">
-<h2>Student Voice Surveys</h2>
-
-<img data-src="images/Survey_Slide2.PNG" class="r-stretch"></section>
-<section id="student-support" class="slide level2" data-header-left="Week 11" data-header-right="Opportunities">
-<h2>Student Support</h2>
-<div style="width: 80%">
-<p><a href="qut.to/academicsupport"><img data-src="images/Student-Success-Writing-Help/Slide1.PNG"></a></p>
+<section id="title-slide" class="slide level2 title-slide-custom center" data-state="titleslide">
+<h2>Title Slide</h2>
+<div class="logo-container-title">
+<p><img src="../qut_logo.jpg" alt="QUT Logo"></p>
+</div>
+<div class="title-block">
+<h1>
+Modern Control
+</h1>
+<h2>
+Week 11 Workshop
+</h2>
+</div>
+<div class="author-block-title">
+<p>Dr Guilherme Froes Silva<br> School of Electrical Engineering &amp; Robotics<br> Queensland University of Technology</p>
+</div>
+<div class="course-code-title">
+<p>EGH445 - Modern Control</p>
+</div>
+<!-- <div class="website-link-title">
+  <a href="../index.html">
+    Website
+  </a>
+</div> -->
+<div class="contact-box-title">
+<p>Consultation: GP-S1111<br> Email: g.froessilva@qut.edu.au</p>
 </div>
 </section>
-<section id="student-support-1" class="slide level2" data-header-left="Week 11" data-header-right="Opportunities">
-<h2>Student Support</h2>
+<section>
+<section id="overview" class="title-slide slide level1 center">
+<h1>Overview</h1>
+<ul>
+<li class="fragment">Student Voice Survey</li>
+<li class="fragment">Lecture Highlights</li>
+<li class="fragment">Workshop Examples</li>
+</ul>
+</section>
+<section class="slide level2">
 
-<img data-src="images/Student-Success-Writing-Help/Slide2.PNG" class="r-stretch"></section>
-<section id="student-support-2" class="slide level2" data-header-left="Week 11" data-header-right="Opportunities">
-<h2>Student Support</h2>
+
+<img data-src="images/Survey_Slide1.PNG" alt="Survey Slide 1" class="r-stretch"></section>
+<section class="slide level2">
 
 
 
-<img data-src="images/Student-Success-Writing-Help/Slide3.PNG" class="r-stretch"></section>
+</section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
@@ -175,6 +200,7 @@
   <script src="../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
   <script src="../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
   <script src="../site_libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
@@ -195,7 +221,8 @@
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
-'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
 'smaller': false,
  
         // Display controls in the bottom right corner
@@ -349,7 +376,7 @@
         margin: 0.1,
 
         // reveal.js plugins
-        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
 
           RevealNotes,
           RevealSearch,

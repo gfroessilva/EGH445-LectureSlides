@@ -200,14 +200,14 @@
     "href": "lectures/lecture9.html#saturated-lqr",
     "title": "EGH445 Modern Control",
     "section": "Saturated LQR",
-    "text": "Saturated LQR\n\n\n# Scenario 2: Saturated LQR for Nonzero Regulation (Damped 2nd Order System)\n\nimport numpy as np\nfrom scipy.integrate import solve_ivp\nfrom scipy.linalg import solve_discrete_are, expm\nfrom scipy.signal import cont2discrete\nimport matplotlib.pyplot as plt\nimport time\n\n# print(\"--- Running Scenario 2: Saturated LQR (Nonzero Setpoint, Damped System) ---\")\n\n# --- 1. System Definition ---\nc_damping = 0.5\nAc = np.array([[0., 1.], [1., -c_damping]])\nBc = np.array([[0.], [1.]])\nn_states = Ac.shape[0]\nm_inputs = Bc.shape[1]\ndef system_ode(t, x, u, Ac_mat, Bc_mat):\n    u_val = u if np.isscalar(u) else u[0]\n    dxdt = Ac_mat @ x + Bc_mat @ np.array([u_val])\n    return dxdt.flatten()\n\n# --- 2. Discretization ---\nTs = 0.1\nAd, Bd, _, _, _ = cont2discrete((Ac, Bc, np.eye(n_states), np.zeros((n_states, m_inputs))), Ts, method='zoh')\n\n# --- 3. Setpoint ---\nx_ref = np.array([1.0, 0.0])\ntry:\n    u_ref_vec = np.linalg.pinv(Bd) @ (np.eye(n_states) - Ad) @ x_ref\n    u_ref = u_ref_vec[0]\n    # print(f\"Setpoint: x_ref = {x_ref.T}, requires discrete u_ref = {u_ref:.3f} (cont. u_ref=-1.0)\")\nexcept Exception as e:\n    print(f\"Could not calculate discrete u_ref: {e}. Using continuous u_ref.\")\n    u_ref = -x_ref[0]\n\n# --- 4. DLQR Design (for error regulation) ---\nQd = np.diag([1.0, 0.1])\nRd = np.array([[0.01]])\ntry:\n    S = solve_discrete_are(Ad, Bd, Qd, Rd)\n    Kd_term1 = Rd + Bd.T @ S @ Bd\n    Kd_term2 = Bd.T @ S @ Ad\n    Kd = np.linalg.inv(Kd_term1) @ Kd_term2\n    print(f\"DLQR Gain for error K = {Kd}\")\nexcept Exception as e:\n    print(f\"DLQR Design failed: {e}\"); exit()\n\n# --- 5. Simulation Setup ---\nt_start = 0\nt_end = 6.0\nn_steps = int(t_end / Ts)\nx0 = np.array([0.0, 0.0])\nx_eq_ref = np.array([x_ref]) # Use as reference, not equilibrium for deviation calc\nu_min = -2.5 # Saturation Limits (Allow u_ref=-1)\nu_max = 0.5\nprint(f\"Control Limits: [{u_min}, {u_max}]\")\n\n# --- Helper function for interval simulation ---\ndef simulate_interval(ode_func, t_start, x_start, duration, control_val):\n    t_eval_interval = [t_start + duration]\n    sol_interval = solve_ivp(\n        ode_func, (t_start, t_start + duration), x_start, method='RK45',\n        t_eval=t_eval_interval, args=(control_val,)\n    )\n    if sol_interval.status != 0: return None, False\n    return sol_interval.y[:, -1], True\n\n# --- 6. Simulation Loop ---\nt_history = [t_start]\nx_history = [x0]\nu_lqr_desired_hist = []\nu_sat_applied_hist = []\ncurrent_t = t_start\ncurrent_x = x0.copy()\nsuccess_run = True\n\nstart_sim_time = time.time()\n# print(\"Running simulation...\")\nfor k in range(n_steps):\n    x_error = current_x - x_ref\n    # Calculate desired LQR control\n    u_lqr_k_vec = u_ref - Kd @ x_error\n    u_lqr_k = u_lqr_k_vec[0]\n    u_lqr_desired_hist.append(u_lqr_k)\n\n    # Apply saturation\n    u_sat_k = np.clip(u_lqr_k, u_min, u_max)\n    u_sat_applied_hist.append(u_sat_k)\n\n    def ode_satlqr_interval(t, y, u_val):\n        return system_ode(t, y, u_val, Ac, Bc)\n\n    next_x, success = simulate_interval(ode_satlqr_interval, current_t, current_x, Ts, u_sat_k)\n\n    if not success:\n        print(f\"ODE solver failed at t={current_t:.2f}\")\n        success_run = False; break\n\n    current_t += Ts\n    current_x = next_x\n    t_history.append(current_t)\n    x_history.append(current_x.copy())\n\n    if np.max(np.abs(current_x)) &gt; 100: # Divergence check\n        print(f\"State diverging excessively at t={current_t:.2f}. Stopping.\")\n        success_run = False; break\n\nprint(f\"Simulation loop time: {time.time() - start_sim_time:.2f} s\")\n\n# --- 7. Plotting ---\nif success_run:\n    t_history = np.array(t_history)\n    x_history = np.array(x_history).T\n    u_lqr_desired_hist = np.array(u_lqr_desired_hist)\n    u_sat_applied_hist = np.array(u_sat_applied_hist)\n    n_plot = len(u_sat_applied_hist)\n\n    # Use consistent plot limits from Block 1 (or adjust if needed)\n    xlims = (t_start, t_end)\n    ylims_x1 = (-0.5, 1.5)\n    ylims_x2 = (-0.5, 1.5)\n    ylims_u = (-4, 1) # Keep wide limits to see desired vs saturated\n\n    plt.figure(\"Saturated LQR (Nonzero Setpoint, Damped)\", figsize=(10, 8))\n    plt.rcParams.update({'font.size': 12})\n\n    plt.subplot(3, 1, 1)\n    plt.plot(t_history[:n_plot+1], x_history[0,:n_plot+1], label='$x_1$ (y)', lw=2)\n    plt.axhline(x_ref[0], color='k', linestyle=':', label=f'Setpoint $x_1={x_ref[0]}$')\n    plt.title(f'Saturated LQR (Setpoint x=[{x_ref[0]},{x_ref[1]}]^T, u limits=[{u_min},{u_max}])')\n    plt.ylabel('Position $x_1$')\n    plt.ylim(ylims_x1); plt.xlim(xlims); plt.grid(True); plt.legend()\n\n    plt.subplot(3, 1, 2)\n    plt.plot(t_history[:n_plot+1], x_history[1,:n_plot+1], label='$x_2$ (dy/dt)', lw=2)\n    plt.axhline(x_ref[1], color='k', linestyle=':', label=f'Setpoint $x_2={x_ref[1]}$')\n    plt.ylabel('Velocity $x_2$')\n    plt.ylim(ylims_x2); plt.xlim(xlims); plt.grid(True); plt.legend()\n\n    plt.subplot(3, 1, 3)\n    plt.step(t_history[:n_plot], u_lqr_desired_hist[:n_plot], where='post', label='Desired LQR u[k]', lw=1.5, ls=':')\n    plt.step(t_history[:n_plot], u_sat_applied_hist[:n_plot], where='post', label='Applied Saturated u[k]', lw=2)\n    plt.axhline(u_ref, color='k', linestyle=':', label=f'Steady-State u={u_ref:.2f}')\n    plt.axhline(u_max, color='r', linestyle=':', label='Limit')\n    plt.axhline(u_min, color='r', linestyle=':')\n    plt.ylabel('Control Input u')\n    plt.xlabel('Time (s)')\n    plt.ylim(ylims_u); plt.xlim(xlims); plt.grid(True); plt.legend()\n\n    plt.tight_layout()\n    plt.show()\nelse:\n    print(\"Simulation failed, not plotting.\")\n\n\nDLQR Gain for error K = [[8.76224795 4.36193866]]\nControl Limits: [-2.5, 0.5]\nSimulation loop time: 0.01 s"
+    "text": "Saturated LQR\n\n\n# Scenario 2: Saturated LQR for Nonzero Regulation (Damped 2nd Order System)\n\nimport numpy as np\nfrom scipy.integrate import solve_ivp\nfrom scipy.linalg import solve_discrete_are, expm\nfrom scipy.signal import cont2discrete\nimport matplotlib.pyplot as plt\nimport time\n\n# print(\"--- Running Scenario 2: Saturated LQR (Nonzero Setpoint, Damped System) ---\")\n\n# --- 1. System Definition ---\nc_damping = 0.5\nAc = np.array([[0., 1.], [1., -c_damping]])\nBc = np.array([[0.], [1.]])\nn_states = Ac.shape[0]\nm_inputs = Bc.shape[1]\ndef system_ode(t, x, u, Ac_mat, Bc_mat):\n    u_val = u if np.isscalar(u) else u[0]\n    dxdt = Ac_mat @ x + Bc_mat @ np.array([u_val])\n    return dxdt.flatten()\n\n# --- 2. Discretization ---\nTs = 0.1\nAd, Bd, _, _, _ = cont2discrete((Ac, Bc, np.eye(n_states), np.zeros((n_states, m_inputs))), Ts, method='zoh')\n\n# --- 3. Setpoint ---\nx_ref = np.array([1.0, 0.0])\ntry:\n    u_ref_vec = np.linalg.pinv(Bd) @ (np.eye(n_states) - Ad) @ x_ref\n    u_ref = u_ref_vec[0]\n    # print(f\"Setpoint: x_ref = {x_ref.T}, requires discrete u_ref = {u_ref:.3f} (cont. u_ref=-1.0)\")\nexcept Exception as e:\n    print(f\"Could not calculate discrete u_ref: {e}. Using continuous u_ref.\")\n    u_ref = -x_ref[0]\n\n# --- 4. DLQR Design (for error regulation) ---\nQd = np.diag([1.0, 0.1])\nRd = np.array([[0.01]])\ntry:\n    S = solve_discrete_are(Ad, Bd, Qd, Rd)\n    Kd_term1 = Rd + Bd.T @ S @ Bd\n    Kd_term2 = Bd.T @ S @ Ad\n    Kd = np.linalg.inv(Kd_term1) @ Kd_term2\n    print(f\"DLQR Gain for error K = {Kd}\")\nexcept Exception as e:\n    print(f\"DLQR Design failed: {e}\"); exit()\n\n# --- 5. Simulation Setup ---\nt_start = 0\nt_end = 6.0\nn_steps = int(t_end / Ts)\nx0 = np.array([0.0, 0.0])\nx_eq_ref = np.array([x_ref]) # Use as reference, not equilibrium for deviation calc\nu_min = -2.5 # Saturation Limits (Allow u_ref=-1)\nu_max = 0.5\nprint(f\"Control Limits: [{u_min}, {u_max}]\")\n\n# --- Helper function for interval simulation ---\ndef simulate_interval(ode_func, t_start, x_start, duration, control_val):\n    t_eval_interval = [t_start + duration]\n    sol_interval = solve_ivp(\n        ode_func, (t_start, t_start + duration), x_start, method='RK45',\n        t_eval=t_eval_interval, args=(control_val,)\n    )\n    if sol_interval.status != 0: return None, False\n    return sol_interval.y[:, -1], True\n\n# --- 6. Simulation Loop ---\nt_history = [t_start]\nx_history = [x0]\nu_lqr_desired_hist = []\nu_sat_applied_hist = []\ncurrent_t = t_start\ncurrent_x = x0.copy()\nsuccess_run = True\n\nstart_sim_time = time.time()\n# print(\"Running simulation...\")\nfor k in range(n_steps):\n    x_error = current_x - x_ref\n    # Calculate desired LQR control\n    u_lqr_k_vec = u_ref - Kd @ x_error\n    u_lqr_k = u_lqr_k_vec[0]\n    u_lqr_desired_hist.append(u_lqr_k)\n\n    # Apply saturation\n    u_sat_k = np.clip(u_lqr_k, u_min, u_max)\n    u_sat_applied_hist.append(u_sat_k)\n\n    def ode_satlqr_interval(t, y, u_val):\n        return system_ode(t, y, u_val, Ac, Bc)\n\n    next_x, success = simulate_interval(ode_satlqr_interval, current_t, current_x, Ts, u_sat_k)\n\n    if not success:\n        print(f\"ODE solver failed at t={current_t:.2f}\")\n        success_run = False; break\n\n    current_t += Ts\n    current_x = next_x\n    t_history.append(current_t)\n    x_history.append(current_x.copy())\n\n    if np.max(np.abs(current_x)) &gt; 100: # Divergence check\n        print(f\"State diverging excessively at t={current_t:.2f}. Stopping.\")\n        success_run = False; break\n\nprint(f\"Simulation loop time: {time.time() - start_sim_time:.2f} s\")\n\n# --- 7. Plotting ---\nif success_run:\n    t_history = np.array(t_history)\n    x_history = np.array(x_history).T\n    u_lqr_desired_hist = np.array(u_lqr_desired_hist)\n    u_sat_applied_hist = np.array(u_sat_applied_hist)\n    n_plot = len(u_sat_applied_hist)\n\n    # Use consistent plot limits from Block 1 (or adjust if needed)\n    xlims = (t_start, t_end)\n    ylims_x1 = (-0.5, 1.5)\n    ylims_x2 = (-0.5, 1.5)\n    ylims_u = (-4, 1) # Keep wide limits to see desired vs saturated\n\n    plt.figure(\"Saturated LQR (Nonzero Setpoint, Damped)\", figsize=(10, 8))\n    plt.rcParams.update({'font.size': 12})\n\n    plt.subplot(3, 1, 1)\n    plt.plot(t_history[:n_plot+1], x_history[0,:n_plot+1], label='$x_1$ (y)', lw=2)\n    plt.axhline(x_ref[0], color='k', linestyle=':', label=f'Setpoint $x_1={x_ref[0]}$')\n    plt.title(f'Saturated LQR (Setpoint x=[{x_ref[0]},{x_ref[1]}]^T, u limits=[{u_min},{u_max}])')\n    plt.ylabel('Position $x_1$')\n    plt.ylim(ylims_x1); plt.xlim(xlims); plt.grid(True); plt.legend()\n\n    plt.subplot(3, 1, 2)\n    plt.plot(t_history[:n_plot+1], x_history[1,:n_plot+1], label='$x_2$ (dy/dt)', lw=2)\n    plt.axhline(x_ref[1], color='k', linestyle=':', label=f'Setpoint $x_2={x_ref[1]}$')\n    plt.ylabel('Velocity $x_2$')\n    plt.ylim(ylims_x2); plt.xlim(xlims); plt.grid(True); plt.legend()\n\n    plt.subplot(3, 1, 3)\n    plt.step(t_history[:n_plot], u_lqr_desired_hist[:n_plot], where='post', label='Desired LQR u[k]', lw=1.5, ls=':')\n    plt.step(t_history[:n_plot], u_sat_applied_hist[:n_plot], where='post', label='Applied Saturated u[k]', lw=2)\n    plt.axhline(u_ref, color='k', linestyle=':', label=f'Steady-State u={u_ref:.2f}')\n    plt.axhline(u_max, color='r', linestyle=':', label='Limit')\n    plt.axhline(u_min, color='r', linestyle=':')\n    plt.ylabel('Control Input u')\n    plt.xlabel('Time (s)')\n    plt.ylim(ylims_u); plt.xlim(xlims); plt.grid(True); plt.legend()\n\n    plt.tight_layout()\n    plt.show()\nelse:\n    print(\"Simulation failed, not plotting.\")\n\n\nDLQR Gain for error K = [[8.76224795 4.36193866]]\nControl Limits: [-2.5, 0.5]\nSimulation loop time: 0.02 s"
   },
   {
     "objectID": "lectures/lecture9.html#mpc",
     "href": "lectures/lecture9.html#mpc",
     "title": "EGH445 Modern Control",
     "section": "MPC",
-    "text": "MPC\n\n\n# Scenario 3: MPC for Nonzero Regulation (Damped 2nd Order System)\n\nimport numpy as np\nfrom scipy.integrate import solve_ivp\nfrom scipy.linalg import solve_discrete_are, expm\nfrom scipy.signal import cont2discrete\nimport cvxpy as cp # Requires cvxpy and a solver like OSQP\nimport matplotlib.pyplot as plt\nimport time\n\n# print(\"--- Running Scenario 3: MPC (Nonzero Setpoint, Damped System) ---\")\n\n# --- 1. System Definition ---\nc_damping = 0.5\nAc = np.array([[0., 1.], [1., -c_damping]])\nBc = np.array([[0.], [1.]])\nn_states = Ac.shape[0]\nm_inputs = Bc.shape[1]\ndef system_ode(t, x, u, Ac_mat, Bc_mat):\n    u_val = u if np.isscalar(u) else u[0]\n    dxdt = Ac_mat @ x + Bc_mat @ np.array([u_val])\n    return dxdt.flatten()\n\n# --- 2. Discretization ---\nTs = 0.1\nAd, Bd, _, _, _ = cont2discrete((Ac, Bc, np.eye(n_states), np.zeros((n_states, m_inputs))), Ts, method='zoh')\n# print(\"--- Discrete Model ---\")\n# print(f\"Ad = \\n{Ad}\")\n# print(f\"Bd = \\n{Bd}\")\n\n# --- 3. Setpoint ---\nx_ref = np.array([[1.0], [0.0]]) # Target state y=1, y_dot=0 (use column vector shape)\ntry:\n    u_ref_vec = np.linalg.pinv(Bd) @ (np.eye(n_states) - Ad) @ x_ref\n    u_ref = u_ref_vec[0,0] # Extract scalar\n    # print(f\"Setpoint: x_ref = {x_ref.T}, requires discrete u_ref = {u_ref:.3f} (cont. u_ref=-1.0)\")\nexcept Exception as e:\n    print(f\"Could not calculate discrete u_ref: {e}. Using continuous u_ref.\")\n    u_ref = -x_ref[0,0] # Use continuous calculation\n\n# --- 4. MPC Setup ---\nP = 30 # Prediction Horizon\n# Use same base weights as LQR example, but consider tuning R_mpc\nQ_mpc = np.diag([1.0, 0.1])\n# R_mpc = np.array([[0.01]]) # Original aggressive LQR R\nR_mpc = np.array([[0.1]]) # Use less aggressive R for MPC? Try this.\n# Calculate terminal weight Qf from DARE solution S using MPC weights\ntry:\n    S = solve_discrete_are(Ad, Bd, Q_mpc, R_mpc)\n    Qf_mpc = S\n    # print(f\"Using terminal weight Qf=S based on MPC Q/R: \\n{Qf_mpc}\")\nexcept Exception as e:\n    print(f\"DARE solve failed ({e}), using Qf=Q\"); Qf_mpc = Q_mpc\n\n# Constraints\nu_min = -2.5\nu_max = 0.5\nprint(f\"Control Limits: [{u_min}, {u_max}]\")\n\n# --- 5. CVXPY Optimization Problem Setup ---\nU = cp.Variable((m_inputs, P), name='U')\nx_k_param = cp.Parameter(n_states, name='x_k_param') # Current state parameter\ncost = 0.0\nconstraints = []\nx_pred = x_k_param # Use parameter for current state\n\nfor t in range(P):\n    # Penalize deviation from reference state & absolute control input\n    cost += cp.quad_form(x_pred - x_ref.flatten(), Q_mpc) + cp.quad_form(U[:, t], R_mpc)\n    x_next = Ad @ x_pred + Bd @ U[:, t]\n    constraints += [U[:, t] &gt;= u_min, U[:, t] &lt;= u_max]\n    x_pred = x_next\n# Terminal cost penalizes deviation from x_ref\ncost += cp.quad_form(x_pred - x_ref.flatten(), Qf_mpc)\n\nobjective = cp.Minimize(cost)\nproblem = cp.Problem(objective, constraints)\nprint(\"MPC CVXPY Problem defined.\")\n\n# --- 6. Simulation Setup ---\nt_start = 0\nt_end = 6.0\nn_steps = int(t_end / Ts)\nx0 = np.array([0.0, 0.0]) # Initial condition\n\n# --- Helper function for interval simulation ---\ndef simulate_interval(ode_func, t_start, x_start, duration, control_val):\n    t_eval_interval = [t_start + duration]\n    sol_interval = solve_ivp(\n        ode_func, (t_start, t_start + duration), x_start, method='RK45',\n        t_eval=t_eval_interval, args=(control_val,)\n    )\n    if sol_interval.status != 0: return None, False\n    return sol_interval.y[:, -1], True\n\n# --- 7. Simulation Loop ---\nt_history = [t_start]\nx_history = [x0]\nu_history = [] # Applied MPC control\ncurrent_t = t_start\ncurrent_x = x0.copy()\nsuccess_run = True\ninfeasibility_count = 0\n\nstart_sim_time = time.time()\n# print(\"Running simulation...\")\nfor k in range(n_steps):\n    x_k_param.value = current_x # Update parameter\n    u_k = u_ref # Default if solver fails\n    try:\n        problem.solve(solver=cp.OSQP, warm_start=True, verbose=False)\n        if problem.status == cp.OPTIMAL or problem.status == cp.OPTIMAL_INACCURATE:\n            u_k = U.value[0, 0]\n        else:\n            print(f\"MPC Warning: Solver status {problem.status} at k={k}\")\n            infeasibility_count += 1\n            if U.value is not None: u_k = U.value[0, 0]\n            if problem.status == cp.INFEASIBLE:\n                 print(\"MPC Problem is infeasible. Stopping.\"); success_run = False; break\n    except Exception as e:\n        print(f\"MPC Solver failed at k={k}: {e}\"); infeasibility_count += 1\n\n    # Apply saturation as safety/clip numerical tolerances\n    u_k_sat = np.clip(u_k, u_min, u_max)\n    u_history.append(u_k_sat)\n\n    def ode_mpc_interval(t, y, u_val):\n        return system_ode(t, y, u_val, Ac, Bc)\n\n    next_x, success = simulate_interval(ode_mpc_interval, current_t, current_x, Ts, u_k_sat)\n\n    if not success:\n        print(f\"ODE solver failed at t={current_t:.2f}\")\n        success_run = False; break\n\n    current_t += Ts\n    current_x = next_x\n    t_history.append(current_t)\n    x_history.append(current_x.copy())\n\n    if np.max(np.abs(current_x)) &gt; 100: # Divergence check\n        print(f\"State diverging excessively at t={current_t:.2f}. Stopping.\")\n        success_run = False; break\n\nprint(f\"MPC Simulation loop time: {time.time() - start_sim_time:.2f} s\")\nif infeasibility_count &gt; 0: print(f\"Warning: MPC Solver non-optimal status {infeasibility_count} times.\")\n\n# --- 8. Plotting ---\nif success_run:\n    t_history = np.array(t_history)\n    x_history = np.array(x_history).T\n    u_history = np.array(u_history)\n    n_plot = len(u_history)\n\n    # Use consistent plot limits from Block 1 & 2 (or adjust)\n    xlims = (t_start, t_end)\n    ylims_x1 = (-0.5, 1.5)\n    ylims_x2 = (-0.5, 1.5)\n    ylims_u = (-4, 1) # Use same limits\n\n    plt.figure(\"MPC (Nonzero Setpoint, Damped)\", figsize=(10, 8))\n    plt.rcParams.update({'font.size': 12})\n\n    plt.subplot(3, 1, 1)\n    plt.plot(t_history[:n_plot+1], x_history[0,:n_plot+1], label='$x_1$ (y)', lw=2)\n    plt.axhline(x_ref[0], color='k', linestyle=':', label=f'Setpoint $x_1={x_ref[0,0]}$')\n    plt.title(f'MPC Response (Setpoint x=[{x_ref[0,0]},{x_ref[1,0]}]^T, u limits=[{u_min},{u_max}], P={P})')\n    plt.ylabel('Position $x_1$')\n    plt.ylim(ylims_x1); plt.xlim(xlims); plt.grid(True); plt.legend()\n\n    plt.subplot(3, 1, 2)\n    plt.plot(t_history[:n_plot+1], x_history[1,:n_plot+1], label='$x_2$ (dy/dt)', lw=2)\n    plt.axhline(x_ref[1], color='k', linestyle=':', label=f'Setpoint $x_2={x_ref[1,0]}$')\n    plt.ylabel('Velocity $x_2$')\n    plt.ylim(ylims_x2); plt.xlim(xlims); plt.grid(True); plt.legend()\n\n    plt.subplot(3, 1, 3)\n    plt.step(t_history[:n_plot], u_history[:n_plot], where='post', label='Applied MPC u[k]', lw=2)\n    plt.axhline(u_ref, color='k', linestyle=':', label=f'Steady-State u={u_ref:.2f}')\n    plt.axhline(u_max, color='r', linestyle=':', label='Limit')\n    plt.axhline(u_min, color='r', linestyle=':')\n    plt.ylabel('Control Input u')\n    plt.xlabel('Time (s)')\n    plt.ylim(ylims_u); plt.xlim(xlims); plt.grid(True); plt.legend()\n\n    plt.tight_layout()\n    plt.show()\nelse:\n    print(\"Simulation failed, not plotting.\")\n\n\nControl Limits: [-2.5, 0.5]\nMPC CVXPY Problem defined.\n\n\nMPC Simulation loop time: 8.20 s"
+    "text": "MPC\n\n\n# Scenario 3: MPC for Nonzero Regulation (Damped 2nd Order System)\n\nimport numpy as np\nfrom scipy.integrate import solve_ivp\nfrom scipy.linalg import solve_discrete_are, expm\nfrom scipy.signal import cont2discrete\nimport cvxpy as cp # Requires cvxpy and a solver like OSQP\nimport matplotlib.pyplot as plt\nimport time\n\n# print(\"--- Running Scenario 3: MPC (Nonzero Setpoint, Damped System) ---\")\n\n# --- 1. System Definition ---\nc_damping = 0.5\nAc = np.array([[0., 1.], [1., -c_damping]])\nBc = np.array([[0.], [1.]])\nn_states = Ac.shape[0]\nm_inputs = Bc.shape[1]\ndef system_ode(t, x, u, Ac_mat, Bc_mat):\n    u_val = u if np.isscalar(u) else u[0]\n    dxdt = Ac_mat @ x + Bc_mat @ np.array([u_val])\n    return dxdt.flatten()\n\n# --- 2. Discretization ---\nTs = 0.1\nAd, Bd, _, _, _ = cont2discrete((Ac, Bc, np.eye(n_states), np.zeros((n_states, m_inputs))), Ts, method='zoh')\n# print(\"--- Discrete Model ---\")\n# print(f\"Ad = \\n{Ad}\")\n# print(f\"Bd = \\n{Bd}\")\n\n# --- 3. Setpoint ---\nx_ref = np.array([[1.0], [0.0]]) # Target state y=1, y_dot=0 (use column vector shape)\ntry:\n    u_ref_vec = np.linalg.pinv(Bd) @ (np.eye(n_states) - Ad) @ x_ref\n    u_ref = u_ref_vec[0,0] # Extract scalar\n    # print(f\"Setpoint: x_ref = {x_ref.T}, requires discrete u_ref = {u_ref:.3f} (cont. u_ref=-1.0)\")\nexcept Exception as e:\n    print(f\"Could not calculate discrete u_ref: {e}. Using continuous u_ref.\")\n    u_ref = -x_ref[0,0] # Use continuous calculation\n\n# --- 4. MPC Setup ---\nP = 30 # Prediction Horizon\n# Use same base weights as LQR example, but consider tuning R_mpc\nQ_mpc = np.diag([1.0, 0.1])\n# R_mpc = np.array([[0.01]]) # Original aggressive LQR R\nR_mpc = np.array([[0.1]]) # Use less aggressive R for MPC? Try this.\n# Calculate terminal weight Qf from DARE solution S using MPC weights\ntry:\n    S = solve_discrete_are(Ad, Bd, Q_mpc, R_mpc)\n    Qf_mpc = S\n    # print(f\"Using terminal weight Qf=S based on MPC Q/R: \\n{Qf_mpc}\")\nexcept Exception as e:\n    print(f\"DARE solve failed ({e}), using Qf=Q\"); Qf_mpc = Q_mpc\n\n# Constraints\nu_min = -2.5\nu_max = 0.5\nprint(f\"Control Limits: [{u_min}, {u_max}]\")\n\n# --- 5. CVXPY Optimization Problem Setup ---\nU = cp.Variable((m_inputs, P), name='U')\nx_k_param = cp.Parameter(n_states, name='x_k_param') # Current state parameter\ncost = 0.0\nconstraints = []\nx_pred = x_k_param # Use parameter for current state\n\nfor t in range(P):\n    # Penalize deviation from reference state & absolute control input\n    cost += cp.quad_form(x_pred - x_ref.flatten(), Q_mpc) + cp.quad_form(U[:, t], R_mpc)\n    x_next = Ad @ x_pred + Bd @ U[:, t]\n    constraints += [U[:, t] &gt;= u_min, U[:, t] &lt;= u_max]\n    x_pred = x_next\n# Terminal cost penalizes deviation from x_ref\ncost += cp.quad_form(x_pred - x_ref.flatten(), Qf_mpc)\n\nobjective = cp.Minimize(cost)\nproblem = cp.Problem(objective, constraints)\nprint(\"MPC CVXPY Problem defined.\")\n\n# --- 6. Simulation Setup ---\nt_start = 0\nt_end = 6.0\nn_steps = int(t_end / Ts)\nx0 = np.array([0.0, 0.0]) # Initial condition\n\n# --- Helper function for interval simulation ---\ndef simulate_interval(ode_func, t_start, x_start, duration, control_val):\n    t_eval_interval = [t_start + duration]\n    sol_interval = solve_ivp(\n        ode_func, (t_start, t_start + duration), x_start, method='RK45',\n        t_eval=t_eval_interval, args=(control_val,)\n    )\n    if sol_interval.status != 0: return None, False\n    return sol_interval.y[:, -1], True\n\n# --- 7. Simulation Loop ---\nt_history = [t_start]\nx_history = [x0]\nu_history = [] # Applied MPC control\ncurrent_t = t_start\ncurrent_x = x0.copy()\nsuccess_run = True\ninfeasibility_count = 0\n\nstart_sim_time = time.time()\n# print(\"Running simulation...\")\nfor k in range(n_steps):\n    x_k_param.value = current_x # Update parameter\n    u_k = u_ref # Default if solver fails\n    try:\n        problem.solve(solver=cp.OSQP, warm_start=True, verbose=False)\n        if problem.status == cp.OPTIMAL or problem.status == cp.OPTIMAL_INACCURATE:\n            u_k = U.value[0, 0]\n        else:\n            print(f\"MPC Warning: Solver status {problem.status} at k={k}\")\n            infeasibility_count += 1\n            if U.value is not None: u_k = U.value[0, 0]\n            if problem.status == cp.INFEASIBLE:\n                 print(\"MPC Problem is infeasible. Stopping.\"); success_run = False; break\n    except Exception as e:\n        print(f\"MPC Solver failed at k={k}: {e}\"); infeasibility_count += 1\n\n    # Apply saturation as safety/clip numerical tolerances\n    u_k_sat = np.clip(u_k, u_min, u_max)\n    u_history.append(u_k_sat)\n\n    def ode_mpc_interval(t, y, u_val):\n        return system_ode(t, y, u_val, Ac, Bc)\n\n    next_x, success = simulate_interval(ode_mpc_interval, current_t, current_x, Ts, u_k_sat)\n\n    if not success:\n        print(f\"ODE solver failed at t={current_t:.2f}\")\n        success_run = False; break\n\n    current_t += Ts\n    current_x = next_x\n    t_history.append(current_t)\n    x_history.append(current_x.copy())\n\n    if np.max(np.abs(current_x)) &gt; 100: # Divergence check\n        print(f\"State diverging excessively at t={current_t:.2f}. Stopping.\")\n        success_run = False; break\n\nprint(f\"MPC Simulation loop time: {time.time() - start_sim_time:.2f} s\")\nif infeasibility_count &gt; 0: print(f\"Warning: MPC Solver non-optimal status {infeasibility_count} times.\")\n\n# --- 8. Plotting ---\nif success_run:\n    t_history = np.array(t_history)\n    x_history = np.array(x_history).T\n    u_history = np.array(u_history)\n    n_plot = len(u_history)\n\n    # Use consistent plot limits from Block 1 & 2 (or adjust)\n    xlims = (t_start, t_end)\n    ylims_x1 = (-0.5, 1.5)\n    ylims_x2 = (-0.5, 1.5)\n    ylims_u = (-4, 1) # Use same limits\n\n    plt.figure(\"MPC (Nonzero Setpoint, Damped)\", figsize=(10, 8))\n    plt.rcParams.update({'font.size': 12})\n\n    plt.subplot(3, 1, 1)\n    plt.plot(t_history[:n_plot+1], x_history[0,:n_plot+1], label='$x_1$ (y)', lw=2)\n    plt.axhline(x_ref[0], color='k', linestyle=':', label=f'Setpoint $x_1={x_ref[0,0]}$')\n    plt.title(f'MPC Response (Setpoint x=[{x_ref[0,0]},{x_ref[1,0]}]^T, u limits=[{u_min},{u_max}], P={P})')\n    plt.ylabel('Position $x_1$')\n    plt.ylim(ylims_x1); plt.xlim(xlims); plt.grid(True); plt.legend()\n\n    plt.subplot(3, 1, 2)\n    plt.plot(t_history[:n_plot+1], x_history[1,:n_plot+1], label='$x_2$ (dy/dt)', lw=2)\n    plt.axhline(x_ref[1], color='k', linestyle=':', label=f'Setpoint $x_2={x_ref[1,0]}$')\n    plt.ylabel('Velocity $x_2$')\n    plt.ylim(ylims_x2); plt.xlim(xlims); plt.grid(True); plt.legend()\n\n    plt.subplot(3, 1, 3)\n    plt.step(t_history[:n_plot], u_history[:n_plot], where='post', label='Applied MPC u[k]', lw=2)\n    plt.axhline(u_ref, color='k', linestyle=':', label=f'Steady-State u={u_ref:.2f}')\n    plt.axhline(u_max, color='r', linestyle=':', label='Limit')\n    plt.axhline(u_min, color='r', linestyle=':')\n    plt.ylabel('Control Input u')\n    plt.xlabel('Time (s)')\n    plt.ylim(ylims_u); plt.xlim(xlims); plt.grid(True); plt.legend()\n\n    plt.tight_layout()\n    plt.show()\nelse:\n    print(\"Simulation failed, not plotting.\")\n\n\nControl Limits: [-2.5, 0.5]\nMPC CVXPY Problem defined.\n\n\nMPC Simulation loop time: 8.38 s"
   },
   {
     "objectID": "lectures/lecture9.html#how-mpc-works",
@@ -229,6 +229,237 @@
     "title": "EGH445 Modern Control",
     "section": "LQR Cost Function and Tuning",
     "text": "LQR Cost Function and Tuning\nNote that the cost function is a quadratic form in the state and control variables.\n\n\nJ = \\sum_{k=0}^{\\infty} (x(k)^\\intercal Q x(k) + u(k)^\\intercal R u(k))\n\n\n\nConsider x(k) = [x_1(k), x_2(k)]^\\intercal and u(k) = [u_1(k), u_2(k)]^\\intercal. The cost function can be expressed as:\n\n\n\\begin{align*}\nJ &= \\sum_{k=0}^{\\infty} (q_{1,1}x_1(k)^2 + q_{1,2}x_1(k)x_2(k) + q_{2,1}x_2(k)x_1(k) + q_{2,2}x_2(k)^2 \\\\ &+ r_{1,1}u_1(k)^2 + r_{1,2}u_1(k)u_2(k) + r_{2,1}u_2(k)u_1(k) + r_{2,2}u_2(k)^2)\n\\end{align*}\n\n\nNotice that you have freedom to tune the individual weights q_{i,j} and r_{i,j} in the cost function."
+  },
+  {
+    "objectID": "lectures/lecture11.html#title-slide",
+    "href": "lectures/lecture11.html#title-slide",
+    "title": "EGH445 Modern Control",
+    "section": "Title Slide",
+    "text": "Title Slide\n\n\n\n\n\nPractical Considerations\n\n\nObservers and Output Feedback\n\n\n\nDr Guilherme Froes Silva School of Electrical Engineering & Robotics Queensland University of Technology\n\n\nEGH445 - Modern Control\n\n\n\nConsultation: GP-S1111 Email: g.froessilva@qut.edu.au"
+  },
+  {
+    "objectID": "lectures/lecture11.html#state-vs-output-feedback-revisited",
+    "href": "lectures/lecture11.html#state-vs-output-feedback-revisited",
+    "title": "EGH445 Modern Control",
+    "section": "State vs Output Feedback Revisited",
+    "text": "State vs Output Feedback Revisited\nWhen and why? Consider the system x(kT+T) = Gx(kT) + Hu(kT), y(kT) = Cx(kT).\nSystem Matrix G = e^{AT} represents the internal dynamics of the system.\n\nIt describes how the state x(kT) evolves over time. Usually inherent to the system.\n\nInput Matrix H = \\int_0^T e^{A\\tau}B d\\tau represents how the input u(kT) affects the state x(kT).\n\nRelates to the actuator(s) chosen (e.g. types of motors, heaters, valves, etc.).\n\nOutput Matrix C represents how the states are measured as outputs y(kT).\n\nRelates to the sensor(s) chosen (e.g. types and placement of sensors, cameras, etc.)."
+  },
+  {
+    "objectID": "lectures/lecture11.html#section",
+    "href": "lectures/lecture11.html#section",
+    "title": "EGH445 Modern Control",
+    "section": "",
+    "text": "State feedback: u(kT) = -Kx(kT)\n\n\nSystem (G,H) must be controllable.\nClosed-loop dynamics, G_{cl} = G - HK.\nAssumes all states are available.\n\nPole placement: K gain.\nLQR: K gain and cost function Q,R.\nIntegral action: Dynamic Extension and K_I gain.\n\n\n\nOutput feedback: u(kT) = -K\\hat{x}(kT)\n\n\nSystem (G,C) must be observable.\nObserver dynamics, G_{obs} = G - LC.\nUsed when only y(kT) = Cx(kT) is available.\n\ny(kT) is what is actually being measured.\n\nNeeds estimating \\hat{x}(kT) from y(kT) and u(kT).\n\nLuenberger Observer - L gain.\nKalman Filter - K_k gain and noise covariances.\n\n\n\n\nPractical Question: When is it feasible/necessary to measure all states versus estimate them?\n\nSensor cost and complexity (relates to choice of C).\nSensor availability (some states might be internal/unmeasurable)."
+  },
+  {
+    "objectID": "lectures/lecture11.html#practical-trade-offs",
+    "href": "lectures/lecture11.html#practical-trade-offs",
+    "title": "EGH445 Modern Control",
+    "section": "Practical Trade-offs",
+    "text": "Practical Trade-offs\n\nObserver Performance:\n\nLuenberger poles determine error convergence speed. Faster poles \\rightarrow potentially higher gain L.\nKalman Filter dynamic gain K_k minimises the estimation error covariance iteratively, balancing model trust vs measurement trust based on noise characteristics (Q, R).\n\nNoise Amplification:\n\nLarge observer gains (L or K_k) can amplify measurement noise (v(kT)), negatively impacting the control input u(kT) = -K\\hat{x}(kT). There’s a trade-off: fast estimation vs noise sensitivity.\n\nComputational Load:\n\nObservers add computational cost (matrix multiplications, additions).\nIncrease in computational cost: Luenberger observers \\rightarrow Kalman filters \\rightarrow Extended Kalman filters (EKF).\nNeeds to be feasible on the target hardware, considering the selected/needed sampling time T."
+  },
+  {
+    "objectID": "lectures/lecture11.html#section-1",
+    "href": "lectures/lecture11.html#section-1",
+    "title": "EGH445 Modern Control",
+    "section": "",
+    "text": "Certainty Equivalence Principle:\n\nRecall: Controller (K) and Observer (L) can be designed independently. \nThis holds perfectly if the model is perfect.\nModel mismatch can affect performance;\n\nSometimes detuning the observer (slower poles) can improve robustness in practice.\n\n\nDiscussion Point: Do the benefits of state estimation outweigh the costs?\n\n\n\nBenefits of State Estimation:\n\n\nHandling unmeasured states\nBetter performance via full state feedback\n\n\nCosts of State Estimation:\n\n\nAdded complexity (and computational load)\nNeed of tuning\nSensitivity to noise\nModel mismatch\n\n\nDepends on the application!"
+  },
+  {
+    "objectID": "lectures/lecture11.html#recap-lqr-fundamentals",
+    "href": "lectures/lecture11.html#recap-lqr-fundamentals",
+    "title": "EGH445 Modern Control",
+    "section": "Recap: LQR Fundamentals",
+    "text": "Recap: LQR Fundamentals\n\nGoal: Find u(kT) = -Kx(kT) that minimises a quadratic cost function over an infinite horizon.\nCost Function (J): Balances state regulation (Q, state weighting) and control effort (R, control weighting). \n  J = \\sum_{k=0}^{\\infty} \\left( x(kT)^T Q x(kT) + u(kT)^T R u(kT) \\right), \\quad Q \\succeq 0, \\quad R \\succ 0\n  \nSolution: Solve the Discrete Algebraic Riccati Equation (DARE) for a unique, positive semi-definite matrix P: \n  P = G^T P G - (G^T P H)(R + H^T P H)^{-1}(H^T P G) + Q\n   Then the gain is \\; K = (R + H^T P H)^{-1} H^T P G.\nStability: The closed-loop system x(kT+T) = (G-HK)x(kT) is guaranteed to be stable if (G, H) is controllable and (G, V) is observable, where Q=V^T V."
+  },
+  {
+    "objectID": "lectures/lecture11.html#important-remark-on-g-v-observability",
+    "href": "lectures/lecture11.html#important-remark-on-g-v-observability",
+    "title": "EGH445 Modern Control",
+    "section": "Important remark on (G, V) observability",
+    "text": "Important remark on (G, V) observability\n\nThe matrix V (from Q=V^T V) defines which states or state combinations are penalised in the cost J.\n(G, V) observability ensures that any unstable behaviour will eventually affect the states penalised by Q, forcing the controller to act.\n\n\n\n\n\n\n\nAnalogy\n\n\nC describes the outputs, i.e. what states are measured (through physical sensors).\nV describes what states are penalised (design choice in Q).\nAnalogously to designing controllers assuming full state availability, V and C do not need to be the same."
+  },
+  {
+    "objectID": "lectures/lecture11.html#tuning-q-and-r-in-practice",
+    "href": "lectures/lecture11.html#tuning-q-and-r-in-practice",
+    "title": "EGH445 Modern Control",
+    "section": "Tuning Q and R in practice",
+    "text": "Tuning Q and R in practice\n\nStarting Point: Diagonal Matrices\n\nOften start with diagonal Q and R.\nQ = \\text{diag}(q_1, q_2, \\dots, q_n): Penalises squared state deviations q_i x_i^2.\nR = \\text{diag}(r_1, r_2, \\dots, r_m): Penalises squared control inputs r_j u_j^2.\n\nRelative Weights Matter:\n\nThe absolute values of Q and R don’t matter as much as their ratio. Scaling both Q and R by the same factor results in the same gain K.\nCommon practice: Fix one element (e.g., R=1 or R=I) and tune the elements of Q.\n\nInterpreting Weights:\n\nLarger q_i means state x_i is more important to regulate quickly/keep small.\nLarger r_j means control input u_j is more “expensive” (e.g., energy consumption, saturation limits)."
+  },
+  {
+    "objectID": "lectures/lecture11.html#section-2",
+    "href": "lectures/lecture11.html#section-2",
+    "title": "EGH445 Modern Control",
+    "section": "",
+    "text": "Tuning Strategies:\n\nBryson’s Rule (Rule of Thumb): Scale weights based on maximum acceptable deviations/inputs:\n\nq_{ii} \\approx \\frac{1}{(\\text{max acceptable } x_i)^2}, \\quad r_{jj} \\approx \\frac{1}{(\\text{max acceptable } u_j)^2}\n\nTrial and Error (Simulation/Experiment):\n\nSimulate/run the system.\nObserve states x(kT) and inputs u(kT).\nIf states converge too slowly \\rightarrow Increase elements in Q relative to R.\nIf control effort is too high/saturating \\rightarrow Increase elements in R relative to Q.\n\n\nNon-Diagonal Weights:\n\nOff-diagonal terms in Q can penalise relationships between states (e.g., x_1 x_2).\nOff-diagonal terms in R can penalise simultaneous use of multiple actuators.\nUse only if there’s a clear physical reason; increases tuning complexity."
+  },
+  {
+    "objectID": "lectures/lecture11.html#lqr-limitations-revisited",
+    "href": "lectures/lecture11.html#lqr-limitations-revisited",
+    "title": "EGH445 Modern Control",
+    "section": "LQR Limitations Revisited",
+    "text": "LQR Limitations Revisited\n\nModel Accuracy:\n\nLQR performance relies on an accurate linear model (G, H).\nNonlinearities or parameter uncertainties can degrade performance or lead to instability.\n\nConstraint Handling:\n\nStandard LQR formulation does not explicitly handle constraints on states (x) or inputs (u).\nExample: Actuator saturation (u_{min} \\le u(kT) \\le u_{max}).\nCalculating gain K and then saturating the control value can lead to poor performance or instability. \n\nImplicit Pole Placement:\n\nLQR does place closed-loop poles, but indirectly through the choice of Q and R.\nIt’s hard to directly relate Q/R choices to transient response characteristics (like %OS, t_s).\n\nAddressing Limitations: \n\nFor constraints: Model Predictive Control (MPC) explicitly incorporates constraints in its optimization."
+  },
+  {
+    "objectID": "lectures/lecture11.html#recap-kf-fundamentals",
+    "href": "lectures/lecture11.html#recap-kf-fundamentals",
+    "title": "EGH445 Modern Control",
+    "section": "Recap: KF Fundamentals",
+    "text": "Recap: KF Fundamentals\nOptimal state estimator for linear systems with Gaussian noise.\n\n\n\nSystem Model with Noise: \n  \\begin{align*}\n  {x}(kT+T) &= G{x}(kT) + H{u}(kT) + {w}(kT) \\\\\n  {y}(kT) &= C{x}(kT) + {v}(kT)\n  \\end{align*}\n  \n\n{w}(kT): Process noise, Q = E[{w}{w}^T]\n{v}(kT): Measurement noise, R = E[{v}{v}^T]\n\n\n\n\nRecursive Structure (Predict-Correct):\n\nPredict: Project state estimate \\hat{{x}} and error covariance P forward using the model (G, H, Q).\n\n\\hat{{x}}^-(kT) = G\\hat{{x}}(kT-T) + H{u}(kT-T)\nP^-(kT) = G P(kT-T) G^T + Q_{k-1}\n\nCorrect (Update): Adjust prediction using the current measurement {y}(kT) and the calculated Kalman Gain K_k.\n\nK_k = P^-(kT) C^T (C P^-(kT) C^T + R)^{-1}\n\\hat{{x}}(kT) = \\hat{{x}}^-(kT) + K_k ({y}(kT) - C\\hat{{x}}^-(kT))\nP(kT) = (I - K_k C) P^-(kT)\n\n\n\n\n\n\n\n\n\n\nKey Idea (watch Workshop 10 for a practical example)\n\n\nK_k optimally balances trusting the model prediction vs. trusting the noisy measurement based on the relative sizes of P^-(kT), Q, and R."
+  },
+  {
+    "objectID": "lectures/lecture11.html#the-tuning-challenge",
+    "href": "lectures/lecture11.html#the-tuning-challenge",
+    "title": "EGH445 Modern Control",
+    "section": "The Tuning Challenge",
+    "text": "The Tuning Challenge\n\n“Optimal” performance relies on having the correct noise covariance matrices Q and R.\n\nR – sensor measurement uncertainty (variance).\nQ – dynamics model uncertainty (variance) introduced by, unmodelled forces, discretisation errors, etc.\n\nThe Problem: In most real-world applications, the true values of Q and R are unknown.\nConsequence: Choosing incorrect Q and R leads to suboptimal state estimates.\n\nIf the ratio Q/R is too small, the filter will trust the model too much and ignore useful measurements.\nEstimates converge slowly and may drift.\nIf the ratio Q/R is too large, the filter will trust the measurements too much and ignore the models.\nEstimates become noisy.\n\n\nTherefore: Q and R often become tuning parameters adjusted based on observed filter performance, rather than precisely known quantities."
+  },
+  {
+    "objectID": "lectures/lecture11.html#tuning-strategies",
+    "href": "lectures/lecture11.html#tuning-strategies",
+    "title": "EGH445 Modern Control",
+    "section": "Tuning Strategies",
+    "text": "Tuning Strategies\n\n\nChoosing R:\n\nR \\in \\mathbb{R}^{p \\times p}, where p is the number of outputs.\nOften diagonal, when the sensor noise is uncorrelated.\n \\scriptsize\nR_k = \\begin{bmatrix} \\sigma_{v_1}^2 & 0 & \\dots & 0 \\\\ 0 & \\sigma_{v_2}^2 & \\dots & 0 \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ 0 & 0 & \\dots & \\sigma_{v_p}^2 \\end{bmatrix}\n\nDetermining values:\n\nSensor datasheets: specified noise characteristics.\nExperimental data: calculated variance from samples.\nCross-correlation: covariance between sensor signals.\n\n\nChoosing Q:\n\nQ \\in \\mathbb{R}^{n \\times n}, where n is the number of states.\nOften diagonal and treated as a tuning parameter.  \\scriptsize\nQ_k = \\begin{bmatrix} \\sigma_{w_1}^2 & 0 & \\dots & 0 \\\\ 0 & \\sigma_{w_2}^2 & \\dots & 0 \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ 0 & 0 & \\dots & \\sigma_{w_n}^2 \\end{bmatrix}\n\nDetermining values:\n\n\\sigma_{w_i}^2 reflects how much x_i is expected to deviate.\nPhysical insight: deviation due real dynamics.\nIterative tuning: observe residual e(kT)."
+  },
+  {
+    "objectID": "lectures/lecture11.html#kalman-filter-tuning-residual-analysis",
+    "href": "lectures/lecture11.html#kalman-filter-tuning-residual-analysis",
+    "title": "EGH445 Modern Control",
+    "section": "Kalman Filter Tuning: Residual Analysis",
+    "text": "Kalman Filter Tuning: Residual Analysis\nThe residual is the difference between the actual measurement and the predicted measurement at each step: \n{e}(kT) = {y}(kT) - \\hat{{y}}^-(kT) = {y}(kT) - C\\hat{{x}}^-(kT)\n\n\nTheoretical Property: For a perfectly modelled and optimally tuned Kalman filter:\n\nZero-mean: E[{e}(kT)] = 0.\nWhite noise: Uncorrelated over time, E[{e}(kT){e}(jT)^T] = 0 for k \\neq j.\nKnown Covariance: E[{e}(kT){e}(kT)^T] = C P^-(kT) C^T + R_k.\n\nPractical Use for Tuning:\n\nCollect Residuals: Record {e}(kT) over a representative run.\nCheck Mean: If it’s significantly non-zero: bias in sensors or in the system model.\nCheck Whiteness (Autocorrelation): Plot the autocorrelation function (ACF) of the residuals.\n\n\nAdjust Q and R iteratively until the residuals “look like” zero-mean white noise with the expected covariance."
+  },
+  {
+    "objectID": "lectures/lecture11.html#emulation-discretising-continuous-controllers",
+    "href": "lectures/lecture11.html#emulation-discretising-continuous-controllers",
+    "title": "EGH445 Modern Control",
+    "section": "Emulation: Discretising Continuous Controllers",
+    "text": "Emulation: Discretising Continuous Controllers\nDesign a digital controller G_d(z) that mimics the behaviour of a pre-designed continuous controller G_c(s).\n\n\n\n\nWhy Emulate?\n\nLeverage existing continuous controller designs.\nControl design is sometimes preferred in s-domain.\nImplement advanced continuous controllers digitally.\n\n\n\n\n\n\n\n\nEmulation vs. Direct Design\n\n\n\nDirect design: Discretise the plant, then design the controller directly (e.g., using DLQR)\nEmulation: Design the controller in the continuous domain (e.g., PID, Lead-Lag, LQR) and then discretise it."
+  },
+  {
+    "objectID": "lectures/lecture11.html#discretisation-methods",
+    "href": "lectures/lecture11.html#discretisation-methods",
+    "title": "EGH445 Modern Control",
+    "section": "Discretisation Methods",
+    "text": "Discretisation Methods\nHow do we convert a continuous controller G_c(s) into a discrete controller G_d(z)?\nThere are three main methods.\n1. Tustin (Bilinear) Transformation\nUses a trapezoidal integration to get to a bilinear relation between s and z (opposed to s=\\frac 1 T \\ln{(z)}).\n2. Zero-Order Hold (ZOH) Equivalence\nAssumes the input to the controller e(t) is held constant between samples by a ZOH \ne(kT+\\tau) = e(kT) \\text{ for } 0 \\le \\tau &lt; T\n\n3. Matched Pole-Zero (MPZ) Method\nMaps poles and zeros of G_c(s), in the s-plane, to those of G_d(z), in the z-plane, using z = e^{sT}."
+  },
+  {
+    "objectID": "lectures/lecture11.html#tustin-bilinear-transform",
+    "href": "lectures/lecture11.html#tustin-bilinear-transform",
+    "title": "EGH445 Modern Control",
+    "section": "Tustin (Bilinear) Transform",
+    "text": "Tustin (Bilinear) Transform\nApproximates the continuous-time integration operator 1/s with a discrete-time equivalent derived from the trapezoidal rule for numerical integration.\nu(kT) = \\int e(t) dt \\quad \\rightarrow \\quad u(kT) \\approx u(kT-T) + \\frac{T}{2}(e(kT) + e(kT-T)).\nTaking the z-transform of both sides gives: \n\\begin{align*}\nU(z) &= z^{-1}U(z) + \\frac{T}{2} \\left( E(z) + z^{-1} E(z) \\right) \\\\\n\\frac{U(z)}{E(z)} &= \\frac{T}{2} \\frac{\\left( 1 + z^{-1} \\right)}{\\left(1 - z^{-1}\\right)} \\\\\n\\end{align*}\n\n\n\n\n\n\n\nTransformation Rule\n\n\nTo convert G_c(s) to G_d(z), substitute s in G_c(s) with: \n    s \\leftarrow \\frac{2}{T} \\frac{z-1}{z+1}, \\quad \\text{that is, } \\quad G_d(z) = G_c\\left(\\frac{2}{T} \\frac{z-1}{z+1}\\right)."
+  },
+  {
+    "objectID": "lectures/lecture11.html#tustin-bilinear-transform-properties",
+    "href": "lectures/lecture11.html#tustin-bilinear-transform-properties",
+    "title": "EGH445 Modern Control",
+    "section": "Tustin (Bilinear) Transform Properties",
+    "text": "Tustin (Bilinear) Transform Properties\n\nMaps the left-half of the s-plane entirely into the unit circle in the z-plane.\nMaps the j\\omega axis of the s-plane onto the unit circle |z|=1 in the z-plane.\nThis preserves stability: a stable G_c(s) will result in a stable G_d(z).\n\n\nMATLAB: c2d(Gc, T, 'tustin').\nPython: scipy.signal.cont2discrete(Gc, dt=T, method='bilinear')."
+  },
+  {
+    "objectID": "lectures/lecture11.html#zero-order-hold-zoh-equivalence-1",
+    "href": "lectures/lecture11.html#zero-order-hold-zoh-equivalence-1",
+    "title": "EGH445 Modern Control",
+    "section": "Zero-Order Hold (ZOH) Equivalence",
+    "text": "Zero-Order Hold (ZOH) Equivalence\nAssumes the input e(t) to the controller is held constant by a Zero-Order Hold (ZOH) for one sampling period T.\n\nThe sampler and ZOH are placed before the continuous controller G_c(s).\nThe continuous controller sees a staircase input e(t) = e(kT) for kT \\le t &lt; kT+T.\nThe result is z-transformed to get the discrete controller G_d(z).\n\nZOH Transfer Function: G_{zoh}(s) = \\frac{1}{s} (1 - e^{-sT}). Positive step at kT minus negative step at kT+T.\n\n\n\n\n\n\nTransformation Rule\n\n\nThe pulse transfer function G_d(z) of the discretised controller is given by:\n\n\n\nG_d(z) = \\mathcal{Z}\\left\\{ \\mathcal{L}^{-1}\\left[ \\frac{1-e^{-sT}}{s} G_c(s) \\right] \\right\\} = (1-z^{-1}) \\mathcal{Z}\\left\\{\\frac{G_c(s)}{s}\\right\\}"
+  },
+  {
+    "objectID": "lectures/lecture11.html#zoh-equivalence-properties",
+    "href": "lectures/lecture11.html#zoh-equivalence-properties",
+    "title": "EGH445 Modern Control",
+    "section": "ZOH Equivalence Properties",
+    "text": "ZOH Equivalence Properties\n\nThe ZOH method exactly matches the response of the continuous and discrete systems at the sampling instants if the input to G_c(s) were indeed staircase (due to the ZOH).\nStability is preserved if G_c(s) is stable.\n\nMATLAB: c2d(Gc, T, 'zoh').\nPython: scipy.signal.cont2discrete(Gc, dt=T, method='zoh')."
+  },
+  {
+    "objectID": "lectures/lecture11.html#matched-pole-zero-mpz-method-1",
+    "href": "lectures/lecture11.html#matched-pole-zero-mpz-method-1",
+    "title": "EGH445 Modern Control",
+    "section": "Matched Pole-Zero (MPZ) Method",
+    "text": "Matched Pole-Zero (MPZ) Method\nPreserves the locations of poles/zeros by mapping them directly using the fundamental relationship z = e^{sT}.\n1. Map Poles and Zeros:\n\nMap poles and zeros of G_c(s) to poles and zeros of G_d(z) using the relationship z = e^{s T}.\nForm the basic structure: G_d(z) = K_d \\frac{\\prod (z - z_{z_j})}{\\prod (z - z_{p_i})}.\n\n2. Adjust Numerator Order (Add Zeros at z=-1):\n\nTo match phase characteristics, zeros at z=-1 (Nyquist frequency) are added to the numerator until its order is equal to or one less than the denominator’s order.\nThis helps average/smooth the input, similar to Tustin’s trapezoidal rule effect.\n\n3. Match DC Gain:\n\nAdjust K_d so that the DC gain of G_d(z) (at z=1) matches the DC gain of G_c(s) (at s=0)."
+  },
+  {
+    "objectID": "lectures/lecture11.html#matched-pole-zero-method-properties",
+    "href": "lectures/lecture11.html#matched-pole-zero-method-properties",
+    "title": "EGH445 Modern Control",
+    "section": "Matched Pole-Zero Method: Properties",
+    "text": "Matched Pole-Zero Method: Properties\nStability Preservation:\n\nThe poles are mapped such that |z| = |e^{sT}| = e^{Re(s)T} &lt; 1, preserving the stability of G_c(s).\n\nFrequency Response:\n\nThe matching of DC gain ensures that the low-frequency response of G_d(z) is similar to G_c(s).\n\n\n\n\n\nComparison to Other Methods:\n\nTustin: Generally better overall frequency response approximation. \nZOH: Exact at sampling instants if the input is staircase. Can introduce phase lag.\nMPZ: Good for preserving specific pole/zero locations and DC gain. Often used when the locations of dominant poles/zeros are critical. \n\n\nMATLAB function: c2d(Gc, T, 'matched') or c2d(Gc, T, 'mpz').\nPython function: control.TransferFunction(num, den).sample(T, 'matched')."
+  },
+  {
+    "objectID": "lectures/lecture11.html#example-discretising-a-continuous-controller",
+    "href": "lectures/lecture11.html#example-discretising-a-continuous-controller",
+    "title": "EGH445 Modern Control",
+    "section": "Example: Discretising a Continuous Controller",
+    "text": "Example: Discretising a Continuous Controller\n\n\nContinuous-Time System (Mass-Spring-Damper):\n\nState-space model: \n  \\begin{align*} \\dot{x} &= \\begin{bmatrix} 0 & 1 \\\\ -1 & -2 \\end{bmatrix} x(t) + \\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix} u(t) \\\\ y(t) &= \\begin{bmatrix} 1 & 0 \\end{bmatrix} x(t) \\end{align*}\n  \n\n\nContinuous-Time Lead Controller G_c(s): \n    G_c(s) = K \\frac{s+a}{s+b} = 2.8 \\frac{s+2}{s+4}\n     Pre-designed controller for the continuous system.\nTask: Find the discrete-time controller G_d(z)"
+  },
+  {
+    "objectID": "lectures/lecture11.html#section-3",
+    "href": "lectures/lecture11.html#section-3",
+    "title": "EGH445 Modern Control",
+    "section": "",
+    "text": "Task: Find the equivalent discrete-time controller G_d(z) using:\n\nTustin (Bilinear) Transform\nZero-Order Hold (ZOH) Equivalence\nMatched Pole-Zero (MPZ) Method\n\nWe will consider two sampling times:\n\nPart A: T = 1.0 second\nPart B: T = 0.1 second\n\n\nAnd compare their performance when controlling the continuous plant."
+  },
+  {
+    "objectID": "lectures/lecture11.html#example-part-a-tustin-method-t1.0s",
+    "href": "lectures/lecture11.html#example-part-a-tustin-method-t1.0s",
+    "title": "EGH445 Modern Control",
+    "section": "Example Part A: Tustin Method (T=1.0s)",
+    "text": "Example Part A: Tustin Method (T=1.0s)\n\nContinuous Lead Controller: G_c(s) = 2.8 \\frac{s+2}{s+4}\nSampling Time: T=1.0 second.\nTustin Transformation Rule: Substitute s \\leftarrow \\frac{2}{T}\\frac{z-1}{z+1} = \\frac{2(z-1)}{z+1} (since T=1) into G_c(s).\n\n  \\begin{align*} G_d(z) &= 2.8 \\left( \\frac{ \\frac{2(z-1)}{z+1} + 2 }{ \\frac{2(z-1)}{z+1} + 4 } \\right) \\\\ &= 2.8 \\left( \\frac{ 2(z-1) + 2(z+1) }{ 2(z-1) + 4(z+1) } \\right) \\quad \\text{(Multiply num/den by }(z+1)\\text{)} \\\\ &= 2.8 \\left( \\frac{ 2z - 2 + 2z + 2 }{ 2z - 2 + 4z + 4 } \\right) \\\\ &= 2.8 \\left( \\frac{ 4z }{ 6z + 2 } \\right) = 2.8 \\left( \\frac{ 2z }{ 3z + 1 } \\right)= \\frac{5.6z}{3z+1} = \\frac{1.8667z}{z+0.3333} \\end{align*}"
+  },
+  {
+    "objectID": "lectures/lecture11.html#section-4",
+    "href": "lectures/lecture11.html#section-4",
+    "title": "EGH445 Modern Control",
+    "section": "",
+    "text": "MATLAB Implementation\n\n\n% MATLAB Code Snippet\nK_c = 2.8;\nGc_s = tf(K_c*[1 2], [1 4]);\nT = 1.0;\nGd_tustin = c2d(Gc_s, T, 'tustin')\n\n   1.867 z\n  ----------\n  z + 0.3333\n\n\n\n\n\n\n\n\n\n\nStable\nPoor performance"
+  },
+  {
+    "objectID": "lectures/lecture11.html#example-part-a-zoh-method-t1.0s",
+    "href": "lectures/lecture11.html#example-part-a-zoh-method-t1.0s",
+    "title": "EGH445 Modern Control",
+    "section": "Example Part A: ZOH Method (T=1.0s)",
+    "text": "Example Part A: ZOH Method (T=1.0s)\n\nContinuous Lead Controller: G_c(s) = 2.8 \\frac{s+2}{s+4}\nSampling Time: T=1.0 second.\nZOH Transformation Rule: G_d(z) = (1-z^{-1}) \\mathcal{Z}\\left\\{\\frac{G_c(s)}{s}\\right\\}\nStep 1: Find \\frac{G_c(s)}{s} \n  \\frac{G_c(s)}{s} = 2.8 \\frac{s+2}{s(s+4)}\n   Using partial fraction expansion: \n  \\frac{s+2}{s(s+4)} = \\frac{A}{s} + \\frac{B}{s+4} = \\frac{0.5}{s} + \\frac{0.5}{s+4}\n   So, \\frac{G_c(s)}{s} = 2.8 \\left( \\frac{0.5}{s} + \\frac{0.5}{s+4} \\right) = \\frac{1.4}{s} + \\frac{1.4}{s+4}."
+  },
+  {
+    "objectID": "lectures/lecture11.html#section-5",
+    "href": "lectures/lecture11.html#section-5",
+    "title": "EGH445 Modern Control",
+    "section": "",
+    "text": "Step 2: Find \\mathcal{Z}\\left\\{\\frac{G_c(s)}{s}\\right\\}\n\n\\mathcal{Z}\\left\\{\\frac{1.4}{s}\\right\\} = 1.4 \\frac{z}{z-1}\n\\mathcal{Z}\\left\\{\\frac{1.4}{s+4}\\right\\} = 1.4 \\frac{z}{z-e^{-4T}} = 1.4 \\frac{z}{z-e^{-4}} (since T=1)\nSo, \\mathcal{Z}\\left\\{\\frac{G_c(s)}{s}\\right\\} = 1.4 \\left( \\frac{z}{z-1} + \\frac{z}{z-e^{-4}} \\right).\n\nStep 3: Calculate G_d(z) \n  \\begin{align*} G_d(z) &= \\frac{z-1}{z} \\cdot 1.4 \\left( \\frac{z}{z-1} + \\frac{z}{z-e^{-4}} \\right) \\\\ &= 1.4 \\left( 1 + \\frac{z-1}{z-e^{-4}} \\right) = 1.4 \\left( \\frac{z-e^{-4} + z-1}{z-e^{-4}} \\right) \\\\ &= 1.4 \\frac{2z - (1+e^{-4})}{z-e^{-4}}\n  = \\frac{2.8z - 1.4256}{z - 0.0183}\n  \\end{align*}"
+  },
+  {
+    "objectID": "lectures/lecture11.html#section-6",
+    "href": "lectures/lecture11.html#section-6",
+    "title": "EGH445 Modern Control",
+    "section": "",
+    "text": "Marginally stable\nOscillatory behaviour"
+  },
+  {
+    "objectID": "lectures/lecture11.html#example-part-a-mpz-method-t1.0s",
+    "href": "lectures/lecture11.html#example-part-a-mpz-method-t1.0s",
+    "title": "EGH445 Modern Control",
+    "section": "Example Part A: MPZ Method (T=1.0s)",
+    "text": "Example Part A: MPZ Method (T=1.0s)\n\nContinuous Lead Controller: G_c(s) = 2.8 \\frac{s+2}{s+4}\nSampling Time: T=1.0 second.\n\n\nMap Poles and Zeros:\n\nZero of G_c(s): s_z = -2 \\implies z_z = e^{-2T} = e^{-2} \\approx 0.1353.\nPole of G_c(s): s_p = -4 \\implies z_p = e^{-4T} = e^{-4} \\approx 0.0183.\nBasic structure: G_d(z) = K_d' \\frac{z - e^{-2}}{z - e^{-4}}.\n\nAdjust Numerator Order:\n\nThe numerator and denominator are already of the same order (both first order). No additional zeros at z=-1 are needed in this case."
+  },
+  {
+    "objectID": "lectures/lecture11.html#section-7",
+    "href": "lectures/lecture11.html#section-7",
+    "title": "EGH445 Modern Control",
+    "section": "",
+    "text": "Match DC Gain:\n\nDC gain of G_c(s): \\lim_{s \\to 0} 2.8 \\frac{s+2}{s+4} = 2.8 \\frac{2}{4} = 1.4.\nDC gain of G_d(z): \\lim_{z \\to 1} K_d' \\frac{z - e^{-2}}{z - e^{-4}} = K_d' \\frac{1 - e^{-2}}{1 - e^{-4}}.\nEquating: K_d' \\frac{1 - e^{-2}}{1 - e^{-4}} = 1.4.\nK_d' = 1.4 \\frac{1 - e^{-4}}{1 - e^{-2}} = 1.4 \\frac{1 - 0.018316}{1 - 0.135335} \\approx 1.5895.\nSo, G_d(z) = 1.5895 \\frac{z - 0.1353}{z - 0.0183} = \\frac{1.5895z - 0.2151}{z - 0.0183}."
+  },
+  {
+    "objectID": "lectures/lecture11.html#section-8",
+    "href": "lectures/lecture11.html#section-8",
+    "title": "EGH445 Modern Control",
+    "section": "",
+    "text": "Stable\nPoor performance"
+  },
+  {
+    "objectID": "lectures/lecture11.html#comparison-t1.0s-and-t0.1s",
+    "href": "lectures/lecture11.html#comparison-t1.0s-and-t0.1s",
+    "title": "EGH445 Modern Control",
+    "section": "Comparison T=1.0s and T=0.1s",
+    "text": "Comparison T=1.0s and T=0.1s\n\n\n\n\n\n\n\nThank you."
   },
   {
     "objectID": "index.html",
@@ -285,6 +516,132 @@
     "title": "EGH445 Modern Control",
     "section": "Beyond LQR: Model Predictive Control (MPC)",
     "text": "Beyond LQR: Model Predictive Control (MPC)\n\n\nTheoretical\n\n\nLQR is a static controller.\n\nUnconstrained optmimisation problem.\nInfinite-horizon cost function.\n\nMPC is a dynamic controller.\n\nExplcitly considers constraints.\nFinite-horizon cost function.\n\nCalculates optimal control sequence.\nApplies only the first control action.\nRepeats (receding horizon).\n\n\n\n\nPractical Implications\n\n\nReal systems have physical limitations.\nStates might have bounds (e.g., safety zones).\nMPC is significantly more complex and computationally expensive.\nMPC also relies on accurate models (nonlinear extensions do exist)."
+  },
+  {
+    "objectID": "2025/week11_workshop.html#title-slide",
+    "href": "2025/week11_workshop.html#title-slide",
+    "title": "EGH445 Modern Control",
+    "section": "Title Slide",
+    "text": "Title Slide\n\n\n\n\n\nModern Control\n\n\nWeek 11 Workshop\n\n\n\nDr Guilherme Froes Silva School of Electrical Engineering & Robotics Queensland University of Technology\n\n\nEGH445 - Modern Control\n\n\n\nConsultation: GP-S1111 Email: g.froessilva@qut.edu.au"
+  },
+  {
+    "objectID": "2025/week11_workshop.html#practical-considerations-lecture-content",
+    "href": "2025/week11_workshop.html#practical-considerations-lecture-content",
+    "title": "EGH445 Modern Control",
+    "section": "Practical Considerations: Lecture Content",
+    "text": "Practical Considerations: Lecture Content\nBridging the gap between ideal control theory and real-world implementation.\n\n\n\n\nOverview\n\nState and output feedback control.\nLQR and Kalman filters tuning.\nLimitations of these ideal methods.\nEmulation design."
+  },
+  {
+    "objectID": "2025/week11_workshop.html#practical-considerations-key-topics",
+    "href": "2025/week11_workshop.html#practical-considerations-key-topics",
+    "title": "EGH445 Modern Control",
+    "section": "Practical Considerations: Key Topics",
+    "text": "Practical Considerations: Key Topics\n\n\nLQR Design in Practice\n\nTuning Q and R:\n\nStarting points (diagonal matrices, Bryson’s Rule).\nImpact of Q/R ratio.\nIterative tuning strategies.\n\nLimitations (model accuracy, constraint handling).\n\n\nKalman Filter (KF) Design in Practice\n\nTuning Q and R:\n\nStarting points (datasheets, expected errors).\nImpact of Q/R ratio.\nIterative tuning strategies. \n\nResidual error analysis for performance evaluation.\n\n\n\n\n\n\n\n\n\nEmulation Design: Continuous to Digital Controllers\n\n\nEmulating continuous controllers.\n\nTustin (Bilinear) Transformation.\nZero-Order Hold (ZOH) Equivalence.\nMatched Pole-Zero (MPZ) Method."
+  },
+  {
+    "objectID": "2025/week11_workshop.html#lqr-design-in-practice",
+    "href": "2025/week11_workshop.html#lqr-design-in-practice",
+    "title": "EGH445 Modern Control",
+    "section": "LQR Design in Practice",
+    "text": "LQR Design in Practice\nFind u(kT) = -Kx(kT) to minimise J = \\sum_{k=0}^{\\infty} \\left( x(kT)^T Q x(kT) + u(kT)^T R u(kT) \\right).\n\n\nStarting Point:\nQ = V^\\intercal V = \\text{diag}(q_i) and R = \\text{diag}(r_j).\n\nq_i penalises state x_i deviation.\nr_j penalises control input u_j effort.\n\\text{Obsv}(G, V) ensures all states influence J.\n\n\nIterative Tuning (Simulate & Observe):\n\nStates x(kT) converge too slowly?\n\nIncrease elements in Q (or decrease R).\n\nControl effort u(kT) too high/saturating?\n\nIncrease elements in R (or decrease Q).\n\n\n\n\n\n\n\n\n\nLQR Limitations to Remember\n\n\n\nPerformance depends on an accurate linear model (G, H).\nStandard LQR does not handle constraints (e.g., actuator saturation u_{min} \\le u(kT) \\le u_{max}) explicitly. Simply saturating the LQR output can lead to issues.\n\nModel Predictive Control (MPC) is an alternative for systems with hard constraints."
+  },
+  {
+    "objectID": "2025/week11_workshop.html#kalman-filter-design-in-practice",
+    "href": "2025/week11_workshop.html#kalman-filter-design-in-practice",
+    "title": "EGH445 Modern Control",
+    "section": "Kalman Filter Design in Practice",
+    "text": "Kalman Filter Design in Practice\n\nEstimates states for linear systems with Gaussian noise:  \\begin{align*} x(kT+T) &= Gx(kT) + Hu(kT) + w(kT), \\qquad y(kT) &= Cx(kT) + v(kT) \\end{align*}  where w(kT) \\sim N(0, Q) is process noise and v(kT) \\sim N(0, R) is measurement noise.\n\n\n\n\n\n\n\n\n\nThe Tuning Challenge:\n\n\n\nTrue Q and R are usually unknown.\nIf Q/R is too small (trust model too much):\n\nFilter ignores measurements, estimates converge slowly, may drift if model is inaccurate.\n\nIf Q/R is too large (trust measurements too much):\n\nFilter follows noisy measurements closely, estimates become noisy.\n\n\n\n\n\n\n\n\n\n\n\n\nTuning Strategies:\n\n\n\nChoosing R (Measurement Noise Covariance):\n\nR \\in \\mathbb{R}^{p \\times p}. Often R = \\text{diag}(\\sigma_{v_i}^2).\nSensor datasheets and/or experimental data.\n\nChoosing Q (Process Noise Covariance):\n\nQ \\in \\mathbb{R}^{n \\times n} Often Q = \\text{diag}(\\sigma_{w_i}^2).\n\\sigma_{w_i}^2 reflects expected deviation of x_i (physical intuition).\n\n\n\n\n\n\n\n\n\n\n\n\nAssessment Focus (KF):\n\n\nYou are expected to know what it does, why/when it’s useful, and how to tune it (i.e., the role of Q, R), not the mathematical derivations."
+  },
+  {
+    "objectID": "2025/week11_workshop.html#emulation-design-continuous-to-digital",
+    "href": "2025/week11_workshop.html#emulation-design-continuous-to-digital",
+    "title": "EGH445 Modern Control",
+    "section": "Emulation Design – Continuous to Digital",
+    "text": "Emulation Design – Continuous to Digital\n\n\nWhy Emulate?\n\nUse continuous control design techniques (e.g., PID, lead-lag).\nSometimes easier to get intuition and design in the s-domain.\nImplement advanced continuous controllers digitally.\n\n\n Source: Lecture 11 Slides, EGH445.\n\n\n\n\n\nEmulation:\n\nDesign G_c(s) for the continuous plant P(s).\nDiscretise G_c(s) \\rightarrow G_d(z).\nImplement G_d(z) to control P(s).\n\n\n\n\nDirect Design:\n\nDiscretise plant P(s) \\rightarrow P_d(z).\nDesign G_d(z) directly for P_d(z)."
+  },
+  {
+    "objectID": "2025/week11_workshop.html#emulation-design-discretisation-methods",
+    "href": "2025/week11_workshop.html#emulation-design-discretisation-methods",
+    "title": "EGH445 Modern Control",
+    "section": "Emulation Design – Discretisation Methods",
+    "text": "Emulation Design – Discretisation Methods\nHow to convert G_c(s) into G_d(z)?\n\n\nTustin (Bilinear) Transformation\n\n\\small G_d(z) = G_c\\left(\\frac{2}{T} \\frac{z-1}{z+1}\\right).\n\nZero-Order Hold (ZOH)\n\n\\small G_d(z) = (1-z^{-1}) \\mathcal{Z}\\left\\{\\frac{G_c(s)}{s}\\right\\}.\n\nMatched Pole-Zero (MPZ)\n\n\\small G_d(z) = K_d \\frac{\\prod (z - z_{z_j})}{\\prod (z - z_{p_i})},\n\\small z_{p_i} = e^{s_{p_i} T}, \\small z_{z_j} = e^{s_{z_j} T}.\nAdd zeros at z=-1.\nK_d is adjusted to match DC gain.\n\n\n\n\n\n\n\nChoosing a Method & Sampling Time T\n\n\nThe choice depends on the specific application, the characteristics of G_c(s), and the desired properties of G_d(z).\nA sufficiently small T is crucial for all methods to ensure G_d(z) accurately approximates G_c(s).\nRule of thumb: sampling frequency 10-20 times faster than the fastest pole of G_c(s)."
+  },
+  {
+    "objectID": "2025/week10_workshop.html#title-slide",
+    "href": "2025/week10_workshop.html#title-slide",
+    "title": "EGH445 Modern Control",
+    "section": "Title Slide",
+    "text": "Title Slide\n\n\n\n\n\nModern Control\n\n\nWeek 10 Workshop\n\n\n\nDr Guilherme Froes Silva School of Electrical Engineering & Robotics Queensland University of Technology\n\n\nEGH445 - Modern Control\n\n\n\nConsultation: GP-S1111 Email: g.froessilva@qut.edu.au"
+  },
+  {
+    "objectID": "2025/week10_workshop.html#discrete-time-control-design-3-lecture-content",
+    "href": "2025/week10_workshop.html#discrete-time-control-design-3-lecture-content",
+    "title": "EGH445 Modern Control",
+    "section": "Discrete-Time Control Design 3: Lecture Content",
+    "text": "Discrete-Time Control Design 3: Lecture Content\n\n\n\n\nOverview\n\nWhy we need state estimation.\nThe Luenberger Observer.\nObservability.\nObserver Design via Pole Placement.\nOutput Feedback.\nOptimal Estimation (Kalman Filter)."
+  },
+  {
+    "objectID": "2025/week10_workshop.html#the-need-for-state-estimation",
+    "href": "2025/week10_workshop.html#the-need-for-state-estimation",
+    "title": "EGH445 Modern Control",
+    "section": "The Need for State Estimation",
+    "text": "The Need for State Estimation\nWhy can’t we just use the states x(kT) if our controllers u(kT) = -Kx(kT) depend on them?\n\n\nTheoretical Background\n\n\nFull State Unavailability:\n\nLack of sensors for certain states.\nCost or physical constraints of sensors.\n\nOutput Equation: We only have access to outputs: \ny(kT) = Cx(kT) + Du(kT)\n\nInverting C is Not a General Solution:\n\nC is often not square (more states than outputs).\n\n\n\nPractical Implications\n\n\nSensor Cost & Complexity: expensive or technically impossible.\n\nExample: Measuring the internal temperature of a large chemical reactor at multiple points.\n\nNoise: Measurements are often noisy; estimation can help filter the noise."
+  },
+  {
+    "objectID": "2025/week10_workshop.html#how-to-estimate-states",
+    "href": "2025/week10_workshop.html#how-to-estimate-states",
+    "title": "EGH445 Modern Control",
+    "section": "How to Estimate States?",
+    "text": "How to Estimate States?\n\n\nTheoretical Background\nOpen-Loop Observer Issues:\n\nSimulating the system:\n\\hat{x}(kT+T) = G\\hat{x}(kT) + Hu(kT).\nError dynamics e(kT+T) = Ge(kT).\nIf G is unstable, error diverges.\nIf G is stable but slow, error converges too slowly.\n\n\nPractical Implications\n\nOpen-loop estimators are unreliable:\n\nSensitive to initial conditions \\hat{x}(0) \\neq x(0).\nSensitive to model inaccuracies.\nCannot correct for disturbances."
+  },
+  {
+    "objectID": "2025/week10_workshop.html#observer-error-dynamics-practical-design",
+    "href": "2025/week10_workshop.html#observer-error-dynamics-practical-design",
+    "title": "EGH445 Modern Control",
+    "section": "Observer: Error Dynamics & Practical Design",
+    "text": "Observer: Error Dynamics & Practical Design\nWith the Luenberger observer, how do we ensure \\hat{x}(kT) is useful?\n\n\nError Dynamics Recap\n\ne(kT) = x(kT) - \\hat{x}(kT).\nError dynamics: \ne(kT+T) = (G - LC)e(kT)\n\n\nDesign L so (G - LC):\n\nIs stable (poles inside unit circle).\nConverges fast.\n\n\n\nPractical Tips for Observer Poles (L Design)\n\n\nConvergence Speed:\n\nObserver dynamics faster than controller.\nWhy? Controller needs accurate estimates.\n\nNoise Sensitivity:\n\nFast convergence needs large L.\nL(y - C\\hat{x}) uses measured y.\nIf y is noisy, large L amplifies noise in \\hat{x}."
+  },
+  {
+    "objectID": "2025/week10_workshop.html#output-feedback-control-using-the-estimate",
+    "href": "2025/week10_workshop.html#output-feedback-control-using-the-estimate",
+    "title": "EGH445 Modern Control",
+    "section": "Output Feedback Control: Using the Estimate",
+    "text": "Output Feedback Control: Using the Estimate\nWe’ve designed a controller K (assuming x(kT) was known) and an observer gain L (to get \\hat{x}(kT)).\n\n\nLuenberger State Observer: \n\\hat{x}(kT+T) = (G - LC)\\hat{x}(kT) + Hu(kT) + L y(kT)\n\nControl Law (Output Feedback): \nu(kT) = -K\\hat{x}(kT)\n\n\nKey Points:\n\nGain K designed first as if x(kT) was available.\nGain L designed so \\hat{x}(kT) converges to x(kT) quickly and robustly."
+  },
+  {
+    "objectID": "2025/week11.html#student-voice-surveys",
+    "href": "2025/week11.html#student-voice-surveys",
+    "title": "EGH445 Modern Control",
+    "section": "Student Voice Surveys",
+    "text": "Student Voice Surveys"
+  },
+  {
+    "objectID": "2025/week11.html#student-voice-surveys-1",
+    "href": "2025/week11.html#student-voice-surveys-1",
+    "title": "EGH445 Modern Control",
+    "section": "Student Voice Surveys",
+    "text": "Student Voice Surveys"
+  },
+  {
+    "objectID": "2025/week11.html#student-support",
+    "href": "2025/week11.html#student-support",
+    "title": "EGH445 Modern Control",
+    "section": "Student Support",
+    "text": "Student Support"
+  },
+  {
+    "objectID": "2025/week11.html#student-support-1",
+    "href": "2025/week11.html#student-support-1",
+    "title": "EGH445 Modern Control",
+    "section": "Student Support",
+    "text": "Student Support"
+  },
+  {
+    "objectID": "2025/week11.html#student-support-2",
+    "href": "2025/week11.html#student-support-2",
+    "title": "EGH445 Modern Control",
+    "section": "Student Support",
+    "text": "Student Support"
   },
   {
     "objectID": "2025/week9.html#diversity-in-stem",
@@ -455,367 +812,80 @@
     "text": "Handling Nonlinearity: Extended Kalman Filter (EKF)\nWhat if the system dynamics or measurement model are nonlinear? \n\\begin{align*}\n{x}(kT+T) &= f({x}(kT), {u}(kT)) + {w}(kT) \\\\\n{y}(kT) &= h({x}(kT)) + {v}(kT)\n\\end{align*}\n \n\nApproach: Linearise the nonlinear functions f and h around the state estimate \\hat{{x}}(kT) at each time step. \n\\begin{align*}\nG_k = \\frac{\\partial f}{\\partial {x}} \\bigg|_{\\hat{{x}}(kT), {u}(kT)} \\qquad\nH_k = \\frac{\\partial h}{\\partial {x}} \\bigg|_{\\hat{{x}}(kT)}\n\\end{align*}\n\nApply the standard KF equations using these time-varying Jacobians (G_k, H_k).\n\n\n\n\n\n\n\n\nTip\n\n\n\nEKF is widely used for nonlinear estimation (e.g., navigation, target tracking).\nEKF does not guarantee optimality like the linear KF. The linearization introduces approximations.\nEKF can diverge if nonlinearities are severe or initial estimates are poor.\nEKF is more computationally intensive due to Jacobian calculations at each step.\nOther nonlinear filters exist (e.g., Unscented Kalman Filter - UKF, Particle Filter) that avoid direct linearization but are computationally more complex. EKF is often a good starting point for mildly nonlinear systems."
   },
   {
-    "objectID": "2025/week10_workshop.html#title-slide",
-    "href": "2025/week10_workshop.html#title-slide",
+    "objectID": "lectures/lecture12.html#title-slide",
+    "href": "lectures/lecture12.html#title-slide",
     "title": "EGH445 Modern Control",
     "section": "Title Slide",
-    "text": "Title Slide\n\n\n\n\n\nModern Control\n\n\nWeek 10 Workshop\n\n\n\nDr Guilherme Froes Silva School of Electrical Engineering & Robotics Queensland University of Technology\n\n\nEGH445 - Modern Control\n\n\n\nConsultation: GP-S1111 Email: g.froessilva@qut.edu.au"
+    "text": "Title Slide\n\n\n\n\n\nAdvanced Topics\n\n\nActive Research Fields\n\n\n\nDr Guilherme Froes Silva School of Electrical Engineering & Robotics Queensland University of Technology\n\n\nEGH445 - Modern Control\n\n\n\nConsultation: GP-S1111 Email: g.froessilva@qut.edu.au"
   },
   {
-    "objectID": "2025/week10_workshop.html#discrete-time-control-design-3-lecture-content",
-    "href": "2025/week10_workshop.html#discrete-time-control-design-3-lecture-content",
+    "objectID": "lectures/lecture12.html#recap-state-feedback-and-estimation",
+    "href": "lectures/lecture12.html#recap-state-feedback-and-estimation",
     "title": "EGH445 Modern Control",
-    "section": "Discrete-Time Control Design 3: Lecture Content",
-    "text": "Discrete-Time Control Design 3: Lecture Content\n\n\n\n\nOverview\n\nWhy we need state estimation.\nThe Luenberger Observer.\nObservability.\nObserver Design via Pole Placement.\nOutput Feedback.\nOptimal Estimation (Kalman Filter)."
+    "section": "Recap: State-Feedback and Estimation",
+    "text": "Recap: State-Feedback and Estimation\n\n\n\n\n\n\nModelling discrete-time state-space systems:\n\n\n x(kT+T) = Gx(kT) + Hu(kT)   y(kT) = Cx(kT) + Du(kT) \n\n\n\n\n\n\n\n\n\nState-Feedback Control, designing u(kT) = -Kx(kT) for:\n\n\n\n\n\nArbitrary pole placement.\n\n\n\nOptimal performance via LQR.\n\n\n\nIntegral action.\n\n\n\n\n\n\n\n\n\n\n\nState Estimation (Observers), when x(kT) isn’t fully measurable:\n\n\n \\hat{x}(kT+T) = (G - L_dC)\\hat{x}(kT) + Hu(kT) + L_dy(kT) \n\n\n\n\n\n\n\n\n\nOutput Feedback, combining control and estimation (Separation Principle)\n\n\n u(kT) = -K\\hat{x}(kT)"
   },
   {
-    "objectID": "2025/week10_workshop.html#the-need-for-state-estimation",
-    "href": "2025/week10_workshop.html#the-need-for-state-estimation",
+    "objectID": "lectures/lecture12.html#the-digital-control-loop",
+    "href": "lectures/lecture12.html#the-digital-control-loop",
     "title": "EGH445 Modern Control",
-    "section": "The Need for State Estimation",
-    "text": "The Need for State Estimation\nWhy can’t we just use the states x(kT) if our controllers u(kT) = -Kx(kT) depend on them?\n\n\nTheoretical Background\n\n\nFull State Unavailability:\n\nLack of sensors for certain states.\nCost or physical constraints of sensors.\n\nOutput Equation: We only have access to outputs: \ny(kT) = Cx(kT) + Du(kT)\n\nInverting C is Not a General Solution:\n\nC is often not square (more states than outputs).\n\n\n\nPractical Implications\n\n\nSensor Cost & Complexity: expensive or technically impossible.\n\nExample: Measuring the internal temperature of a large chemical reactor at multiple points.\n\nNoise: Measurements are often noisy; estimation can help filter the noise."
+    "section": "The Digital Control Loop",
+    "text": "The Digital Control Loop\n\nSample sensor data (e.g., position) at time kT. Requires Analog-to-Digital Conversion (ADC)1.\nCompute the control input u(kT) using the discretised control law and the sampled (or estimated) states.\nApply the control input to actuators (e.g., motors). Requires Digital-to-Analog Conversion (DAC).\n\n\n\n\n\n\n\nImportant\n\n\nThis entire Sample-Compute-Actuate cycle must execute reliably within each sampling period T!\n\n\n\n\n\n\n\n\n\nImportant\n\n\nImplementation involves choices about:\n\nHardware Platform.\nSoftware Environment.\nInterfacing sensors and actuators.\n\n\n\n\nThink of fixed-point versus float-point precision"
   },
   {
-    "objectID": "2025/week10_workshop.html#how-to-estimate-states",
-    "href": "2025/week10_workshop.html#how-to-estimate-states",
+    "objectID": "lectures/lecture12.html#hardware-development-boards",
+    "href": "lectures/lecture12.html#hardware-development-boards",
     "title": "EGH445 Modern Control",
-    "section": "How to Estimate States?",
-    "text": "How to Estimate States?\n\n\nTheoretical Background\nOpen-Loop Observer Issues:\n\nSimulating the system:\n\\hat{x}(kT+T) = G\\hat{x}(kT) + Hu(kT).\nError dynamics e(kT+T) = Ge(kT).\nIf G is unstable, error diverges.\nIf G is stable but slow, error converges too slowly.\n\n\nPractical Implications\n\nOpen-loop estimators are unreliable:\n\nSensitive to initial conditions \\hat{x}(0) \\neq x(0).\nSensitive to model inaccuracies.\nCannot correct for disturbances."
+    "section": "Hardware: Development Boards",
+    "text": "Hardware: Development Boards\n\nCommon development boards\n\nArduino, Teensy, etc.\ndSpace DS1104, MicroLabBox, etc."
   },
   {
-    "objectID": "2025/week10_workshop.html#observer-error-dynamics-practical-design",
-    "href": "2025/week10_workshop.html#observer-error-dynamics-practical-design",
+    "objectID": "lectures/lecture12.html#hardware-microcontrollers",
+    "href": "lectures/lecture12.html#hardware-microcontrollers",
     "title": "EGH445 Modern Control",
-    "section": "Observer: Error Dynamics & Practical Design",
-    "text": "Observer: Error Dynamics & Practical Design\nWith the Luenberger observer, how do we ensure \\hat{x}(kT) is useful?\n\n\nError Dynamics Recap\n\ne(kT) = x(kT) - \\hat{x}(kT).\nError dynamics: \ne(kT+T) = (G - LC)e(kT)\n\n\nDesign L so (G - LC):\n\nIs stable (poles inside unit circle).\nConverges fast.\n\n\n\nPractical Tips for Observer Poles (L Design)\n\n\nConvergence Speed:\n\nObserver dynamics faster than controller.\nWhy? Controller needs accurate estimates.\n\nNoise Sensitivity:\n\nFast convergence needs large L.\nL(y - C\\hat{x}) uses measured y.\nIf y is noisy, large L amplifies noise in \\hat{x}."
+    "section": "Hardware: Microcontrollers",
+    "text": "Hardware: Microcontrollers\n\nCommon microcontrollers\n\n8-bit: Pic, ATmega (arduino), etc.\n16-bit: MSP430, PIC24, etc.\n32-bit: ARM Cortex-M, STM32, etc.\n\n\n\n\n\n\n\n\nNote\n\n\nMicrocontrollers are often the first choice of hardware in embedded systems due to their low cost and inclusion of peripherals (ADC, DAC, timers, PWM generators, etc.)."
   },
   {
-    "objectID": "2025/week10_workshop.html#output-feedback-control-using-the-estimate",
-    "href": "2025/week10_workshop.html#output-feedback-control-using-the-estimate",
+    "objectID": "lectures/lecture12.html#hardware-industrial-controllers",
+    "href": "lectures/lecture12.html#hardware-industrial-controllers",
     "title": "EGH445 Modern Control",
-    "section": "Output Feedback Control: Using the Estimate",
-    "text": "Output Feedback Control: Using the Estimate\nWe’ve designed a controller K (assuming x(kT) was known) and an observer gain L (to get \\hat{x}(kT)).\n\n\nLuenberger State Observer: \n\\hat{x}(kT+T) = (G - LC)\\hat{x}(kT) + Hu(kT) + L y(kT)\n\nControl Law (Output Feedback): \nu(kT) = -K\\hat{x}(kT)\n\n\nKey Points:\n\nGain K designed first as if x(kT) was available.\nGain L designed so \\hat{x}(kT) converges to x(kT) quickly and robustly."
+    "section": "Hardware: Industrial Controllers",
+    "text": "Hardware: Industrial Controllers\nProgrammable Logic Controllers (PLCs)\nBuilt for industrial environments: Rugged, reliable, and modular.\n\nSiemens S7 series\nRockwell Automation ControlLogix\nSchneider Electric Modicon\n\n\n\n\n\n\n\nProgrammed using IEC 61131-3 standards\n\n\n\nLadder Logic (LD), Function Block Diagram (FBD), Structured Text (ST), Instruction List (IL), Sequential Function Chart (SFC)."
   },
   {
-    "objectID": "lectures/lecture11.html#title-slide",
-    "href": "lectures/lecture11.html#title-slide",
+    "objectID": "lectures/lecture12.html#software-discrete-control-loop",
+    "href": "lectures/lecture12.html#software-discrete-control-loop",
     "title": "EGH445 Modern Control",
-    "section": "Title Slide",
-    "text": "Title Slide\n\n\n\n\n\nPractical Considerations\n\n\nObservers and Output Feedback\n\n\n\nDr Guilherme Froes Silva School of Electrical Engineering & Robotics Queensland University of Technology\n\n\nEGH445 - Modern Control\n\n\n\nConsultation: GP-S1111 Email: g.froessilva@qut.edu.au"
+    "section": "Software: Discrete Control Loop",
+    "text": "Software: Discrete Control Loop\nControl Law: u(kT) = -K\\hat{x}(kT) (using estimate)\n// --- Initialization (This is Pseudo-code) ---\n// Controller & Observer Parameters (loaded from design)\nMatrix G, H, C, D;       // System model (D might be zero)\nMatrix K_gain;           // State-feedback gain\nMatrix Ld_gain;          // Observer gain\nVector x_hat_k;          // Estimated state (current, initialized appropriately)\nScalar T_sampling;       // Sampling period\n\ninitialize_ADC_DAC_timers();\nconfigure_timer_interrupt(T_sampling, &control_loop_ISR);\nenable_interrupts();\n// x_hat_k = initial_estimate (e.g., zeros or best guess)\n\n// --- Real-Time Loop (Interrupt Service Routine - ISR) ---\n// This function is called by the hardware timer every T_sampling seconds\nfunction control_loop_ISR() {\n// 1. SAMPLE SENSORS\nVector y_k = read_ADCs(); // Get current output y(kT)\n// 2. COMPUTE (State Estimation - Luenberger Observer Example)\nx_hat_k = (G - Ld_gain * C) * x_hat_k + H * u_k + Ld_gain * y_k; // Think about how to implement this in a small Arduino Uno.\n// 3. COMPUTE (Control Law)\nVector u_k = -K_gain * x_hat_k; // Control input\n// 4. ACTUATE\napply_DAC_or_PWM(u_k);\n..."
   },
   {
-    "objectID": "lectures/lecture11.html#state-vs-output-feedback-revisited",
-    "href": "lectures/lecture11.html#state-vs-output-feedback-revisited",
+    "objectID": "lectures/lecture12.html#real-time-challenges",
+    "href": "lectures/lecture12.html#real-time-challenges",
     "title": "EGH445 Modern Control",
-    "section": "State vs Output Feedback Revisited",
-    "text": "State vs Output Feedback Revisited\nWhen and why? Consider the system x(kT+T) = Gx(kT) + Hu(kT), y(kT) = Cx(kT).\nSystem Matrix G = e^{AT} represents the internal dynamics of the system.\n\nIt describes how the state x(kT) evolves over time. Usually inherent to the system.\n\nInput Matrix H = \\int_0^T e^{A\\tau}B d\\tau represents how the input u(kT) affects the state x(kT).\n\nRelates to the actuator(s) chosen (e.g. types of motors, heaters, valves, etc.).\n\nOutput Matrix C represents how the states are measured as outputs y(kT).\n\nRelates to the sensor(s) chosen (e.g. types and placement of sensors, cameras, etc.)."
+    "section": "Real-Time Challenges",
+    "text": "Real-Time Challenges\n\nComputational Delay\n\nTime taken to compute control law\nTime taken to read sensors and actuate\nTime taken to execute the control loop\n\nTiming Jitter\n\nVariability in timing of control loop execution\nCan be caused by interrupts, other processes, etc.\n\nResources\n\nMemory limitations\nSize of program (linear algebra libraries, etc.)"
   },
   {
-    "objectID": "lectures/lecture11.html#when-and-why",
-    "href": "lectures/lecture11.html#when-and-why",
+    "objectID": "lectures/lecture12.html#energy-functions",
+    "href": "lectures/lecture12.html#energy-functions",
     "title": "EGH445 Modern Control",
-    "section": "When and why?",
-    "text": "When and why?\n\n\n\nState feedback: u(kT) = -Kx(kT)\n\nAssumes all states are available.\n\n\n\n\nOutput feedback: u(kT) = -K\\hat{x}(kT)\n\nUsed when only output y(kT) = Cx(kT) is available.\nRequires an observer to estimate the state \\hat{x}(kT) from y(kT) and u(kT)."
+    "section": "Energy functions",
+    "text": "Energy functions\nRemember Lyapunov stability?\n\nLyapunov function \\quad V(x) \\geq 0,\\quad x\\neq 0,\\quad V(0)=0\nIf \\;\\boxed{\\dot{V}(x) = \\frac{dV}{dx}\\textcolor{blue}{\\frac{dx}{dt}} &lt; 0}1, energy is being dissipated (stable system).\n\n\n\n\n\n\n\nResearch: Passivity Based Control\n\n\n\nPassivity: A system is passive if it can only dissipate energy.\nDamping Injection: A control strategy that adds damping to a system, making it passive.\n\nExample: Adding a damping term to the system dynamics.\n\n\n\n\n\nDiscrete-time: V(x(kT+T)) - V(x(kT)) &lt; 0"
   },
   {
-    "objectID": "lectures/lecture11.html#section",
-    "href": "lectures/lecture11.html#section",
+    "objectID": "lectures/lecture12.html#pendulum-swing-up",
+    "href": "lectures/lecture12.html#pendulum-swing-up",
     "title": "EGH445 Modern Control",
-    "section": "",
-    "text": "State feedback: u(kT) = -Kx(kT)\n\n\nSystem (G,H) must be controllable.\nClosed-loop dynamics, G_{cl} = G - HK.\nAssumes all states are available.\n\nPole placement: K gain.\nLQR: K gain and cost function Q,R.\nIntegral action: Dynamic Extension and K_I gain.\n\n\n\nOutput feedback: u(kT) = -K\\hat{x}(kT)\n\n\nSystem (G,C) must be observable.\nObserver dynamics, G_{obs} = G - LC.\nUsed when only y(kT) = Cx(kT) is available.\n\ny(kT) is what is actually being measured.\n\nNeeds estimating \\hat{x}(kT) from y(kT) and u(kT).\n\nLuenberger Observer - L gain.\nKalman Filter - K_k gain and noise covariances.\n\n\n\n\nPractical Question: When is it feasible/necessary to measure all states versus estimate them?\n\nSensor cost and complexity (relates to choice of C).\nSensor availability (some states might be internal/unmeasurable)."
+    "section": "Pendulum Swing-Up1",
+    "text": "Pendulum Swing-Up1\n\n\n\n\n\n\nSwing-up (Energy Injection)\n\n\n\nPendulum’s Energy: Define as proportional to the sum of its potential (mgl\\cos(\\theta)+1) and rotational kinetic energy (ml^2\\dot\\theta^2).\nTarget Energy: The upright position has a specific (higher) total energy (E_\\text{up} = \\text{Potential Energy}_{up}).\nControl Logic: If current total energy E &lt; E_\\text{up}, apply control to “pump” energy into the pendulum.\n\nThis is a nonlinear control strategy.\nExample approach: Apply torque/force in the direction of angular velocity when the pendulum is near the bottom (to add energy efficiently), or based on an energy error (E_\\text{up} - E).\nThe control u(kT) is designed to ensure \\Delta E = E(kT+T) - E(kT) &gt; 0 on average, until E(kT) \\approx E_\\text{up}.\n\n\n\n\n\n\n\n\n\n\n\nCatch & Stabilise\n\n\n\nCondition: When the pendulum is near the upright position (angle \\theta \\approx 0, angular velocity \\dot{\\theta} \\approx 0) AND its energy is close to E_\\text{up}.\nControl Logic: Switch to a linear state-feedback controller (e.g., LQR or pole placement) designed for the linearised system around the upright equilibrium.\nThis local controller “catches” the pendulum and stabilises it.\n\n\n\n\n\nhttps://web.ece.ucsb.edu/~hespanha/ece229/references/AstromFurutaAUTOM00.pdf"
   },
   {
-    "objectID": "lectures/lecture11.html#practical-trade-offs",
-    "href": "lectures/lecture11.html#practical-trade-offs",
+    "objectID": "lectures/lecture12.html#network-instability",
+    "href": "lectures/lecture12.html#network-instability",
     "title": "EGH445 Modern Control",
-    "section": "Practical Trade-offs",
-    "text": "Practical Trade-offs\n\nObserver Performance:\n\nLuenberger poles determine error convergence speed. Faster poles \\rightarrow potentially higher gain L.\nKalman Filter dynamic gain K_k minimises the estimation error covariance iteratively, balancing model trust vs measurement trust based on noise characteristics (Q, R).\n\nNoise Amplification:\n\nLarge observer gains (L or K_k) can amplify measurement noise (v(kT)), negatively impacting the control input u(kT) = -K\\hat{x}(kT). There’s a trade-off: fast estimation vs noise sensitivity.\n\nComputational Load:\n\nObservers add computational cost (matrix multiplications, additions).\nIncrease in computational cost: Luenberger observers \\rightarrow Kalman filters \\rightarrow Extended Kalman filters (EKF).\nNeeds to be feasible on the target hardware, considering the selected/needed sampling time T."
-  },
-  {
-    "objectID": "lectures/lecture11.html#section-1",
-    "href": "lectures/lecture11.html#section-1",
-    "title": "EGH445 Modern Control",
-    "section": "",
-    "text": "Certainty Equivalence Principle:\n\nRecall: Controller (K) and Observer (L) can be designed independently. \nThis holds perfectly if the model is perfect.\nModel mismatch can affect performance;\n\nSometimes detuning the observer (slower poles) can improve robustness in practice.\n\n\nDiscussion Point: Do the benefits of state estimation outweigh the costs?\n\n\n\nBenefits of State Estimation:\n\n\nHandling unmeasured states\nBetter performance via full state feedback\n\n\nCosts of State Estimation:\n\n\nAdded complexity (and computational load)\nNeed of tuning\nSensitivity to noise\nModel mismatch\n\n\nDepends on the application!"
-  },
-  {
-    "objectID": "lectures/lecture11.html#recap-lqr-fundamentals",
-    "href": "lectures/lecture11.html#recap-lqr-fundamentals",
-    "title": "EGH445 Modern Control",
-    "section": "Recap: LQR Fundamentals",
-    "text": "Recap: LQR Fundamentals\n\nGoal: Find u(kT) = -Kx(kT) that minimises a quadratic cost function over an infinite horizon.\nCost Function (J): Balances state regulation (Q, state weighting) and control effort (R, control weighting). \n  J = \\sum_{k=0}^{\\infty} \\left( x(kT)^T Q x(kT) + u(kT)^T R u(kT) \\right), \\quad Q \\succeq 0, \\quad R \\succ 0\n  \nSolution: Solve the Discrete Algebraic Riccati Equation (DARE) for a unique, positive semi-definite matrix P: \n  P = G^T P G - (G^T P H)(R + H^T P H)^{-1}(H^T P G) + Q\n   Then the gain is \\; K = (R + H^T P H)^{-1} H^T P G.\nStability: The closed-loop system x(kT+T) = (G-HK)x(kT) is guaranteed to be stable if (G, H) is controllable and (G, V) is observable, where Q=V^T V."
-  },
-  {
-    "objectID": "lectures/lecture11.html#important-remark-on-gv-observability",
-    "href": "lectures/lecture11.html#important-remark-on-gv-observability",
-    "title": "EGH445 Modern Control",
-    "section": "Important remark on (G,V) observability",
-    "text": "Important remark on (G,V) observability\n\nThe matrix V (from Q=V^T V) defines which states or state combinations are penalised in the cost J.\n(G, V) observability ensures that any unstable behaviour in the system dynamics (G) will eventually affect the states penalised by Q, forcing the controller to act.\nAnalogy: C relates to what states are measured (physical sensors), while V relates to what states are penalised (design choice in Q). They don’t have to be the same."
-  },
-  {
-    "objectID": "lectures/lecture11.html#important-remark-on-g-v-observability",
-    "href": "lectures/lecture11.html#important-remark-on-g-v-observability",
-    "title": "EGH445 Modern Control",
-    "section": "Important remark on (G, V) observability",
-    "text": "Important remark on (G, V) observability\n\nThe matrix V (from Q=V^T V) defines which states or state combinations are penalised in the cost J.\n(G, V) observability ensures that any unstable behaviour will eventually affect the states penalised by Q, forcing the controller to act.\n\n\n\n\n\n\n\nAnalogy\n\n\nC describes the outputs, i.e. what states are measured (through physical sensors).\nV describes what states are penalised (design choice in Q).\nAnalogously to designing controllers assuming full state availability, V and C do not need to be the same."
-  },
-  {
-    "objectID": "lectures/lecture11.html#tuning-q-and-r-in-practice",
-    "href": "lectures/lecture11.html#tuning-q-and-r-in-practice",
-    "title": "EGH445 Modern Control",
-    "section": "Tuning Q and R in practice",
-    "text": "Tuning Q and R in practice\n\nStarting Point: Diagonal Matrices\n\nOften start with diagonal Q and R.\nQ = \\text{diag}(q_1, q_2, \\dots, q_n): Penalises squared state deviations q_i x_i^2.\nR = \\text{diag}(r_1, r_2, \\dots, r_m): Penalises squared control inputs r_j u_j^2.\n\nRelative Weights Matter:\n\nThe absolute values of Q and R don’t matter as much as their ratio. Scaling both Q and R by the same factor results in the same gain K.\nCommon practice: Fix one element (e.g., R=1 or R=I) and tune the elements of Q.\n\nInterpreting Weights:\n\nLarger q_i means state x_i is more important to regulate quickly/keep small.\nLarger r_j means control input u_j is more “expensive” (e.g., energy consumption, saturation limits)."
-  },
-  {
-    "objectID": "lectures/lecture11.html#section-2",
-    "href": "lectures/lecture11.html#section-2",
-    "title": "EGH445 Modern Control",
-    "section": "",
-    "text": "Tuning Strategies:\n\nBryson’s Rule (Rule of Thumb): Scale weights based on maximum acceptable deviations/inputs:\n\nq_{ii} \\approx \\frac{1}{(\\text{max acceptable } x_i)^2}, \\quad r_{jj} \\approx \\frac{1}{(\\text{max acceptable } u_j)^2}\n\nTrial and Error (Simulation/Experiment):\n\nSimulate/run the system.\nObserve states x(kT) and inputs u(kT).\nIf states converge too slowly \\rightarrow Increase elements in Q relative to R.\nIf control effort is too high/saturating \\rightarrow Increase elements in R relative to Q.\n\n\nNon-Diagonal Weights:\n\nOff-diagonal terms in Q can penalise relationships between states (e.g., x_1 x_2).\nOff-diagonal terms in R can penalise simultaneous use of multiple actuators.\nUse only if there’s a clear physical reason; increases tuning complexity."
-  },
-  {
-    "objectID": "lectures/lecture11.html#lqr-limitations-revisited",
-    "href": "lectures/lecture11.html#lqr-limitations-revisited",
-    "title": "EGH445 Modern Control",
-    "section": "LQR Limitations Revisited",
-    "text": "LQR Limitations Revisited\n\nModel Accuracy:\n\nLQR performance relies on an accurate linear model (G, H).\nNonlinearities or parameter uncertainties can degrade performance or lead to instability.\n\nConstraint Handling:\n\nStandard LQR formulation does not explicitly handle constraints on states (x) or inputs (u).\nExample: Actuator saturation (u_{min} \\le u(kT) \\le u_{max}).\nCalculating gain K and then saturating the control value can lead to poor performance or instability. \n\nImplicit Pole Placement:\n\nLQR does place closed-loop poles, but indirectly through the choice of Q and R.\nIt’s hard to directly relate Q/R choices to transient response characteristics (like %OS, t_s).\n\nAddressing Limitations: \n\nFor constraints: Model Predictive Control (MPC) explicitly incorporates constraints in its optimization."
-  },
-  {
-    "objectID": "lectures/lecture11.html#recap-kf-fundamentals",
-    "href": "lectures/lecture11.html#recap-kf-fundamentals",
-    "title": "EGH445 Modern Control",
-    "section": "Recap: KF Fundamentals",
-    "text": "Recap: KF Fundamentals\nOptimal state estimator for linear systems with Gaussian noise.\n\n\n\nSystem Model with Noise: \n  \\begin{align*}\n  {x}(kT+T) &= G{x}(kT) + H{u}(kT) + {w}(kT) \\\\\n  {y}(kT) &= C{x}(kT) + {v}(kT)\n  \\end{align*}\n  \n\n{w}(kT): Process noise, Q = E[{w}{w}^T]\n{v}(kT): Measurement noise, R = E[{v}{v}^T]\n\n\n\n\nRecursive Structure (Predict-Correct):\n\nPredict: Project state estimate \\hat{{x}} and error covariance P forward using the model (G, H, Q).\n\n\\hat{{x}}^-(kT) = G\\hat{{x}}(kT-T) + H{u}(kT-T)\nP^-(kT) = G P(kT-T) G^T + Q_{k-1}\n\nCorrect (Update): Adjust prediction using the current measurement {y}(kT) and the calculated Kalman Gain K_k.\n\nK_k = P^-(kT) C^T (C P^-(kT) C^T + R)^{-1}\n\\hat{{x}}(kT) = \\hat{{x}}^-(kT) + K_k ({y}(kT) - C\\hat{{x}}^-(kT))\nP(kT) = (I - K_k C) P^-(kT)\n\n\n\n\n\n\n\n\n\n\nKey Idea (watch Workshop 10 for a practical example)\n\n\nK_k optimally balances trusting the model prediction vs. trusting the noisy measurement based on the relative sizes of P^-(kT), Q, and R."
-  },
-  {
-    "objectID": "lectures/lecture11.html#the-tuning-challenge",
-    "href": "lectures/lecture11.html#the-tuning-challenge",
-    "title": "EGH445 Modern Control",
-    "section": "The Tuning Challenge",
-    "text": "The Tuning Challenge\n\n“Optimal” performance relies on having the correct noise covariance matrices Q and R.\n\nR – sensor measurement uncertainty (variance).\nQ – dynamics model uncertainty (variance) introduced by, unmodelled forces, discretisation errors, etc.\n\nThe Problem: In most real-world applications, the true values of Q and R are unknown.\nConsequence: Choosing incorrect Q and R leads to suboptimal state estimates.\n\nIf the ratio Q/R is too small, the filter will trust the model too much and ignore useful measurements.\nEstimates converge slowly and may drift.\nIf the ratio Q/R is too large, the filter will trust the measurements too much and ignore the models.\nEstimates become noisy.\n\n\nTherefore: Q and R often become tuning parameters adjusted based on observed filter performance, rather than precisely known quantities."
-  },
-  {
-    "objectID": "lectures/lecture11.html#tuning-strategies",
-    "href": "lectures/lecture11.html#tuning-strategies",
-    "title": "EGH445 Modern Control",
-    "section": "Tuning Strategies",
-    "text": "Tuning Strategies\n\n\nChoosing R:\n\nR \\in \\mathbb{R}^{p \\times p}, where p is the number of outputs.\nOften diagonal, when the sensor noise is uncorrelated.\n \\scriptsize\nR_k = \\begin{bmatrix} \\sigma_{v_1}^2 & 0 & \\dots & 0 \\\\ 0 & \\sigma_{v_2}^2 & \\dots & 0 \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ 0 & 0 & \\dots & \\sigma_{v_p}^2 \\end{bmatrix}\n\nDetermining values:\n\nSensor datasheets: specified noise characteristics.\nExperimental data: calculated variance from samples.\nCross-correlation: covariance between sensor signals.\n\n\nChoosing Q:\n\nQ \\in \\mathbb{R}^{n \\times n}, where n is the number of states.\nOften diagonal and treated as a tuning parameter.  \\scriptsize\nQ_k = \\begin{bmatrix} \\sigma_{w_1}^2 & 0 & \\dots & 0 \\\\ 0 & \\sigma_{w_2}^2 & \\dots & 0 \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ 0 & 0 & \\dots & \\sigma_{w_n}^2 \\end{bmatrix}\n\nDetermining values:\n\n\\sigma_{w_i}^2 reflects how much x_i is expected to deviate.\nPhysical insight: deviation due real dynamics.\nIterative tuning: observe residual e(kT)."
-  },
-  {
-    "objectID": "lectures/lecture11.html#kalman-filter-tuning-residual-analysis",
-    "href": "lectures/lecture11.html#kalman-filter-tuning-residual-analysis",
-    "title": "EGH445 Modern Control",
-    "section": "Kalman Filter Tuning: Residual Analysis",
-    "text": "Kalman Filter Tuning: Residual Analysis\nThe residual is the difference between the actual measurement and the predicted measurement at each step: \n{e}(kT) = {y}(kT) - \\hat{{y}}^-(kT) = {y}(kT) - C\\hat{{x}}^-(kT)\n\n\nTheoretical Property: For a perfectly modelled and optimally tuned Kalman filter:\n\nZero-mean: E[{e}(kT)] = 0.\nWhite noise: Uncorrelated over time, E[{e}(kT){e}(jT)^T] = 0 for k \\neq j.\nKnown Covariance: E[{e}(kT){e}(kT)^T] = C P^-(kT) C^T + R_k.\n\nPractical Use for Tuning:\n\nCollect Residuals: Record {e}(kT) over a representative run.\nCheck Mean: If it’s significantly non-zero: bias in sensors or in the system model.\nCheck Whiteness (Autocorrelation): Plot the autocorrelation function (ACF) of the residuals.\n\n\nAdjust Q and R iteratively until the residuals “look like” zero-mean white noise with the expected covariance."
-  },
-  {
-    "objectID": "lectures/lecture11.html#kalman-filter-tuning-residual-analysis-.smaller",
-    "href": "lectures/lecture11.html#kalman-filter-tuning-residual-analysis-.smaller",
-    "title": "EGH445 Modern Control",
-    "section": "*Kalman Filter Tuning: Residual Analysis {.smaller}",
-    "text": "*Kalman Filter Tuning: Residual Analysis {.smaller}\nThe residual is the difference between the actual measurement and the predicted measurement at each step: \n{e}(kT) = {y}(kT) - \\hat{{y}}^-(kT) = {y}(kT) - C\\hat{{x}}^-(kT)\n\n\nTheoretical Property: For a perfectly modelled and optimally tuned Kalman filter:\n\nZero-mean: E[{e}(kT)] = 0.\nWhite noise: Uncorrelated over time, E[{e}(kT){e}(jT)^T] = 0 for k \\neq j.\nKnown Covariance: E[{e}(kT){e}(kT)^T] = C P^-(kT) C^T + R_k.\n\nPractical Use for Tuning: Analyzing the actual residuals obtained from simulation or experiments is a powerful tuning diagnostic:\n\nCollect Residuals: Record {e}(kT) over a representative run.\nCheck Mean: Calculate the mean of the residuals. If it’s significantly non-zero, it might indicate:\n\nBias in sensors (fixable?).\nIncorrect system model (bias terms missing?).\nIncorrect Q_k or R_k.\n\nCheck Whiteness (Autocorrelation): Plot the autocorrelation function (ACF) of the residuals.\n\nIf residuals are correlated (ACF non-zero for lags &gt; 0), the filter is suboptimal.\nOften points to incorrect Q_k (filter dynamics don’t match real process noise) or R_k. Try adjusting Q_k or R_k.\n\nCheck Covariance: Compare the sample covariance of the residuals to the theoretical covariance C P^-(kT) C^T + R_k. Discrepancies suggest tuning issues. (Can be complex to use directly).\n\nTuning Goal: Adjust Q_k and R_k iteratively until the residuals “look like” zero-mean white noise with the expected covariance."
-  },
-  {
-    "objectID": "lectures/lecture11.html#emulation-design-discretising-continuous-controllers",
-    "href": "lectures/lecture11.html#emulation-design-discretising-continuous-controllers",
-    "title": "EGH445 Modern Control",
-    "section": "Emulation Design: Discretising Continuous Controllers",
-    "text": "Emulation Design: Discretising Continuous Controllers"
-  },
-  {
-    "objectID": "lectures/lecture11.html#emulation-discretising-continuous-controllers",
-    "href": "lectures/lecture11.html#emulation-discretising-continuous-controllers",
-    "title": "EGH445 Modern Control",
-    "section": "Emulation: Discretising Continuous Controllers",
-    "text": "Emulation: Discretising Continuous Controllers\nDesign a digital controller G_d(z) that mimics the behaviour of a pre-designed continuous controller G_c(s).\n\n\n\n\nWhy Emulate?\n\nLeverage existing continuous controller designs.\nControl design is sometimes preferred in s-domain.\nImplement advanced continuous controllers digitally.\n\n\n\n\n\n\n\n\nEmulation vs. Direct Design\n\n\n\nDirect design: Discretise the plant, then design the controller directly (e.g., using DLQR)\nEmulation: Design the controller in the continuous domain (e.g., PID, Lead-Lag, LQR) and then discretise it."
-  },
-  {
-    "objectID": "lectures/lecture11.html#discretisation-methods",
-    "href": "lectures/lecture11.html#discretisation-methods",
-    "title": "EGH445 Modern Control",
-    "section": "Discretisation Methods",
-    "text": "Discretisation Methods\nHow do we convert a continuous controller G_c(s) into a discrete controller G_d(z)?\nThere are three main methods.\n1. Tustin (Bilinear) Transformation\nUses a trapezoidal integration to get to a bilinear relation between s and z (opposed to s=\\frac 1 T \\ln{(z)}).\n2. Zero-Order Hold (ZOH) Equivalence\nAssumes the input to the controller e(t) is held constant between samples by a ZOH \ne(kT+\\tau) = e(kT) \\text{ for } 0 \\le \\tau &lt; T\n\n3. Matched Pole-Zero (MPZ) Method\nMaps poles and zeros of G_c(s), in the s-plane, to those of G_d(z), in the z-plane, using z = e^{sT}."
-  },
-  {
-    "objectID": "lectures/lecture11.html#method-1-tustin-bilinear-transform",
-    "href": "lectures/lecture11.html#method-1-tustin-bilinear-transform",
-    "title": "EGH445 Modern Control",
-    "section": "Method 1: Tustin (Bilinear) Transform",
-    "text": "Method 1: Tustin (Bilinear) Transform\nApproximates the continuous-time integration operator 1/s with a discrete-time equivalent derived from the trapezoidal rule for numerical integration.\nu(kT) = \\int e(t) dt \\quad \\rightarrow \\quad u(kT) \\approx u(kT-T) + \\frac{T}{2}(e(kT) + e(kT-T)).\nTaking the z-transform of both sides gives: \n\\begin{align*}\nU(z) &= z^{-1}U(z) + \\frac{T}{2} \\left( E(z) + z^{-1} E(z) \\right) \\\\\n\\frac{U(z)}{E(z)} &= \\frac{T}{2} \\frac{\\left( 1 + z^{-1} \\right)}{\\left(1 - z^{-1}\\right)} \\\\\n\\end{align*}\n\n\nTransformation Rule: To convert G_c(s) to G_d(z), substitute: \n  s \\leftarrow \\frac{2}{T} \\frac{z-1}{z+1}\n   into G_c(s).\nMapping Properties:\n\nMaps the left-half of the s-plane entirely into the unit circle in the z-plane.\nMaps the j\\omega axis of the s-plane onto the unit circle |z|=1 in the z-plane.\nThis preserves stability: a stable G_c(s) will result in a stable G_D(z).\n\nFrequency Warping:\n\nThere is a nonlinear relationship between the continuous frequency \\omega and the discrete frequency \\Omega T: \\omega_d T = 2 \\arctan(\\frac{\\omega T}{2}).\nThis means the frequency response of G_D(z) can be a “warped” version of G_c(s)’s frequency response, especially at higher frequencies relative to the sampling rate.\nPre-warping: If matching the frequency response at a critical frequency \\omega_c is important, the s-domain controller can be “pre-warped” before Tustin transformation. (Usually not detailed in an introductory context unless critical).\n\nMATLAB function: c2d(Gc, T, 'tustin') or c2d(Gc, T, 'bilinear')."
-  },
-  {
-    "objectID": "lectures/lecture11.html#tustin-bilinear-transform",
-    "href": "lectures/lecture11.html#tustin-bilinear-transform",
-    "title": "EGH445 Modern Control",
-    "section": "Tustin (Bilinear) Transform",
-    "text": "Tustin (Bilinear) Transform\nApproximates the continuous-time integration operator 1/s with a discrete-time equivalent derived from the trapezoidal rule for numerical integration.\nu(kT) = \\int e(t) dt \\quad \\rightarrow \\quad u(kT) \\approx u(kT-T) + \\frac{T}{2}(e(kT) + e(kT-T)).\nTaking the z-transform of both sides gives: \n\\begin{align*}\nU(z) &= z^{-1}U(z) + \\frac{T}{2} \\left( E(z) + z^{-1} E(z) \\right) \\\\\n\\frac{U(z)}{E(z)} &= \\frac{T}{2} \\frac{\\left( 1 + z^{-1} \\right)}{\\left(1 - z^{-1}\\right)} \\\\\n\\end{align*}\n\n\n\n\n\n\n\nTransformation Rule\n\n\nTo convert G_c(s) to G_d(z), substitute s in G_c(s) with: \n    s \\leftarrow \\frac{2}{T} \\frac{z-1}{z+1}, \\quad \\text{that is, } \\quad G_d(z) = G_c\\left(\\frac{2}{T} \\frac{z-1}{z+1}\\right)."
-  },
-  {
-    "objectID": "lectures/lecture11.html#tustin-bilinear-transform-properties",
-    "href": "lectures/lecture11.html#tustin-bilinear-transform-properties",
-    "title": "EGH445 Modern Control",
-    "section": "Tustin (Bilinear) Transform Properties",
-    "text": "Tustin (Bilinear) Transform Properties\n\nMaps the left-half of the s-plane entirely into the unit circle in the z-plane.\nMaps the j\\omega axis of the s-plane onto the unit circle |z|=1 in the z-plane.\nThis preserves stability: a stable G_c(s) will result in a stable G_d(z).\n\n\nMATLAB: c2d(Gc, T, 'tustin').\nPython: scipy.signal.cont2discrete(Gc, dt=T, method='bilinear')."
-  },
-  {
-    "objectID": "lectures/lecture11.html#zero-order-hold-zoh-equivalence-1",
-    "href": "lectures/lecture11.html#zero-order-hold-zoh-equivalence-1",
-    "title": "EGH445 Modern Control",
-    "section": "Zero-Order Hold (ZOH) Equivalence",
-    "text": "Zero-Order Hold (ZOH) Equivalence\nAssumes the input e(t) to the controller is held constant by a Zero-Order Hold (ZOH) for one sampling period T.\n\nThe sampler and ZOH are placed before the continuous controller G_c(s).\nThe continuous controller sees a staircase input e(t) = e(kT) for kT \\le t &lt; kT+T.\nThe result is z-transformed to get the discrete controller G_d(z).\n\nZOH Transfer Function: G_{zoh}(s) = \\frac{1}{s} (1 - e^{-sT}). Positive step at kT minus negative step at kT+T.\n\n\n\n\n\n\nTransformation Rule\n\n\nThe pulse transfer function G_d(z) of the discretised controller is given by:\n\n\n\nG_d(z) = \\mathcal{Z}\\left\\{ \\mathcal{L}^{-1}\\left[ \\frac{1-e^{-sT}}{s} G_c(s) \\right] \\right\\} = (1-z^{-1}) \\mathcal{Z}\\left\\{\\frac{G_c(s)}{s}\\right\\}"
-  },
-  {
-    "objectID": "lectures/lecture11.html#zoh-equivalence-properties",
-    "href": "lectures/lecture11.html#zoh-equivalence-properties",
-    "title": "EGH445 Modern Control",
-    "section": "ZOH Equivalence Properties",
-    "text": "ZOH Equivalence Properties\n\nThe ZOH method exactly matches the response of the continuous and discrete systems at the sampling instants if the input to G_c(s) were indeed staircase (due to the ZOH).\nStability is preserved if G_c(s) is stable.\n\nMATLAB: c2d(Gc, T, 'zoh').\nPython: scipy.signal.cont2discrete(Gc, dt=T, method='zoh')."
-  },
-  {
-    "objectID": "lectures/lecture11.html#method-3-matched-pole-zero-mpz",
-    "href": "lectures/lecture11.html#method-3-matched-pole-zero-mpz",
-    "title": "EGH445 Modern Control",
-    "section": "Method 3: Matched Pole-Zero (MPZ)",
-    "text": "Method 3: Matched Pole-Zero (MPZ)\n\nConcept: This method aims to preserve the locations of the poles and zeros of the continuous controller G_c(s) by mapping them directly to the z-plane using the fundamental relationship z = e^{sT}.\nThree-Step Process:\n\nMap Poles and Zeros:\n\nFor each pole p_i of G_c(s), the corresponding pole in G_d(z) is z_{p_i} = e^{p_i T}.\nFor each zero z_j of G_c(s), the corresponding zero in G_d(z) is z_{z_j} = e^{z_j T}.\nForm the basic structure: \n  G_d(z) = K_d \\frac{\\prod (z - z_{z_j})}{\\prod (z - z_{p_i})}\n  \n\nAdjust Numerator Order (Add Zeros at z=-1):\n\nIf G_c(s) is strictly proper (more poles than zeros), G_d(z) obtained from step 1 will also be strictly proper.\nTo match the phase characteristics or improve response, zeros at z=-1 (corresponding to the Nyquist frequency) are often added to the numerator until its order is equal to or one less than the denominator’s order. This means multiplying the numerator by terms like (z+1) or (1+z^{-1}).\nThis helps average/smooth the input, similar to Tustin’s trapezoidal rule effect.\n\nMatch DC Gain:\n\nAdjust the discrete gain K_d so that the DC gain of G_d(z) matches the DC gain of G_c(s).\nDC gain of G_c(s) is \\lim_{s \\to 0} G_c(s).\nDC gain of G_d(z) is \\lim_{z \\to 1} G_d(z).\nSet these equal and solve for K_d: \n  \\lim_{z \\to 1} K_d \\frac{\\prod (z - z_{z_j})}{\\prod (z - z_{p_i})} (\\text{with any added } (z+1) \\text{ terms}) = \\lim_{s \\to 0} G_c(s)\n  \n\n\nMATLAB function: c2d(Gc, T, 'matched') or c2d(Gc, T, 'mpz')."
-  },
-  {
-    "objectID": "lectures/lecture11.html#matched-pole-zero-mpz-method-1",
-    "href": "lectures/lecture11.html#matched-pole-zero-mpz-method-1",
-    "title": "EGH445 Modern Control",
-    "section": "Matched Pole-Zero (MPZ) Method",
-    "text": "Matched Pole-Zero (MPZ) Method\nPreserves the locations of poles/zeros by mapping them directly using the fundamental relationship z = e^{sT}.\n1. Map Poles and Zeros:\n\nMap poles and zeros of G_c(s) to poles and zeros of G_d(z) using the relationship z = e^{s T}.\nForm the basic structure: G_d(z) = K_d \\frac{\\prod (z - z_{z_j})}{\\prod (z - z_{p_i})}.\n\n2. Adjust Numerator Order (Add Zeros at z=-1):\n\nTo match phase characteristics, zeros at z=-1 (Nyquist frequency) are added to the numerator until its order is equal to or one less than the denominator’s order.\nThis helps average/smooth the input, similar to Tustin’s trapezoidal rule effect.\n\n3. Match DC Gain:\n\nAdjust K_d so that the DC gain of G_d(z) (at z=1) matches the DC gain of G_c(s) (at s=0)."
-  },
-  {
-    "objectID": "lectures/lecture11.html#matched-pole-zero-method-properties",
-    "href": "lectures/lecture11.html#matched-pole-zero-method-properties",
-    "title": "EGH445 Modern Control",
-    "section": "Matched Pole-Zero Method: Properties",
-    "text": "Matched Pole-Zero Method: Properties\nStability Preservation:\n\nThe poles are mapped such that |z| = |e^{sT}| = e^{Re(s)T} &lt; 1, preserving the stability of G_c(s).\n\nFrequency Response:\n\nThe matching of DC gain ensures that the low-frequency response of G_d(z) is similar to G_c(s).\n\n\n\n\n\nComparison to Other Methods:\n\nTustin: Generally better overall frequency response approximation. \nZOH: Exact at sampling instants if the input is staircase. Can introduce phase lag.\nMPZ: Good for preserving specific pole/zero locations and DC gain. Often used when the locations of dominant poles/zeros are critical. \n\n\nMATLAB function: c2d(Gc, T, 'matched') or c2d(Gc, T, 'mpz').\nPython function: control.TransferFunction(num, den).sample(T, 'matched')."
-  },
-  {
-    "objectID": "lectures/lecture11.html#example-discretising-a-continuous-lead-controller",
-    "href": "lectures/lecture11.html#example-discretising-a-continuous-lead-controller",
-    "title": "EGH445 Modern Control",
-    "section": "Example: Discretising a Continuous Lead Controller",
-    "text": "Example: Discretising a Continuous Lead Controller\n\nWe will use the example from the reference PDF to illustrate the discretisation methods.\nContinuous-Time System (Mass-Spring-Damper):\n\nState-space model: \n  \\begin{align*} \\dot{x} &= \\begin{bmatrix} 0 & 1 \\\\ -1 & -2 \\end{bmatrix} x(t) + \\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix} u(t) \\\\ y(t) &= \\begin{bmatrix} 1 & 0 \\end{bmatrix} x(t) \\end{align*}\n   (Parameters: m=1, b=2, c=1, output is displacement x_1).\n\nContinuous-Time Lead Controller G_c(s): \n  G_c(s) = K \\frac{s+a}{s+b} = 2.8 \\frac{s+2}{s+4}\n   This controller was pre-designed for the continuous system.\nTask: Find the equivalent discrete-time controller G_d(z) using:\n\nTustin (Bilinear) Transform\nZero-Order Hold (ZOH) Equivalence\nMatched Pole-Zero (MPZ) Method\n\nWe will consider two sampling times:\n\nPart A: T = 1.0 second\nPart B: T = 0.1 second And compare their performance when controlling the continuous plant.\n\n(Optional: Show a Simulink block diagram sketch of the closed-loop system with the digital controller and continuous plant, indicating Sampler and ZOH around the plant if using a discrete controller with a continuous plant model in Simulink, or around the digital controller if using a fully discrete simulation)."
-  },
-  {
-    "objectID": "lectures/lecture11.html#example-discretising-a-continuous-controller",
-    "href": "lectures/lecture11.html#example-discretising-a-continuous-controller",
-    "title": "EGH445 Modern Control",
-    "section": "Example: Discretising a Continuous Controller",
-    "text": "Example: Discretising a Continuous Controller\n\n\nContinuous-Time System (Mass-Spring-Damper):\n\nState-space model: \n  \\begin{align*} \\dot{x} &= \\begin{bmatrix} 0 & 1 \\\\ -1 & -2 \\end{bmatrix} x(t) + \\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix} u(t) \\\\ y(t) &= \\begin{bmatrix} 1 & 0 \\end{bmatrix} x(t) \\end{align*}\n  \n\n\nContinuous-Time Lead Controller G_c(s): \n    G_c(s) = K \\frac{s+a}{s+b} = 2.8 \\frac{s+2}{s+4}\n     Pre-designed controller for the continuous system.\nTask: Find the discrete-time controller G_d(z)"
-  },
-  {
-    "objectID": "lectures/lecture11.html#section-3",
-    "href": "lectures/lecture11.html#section-3",
-    "title": "EGH445 Modern Control",
-    "section": "",
-    "text": "Task: Find the equivalent discrete-time controller G_d(z) using:\n\nTustin (Bilinear) Transform\nZero-Order Hold (ZOH) Equivalence\nMatched Pole-Zero (MPZ) Method\n\nWe will consider two sampling times:\n\nPart A: T = 1.0 second\nPart B: T = 0.1 second\n\n\nAnd compare their performance when controlling the continuous plant."
-  },
-  {
-    "objectID": "lectures/lecture11.html#example-part-a-tustin-method-t1.0s",
-    "href": "lectures/lecture11.html#example-part-a-tustin-method-t1.0s",
-    "title": "EGH445 Modern Control",
-    "section": "Example Part A: Tustin Method (T=1.0s)",
-    "text": "Example Part A: Tustin Method (T=1.0s)\n\nContinuous Lead Controller: G_c(s) = 2.8 \\frac{s+2}{s+4}\nSampling Time: T=1.0 second.\nTustin Transformation Rule: Substitute s \\leftarrow \\frac{2}{T}\\frac{z-1}{z+1} = \\frac{2(z-1)}{z+1} (since T=1) into G_c(s).\n\n  \\begin{align*} G_d(z) &= 2.8 \\left( \\frac{ \\frac{2(z-1)}{z+1} + 2 }{ \\frac{2(z-1)}{z+1} + 4 } \\right) \\\\ &= 2.8 \\left( \\frac{ 2(z-1) + 2(z+1) }{ 2(z-1) + 4(z+1) } \\right) \\quad \\text{(Multiply num/den by }(z+1)\\text{)} \\\\ &= 2.8 \\left( \\frac{ 2z - 2 + 2z + 2 }{ 2z - 2 + 4z + 4 } \\right) \\\\ &= 2.8 \\left( \\frac{ 4z }{ 6z + 2 } \\right) = 2.8 \\left( \\frac{ 2z }{ 3z + 1 } \\right)= \\frac{5.6z}{3z+1} = \\frac{1.8667z}{z+0.3333} \\end{align*}"
-  },
-  {
-    "objectID": "lectures/lecture11.html#slide-title",
-    "href": "lectures/lecture11.html#slide-title",
-    "title": "EGH445 Modern Control",
-    "section": "Slide Title",
-    "text": "Slide Title\n\nMATLAB Implementation:\n\n\n\n% MATLAB Code Snippet\nK_c = 2.8;\nGc_s = tf(K_c*[1 2], [1 4]);\nT = 1.0;\nGd_tustin = c2d(Gc_s, T, 'tustin');\ndisp('Gd_tustin (T=1.0s):');\ndisp(Gd_tustin);\n\n\n\n\nAnalysis (from PDF):\n\nThe PDF (page 17) shows a step response plot where this controller (F_C(Z)G(S) curve) is applied to the continuous plant. It notes “Poor/Undesirable Performance” for T=1.0s with Tustin.\n(Optional: Include a simplified version of the plot from PDF page 17 or your own generated plot showing this specific case.)"
-  },
-  {
-    "objectID": "lectures/lecture11.html#section-4",
-    "href": "lectures/lecture11.html#section-4",
-    "title": "EGH445 Modern Control",
-    "section": "",
-    "text": "MATLAB Implementation\n\n\n% MATLAB Code Snippet\nK_c = 2.8;\nGc_s = tf(K_c*[1 2], [1 4]);\nT = 1.0;\nGd_tustin = c2d(Gc_s, T, 'tustin')\n\n   1.867 z\n  ----------\n  z + 0.3333\n\n\n\n\n\n\n\n\n\n\nStable\nPoor performance"
-  },
-  {
-    "objectID": "lectures/lecture11.html#example-part-a-zoh-method-t1.0s",
-    "href": "lectures/lecture11.html#example-part-a-zoh-method-t1.0s",
-    "title": "EGH445 Modern Control",
-    "section": "Example Part A: ZOH Method (T=1.0s)",
-    "text": "Example Part A: ZOH Method (T=1.0s)\n\nContinuous Lead Controller: G_c(s) = 2.8 \\frac{s+2}{s+4}\nSampling Time: T=1.0 second.\nZOH Transformation Rule: G_d(z) = (1-z^{-1}) \\mathcal{Z}\\left\\{\\frac{G_c(s)}{s}\\right\\}\nStep 1: Find \\frac{G_c(s)}{s} \n  \\frac{G_c(s)}{s} = 2.8 \\frac{s+2}{s(s+4)}\n   Using partial fraction expansion: \n  \\frac{s+2}{s(s+4)} = \\frac{A}{s} + \\frac{B}{s+4} = \\frac{0.5}{s} + \\frac{0.5}{s+4}\n   So, \\frac{G_c(s)}{s} = 2.8 \\left( \\frac{0.5}{s} + \\frac{0.5}{s+4} \\right) = \\frac{1.4}{s} + \\frac{1.4}{s+4}."
-  },
-  {
-    "objectID": "lectures/lecture11.html#section-5",
-    "href": "lectures/lecture11.html#section-5",
-    "title": "EGH445 Modern Control",
-    "section": "",
-    "text": "Step 2: Find \\mathcal{Z}\\left\\{\\frac{G_c(s)}{s}\\right\\}\n\n\\mathcal{Z}\\left\\{\\frac{1.4}{s}\\right\\} = 1.4 \\frac{z}{z-1}\n\\mathcal{Z}\\left\\{\\frac{1.4}{s+4}\\right\\} = 1.4 \\frac{z}{z-e^{-4T}} = 1.4 \\frac{z}{z-e^{-4}} (since T=1)\nSo, \\mathcal{Z}\\left\\{\\frac{G_c(s)}{s}\\right\\} = 1.4 \\left( \\frac{z}{z-1} + \\frac{z}{z-e^{-4}} \\right).\n\nStep 3: Calculate G_d(z) \n  \\begin{align*} G_d(z) &= \\frac{z-1}{z} \\cdot 1.4 \\left( \\frac{z}{z-1} + \\frac{z}{z-e^{-4}} \\right) \\\\ &= 1.4 \\left( 1 + \\frac{z-1}{z-e^{-4}} \\right) = 1.4 \\left( \\frac{z-e^{-4} + z-1}{z-e^{-4}} \\right) \\\\ &= 1.4 \\frac{2z - (1+e^{-4})}{z-e^{-4}}\n  = \\frac{2.8z - 1.4256}{z - 0.0183}\n  \\end{align*}"
-  },
-  {
-    "objectID": "lectures/lecture11.html#section-6",
-    "href": "lectures/lecture11.html#section-6",
-    "title": "EGH445 Modern Control",
-    "section": "",
-    "text": "Marginally stable\nOscillatory behaviour"
-  },
-  {
-    "objectID": "lectures/lecture11.html#example-part-a-mpz-method-t1.0s",
-    "href": "lectures/lecture11.html#example-part-a-mpz-method-t1.0s",
-    "title": "EGH445 Modern Control",
-    "section": "Example Part A: MPZ Method (T=1.0s)",
-    "text": "Example Part A: MPZ Method (T=1.0s)\n\nContinuous Lead Controller: G_c(s) = 2.8 \\frac{s+2}{s+4}\nSampling Time: T=1.0 second.\n\n\nMap Poles and Zeros:\n\nZero of G_c(s): s_z = -2 \\implies z_z = e^{-2T} = e^{-2} \\approx 0.1353.\nPole of G_c(s): s_p = -4 \\implies z_p = e^{-4T} = e^{-4} \\approx 0.0183.\nBasic structure: G_d(z) = K_d' \\frac{z - e^{-2}}{z - e^{-4}}.\n\nAdjust Numerator Order:\n\nThe numerator and denominator are already of the same order (both first order). No additional zeros at z=-1 are needed in this case."
-  },
-  {
-    "objectID": "lectures/lecture11.html#section-7",
-    "href": "lectures/lecture11.html#section-7",
-    "title": "EGH445 Modern Control",
-    "section": "",
-    "text": "Match DC Gain:\n\nDC gain of G_c(s): \\lim_{s \\to 0} 2.8 \\frac{s+2}{s+4} = 2.8 \\frac{2}{4} = 1.4.\nDC gain of G_d(z): \\lim_{z \\to 1} K_d' \\frac{z - e^{-2}}{z - e^{-4}} = K_d' \\frac{1 - e^{-2}}{1 - e^{-4}}.\nEquating: K_d' \\frac{1 - e^{-2}}{1 - e^{-4}} = 1.4.\nK_d' = 1.4 \\frac{1 - e^{-4}}{1 - e^{-2}} = 1.4 \\frac{1 - 0.018316}{1 - 0.135335} \\approx 1.5895.\nSo, G_d(z) = 1.5895 \\frac{z - 0.1353}{z - 0.0183} = \\frac{1.5895z - 0.2151}{z - 0.0183}."
-  },
-  {
-    "objectID": "lectures/lecture11.html#section-8",
-    "href": "lectures/lecture11.html#section-8",
-    "title": "EGH445 Modern Control",
-    "section": "",
-    "text": "Stable\nPoor performance"
-  },
-  {
-    "objectID": "lectures/lecture11.html#comparison-t1.0s-and-t0.1s",
-    "href": "lectures/lecture11.html#comparison-t1.0s-and-t0.1s",
-    "title": "EGH445 Modern Control",
-    "section": "Comparison T=1.0s and T=0.1s",
-    "text": "Comparison T=1.0s and T=0.1s\n\n\n\n\n\n\n\nThank you."
-  },
-  {
-    "objectID": "2025/week11.html#student-voice-surveys",
-    "href": "2025/week11.html#student-voice-surveys",
-    "title": "EGH445 Modern Control",
-    "section": "Student Voice Surveys",
-    "text": "Student Voice Surveys"
-  },
-  {
-    "objectID": "2025/week11.html#student-support",
-    "href": "2025/week11.html#student-support",
-    "title": "EGH445 Modern Control",
-    "section": "Student Support",
-    "text": "Student Support"
-  },
-  {
-    "objectID": "2025/week11.html#student-voice-surveys-1",
-    "href": "2025/week11.html#student-voice-surveys-1",
-    "title": "EGH445 Modern Control",
-    "section": "Student Voice Surveys",
-    "text": "Student Voice Surveys"
-  },
-  {
-    "objectID": "2025/week11.html#student-support-1",
-    "href": "2025/week11.html#student-support-1",
-    "title": "EGH445 Modern Control",
-    "section": "Student Support",
-    "text": "Student Support"
-  },
-  {
-    "objectID": "2025/week11.html#student-support-2",
-    "href": "2025/week11.html#student-support-2",
-    "title": "EGH445 Modern Control",
-    "section": "Student Support",
-    "text": "Student Support"
+    "section": "Network instability",
+    "text": "Network instability\nIf an individual system is stable, is the network stable?"
   }
 ]

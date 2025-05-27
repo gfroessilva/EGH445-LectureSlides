@@ -9,7 +9,7 @@
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.7.27">
 
-  <title>EGH445 Modern Control – week11</title>
+  <title>EGH445 Modern Control – week11_workshop</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -29,9 +29,27 @@
     }
   </style>
   <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-975a98f3d01d5216602c495b1e7ef403.css">
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
   <link href="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
@@ -44,6 +62,7 @@
     }
     .reveal .slide:not(.center) {
       height: 100%;
+      overflow-y: auto;
     }
     .reveal .slide.scrollable {
       overflow-y: auto;
@@ -137,30 +156,327 @@
     <div class="slides">
 
 
-<section id="student-voice-surveys" class="slide level2" data-header-left="Week 11" data-header-right="Events">
-<h2>Student Voice Surveys</h2>
-
-<img data-src="images/Survey_Slide1.PNG" style="width:80.0%" class="r-stretch"></section>
-<section id="student-voice-surveys-1" class="slide level2" data-header-left="Week 11" data-header-right="Events">
-<h2>Student Voice Surveys</h2>
-
-<img data-src="images/Survey_Slide2.PNG" class="r-stretch"></section>
-<section id="student-support" class="slide level2" data-header-left="Week 11" data-header-right="Opportunities">
-<h2>Student Support</h2>
-<div style="width: 80%">
-<p><a href="qut.to/academicsupport"><img data-src="images/Student-Success-Writing-Help/Slide1.PNG"></a></p>
+<section id="title-slide" class="slide level2 title-slide-custom center" data-state="titleslide">
+<h2>Title Slide</h2>
+<div class="logo-container-title">
+<p><img src="../qut_logo.jpg" alt="QUT Logo"></p>
+</div>
+<div class="title-block">
+<h1>
+Modern Control
+</h1>
+<h2>
+Week 11 Workshop
+</h2>
+</div>
+<div class="author-block-title">
+<p>Dr Guilherme Froes Silva<br> School of Electrical Engineering &amp; Robotics<br> Queensland University of Technology</p>
+</div>
+<div class="course-code-title">
+<p>EGH445 - Modern Control</p>
+</div>
+<!-- <div class="website-link-title">
+  <a href="../index.html">
+    Website
+  </a>
+</div> -->
+<div class="contact-box-title">
+<p>Consultation: GP-S1111<br> Email: g.froessilva@qut.edu.au</p>
 </div>
 </section>
-<section id="student-support-1" class="slide level2" data-header-left="Week 11" data-header-right="Opportunities">
-<h2>Student Support</h2>
+<section>
+<section id="overview" class="title-slide slide level1 center">
+<h1>Overview</h1>
+<ul>
+<li>Student Voice Survey</li>
+<li>Lecture Highlights</li>
+<li>Workshop Example</li>
+</ul>
+</section>
+<section class="slide level2">
 
-<img data-src="images/Student-Success-Writing-Help/Slide2.PNG" class="r-stretch"></section>
-<section id="student-support-2" class="slide level2" data-header-left="Week 11" data-header-right="Opportunities">
-<h2>Student Support</h2>
+
+<img data-src="images/Survey_Slide1.PNG" alt="Survey Slide 1" class="r-stretch"></section></section>
+<section>
+<section id="lecture-highlights-week-11" class="title-slide slide level1 center">
+<h1>Lecture Highlights (Week 11)</h1>
+<p><img data-src="images/2025_Schedule.png" alt="2025 Schedule" height="550"></p>
+</section>
+<section id="practical-considerations-lecture-content" class="slide level2">
+<h2>Practical Considerations: Lecture Content</h2>
+<p><span class="subtitle"><em>Bridging the gap between ideal control theory and real-world implementation.</em></span></p>
+<div class="columns">
+<div class="column">
+<p><img data-src="images/lec10.png" alt="Lecture 10 Title Slide"></p>
+</div><div class="column">
+<p><strong>Overview</strong></p>
+<ul>
+<li>State and output feedback control.</li>
+<li>LQR and Kalman filters tuning.</li>
+<li>Limitations of these ideal methods.</li>
+<li><strong>Emulation design</strong>.</li>
+</ul>
+</div></div>
+</section>
+<section id="practical-considerations-key-topics" class="slide level2 smaller">
+<h2>Practical Considerations: Key Topics</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>LQR Design in Practice</strong></p>
+<ul>
+<li><strong>Tuning <span class="math inline">Q</span> and <span class="math inline">R</span>:</strong>
+<ul>
+<li>Starting points (diagonal matrices, Bryson’s Rule).</li>
+<li>Impact of <span class="math inline">Q/R</span> ratio.</li>
+<li>Iterative tuning strategies.</li>
+</ul></li>
+<li>Limitations (model accuracy, constraint handling).</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<p><strong>Kalman Filter (KF) Design in Practice</strong></p>
+<ul>
+<li><strong>Tuning <span class="math inline">Q</span> and <span class="math inline">R</span>:</strong>
+<ul>
+<li>Starting points (datasheets, expected errors).</li>
+<li>Impact of <span class="math inline">Q/R</span> ratio.</li>
+<li>Iterative tuning strategies. <!-- * Tuning strategies for $Q$ and $R$. --></li>
+</ul></li>
+<li>Residual error analysis for performance evaluation.</li>
+</ul>
+</div></div>
+<div style="font-size: 1.2em;">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Emulation Design: Continuous to Digital Controllers</strong></p>
+</div>
+<div class="callout-content">
+<p>Emulating continuous controllers.</p>
+<ul>
+<li>Tustin (Bilinear) Transformation.</li>
+<li>Zero-Order Hold (ZOH) Equivalence.</li>
+<li>Matched Pole-Zero (MPZ) Method.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="lqr-design-in-practice" class="slide level2 smaller">
+<h2>LQR Design in Practice</h2>
+<p>Find <span class="math inline">u(kT) = -Kx(kT)</span> to minimise <span class="math inline">J = \sum_{k=0}^{\infty} \left( x(kT)^T Q x(kT) + u(kT)^T R u(kT) \right)</span>.</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>Starting Point:</strong></p>
+<p><span class="math inline">Q = V^\intercal V = \text{diag}(q_i)</span> and <span class="math inline">R = \text{diag}(r_j)</span>.</p>
+<ul>
+<li><span class="math inline">q_i</span> penalises state <span class="math inline">x_i</span> deviation.</li>
+<li><span class="math inline">r_j</span> penalises control input <span class="math inline">u_j</span> effort.</li>
+<li><span class="math inline">\text{Obsv}(G, V)</span> ensures all states influence <span class="math inline">J</span>.</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<p><strong>Iterative Tuning (Simulate &amp; Observe):</strong></p>
+<ul>
+<li>States <span class="math inline">x(kT)</span> converge too slowly?
+<ul>
+<li>Increase elements in <span class="math inline">Q</span> (or decrease <span class="math inline">R</span>).</li>
+</ul></li>
+<li>Control effort <span class="math inline">u(kT)</span> too high/saturating?
+<ul>
+<li>Increase elements in <span class="math inline">R</span> (or decrease <span class="math inline">Q</span>).</li>
+</ul></li>
+</ul>
+</div></div>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>LQR Limitations to Remember</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li>Performance depends on an <strong>accurate linear model</strong> (<span class="math inline">G, H</span>).</li>
+<li>Standard LQR <strong>does not handle constraints</strong> (e.g., actuator saturation <span class="math inline">u_{min} \le u(kT) \le u_{max}</span>) explicitly. Simply saturating the LQR output can lead to issues.
+<ul>
+<li>Model Predictive Control (MPC) is an alternative for systems with hard constraints.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="kalman-filter-design-in-practice" class="slide level2 smaller">
+<h2>Kalman Filter Design in Practice</h2>
+<div style="font-size: 0.8em;">
+<p>Estimates states for linear systems with Gaussian noise: <span class="math display"> \begin{align*} x(kT+T) &amp;= Gx(kT) + Hu(kT) + w(kT), \qquad y(kT) &amp;= Cx(kT) + v(kT) \end{align*} </span> where <span class="math inline">w(kT) \sim N(0, Q)</span> is process noise and <span class="math inline">v(kT) \sim N(0, R)</span> is measurement noise.</p>
+</div>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong><strong>The Tuning Challenge:</strong></strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li><strong>True <span class="math inline">Q</span> and <span class="math inline">R</span> are usually unknown.</strong></li>
+<li>If <span class="math inline">Q/R</span> is too small (trust model too much):
+<ul>
+<li>Filter ignores measurements, estimates converge slowly, may drift if model is inaccurate.</li>
+</ul></li>
+<li>If <span class="math inline">Q/R</span> is too large (trust measurements too much):
+<ul>
+<li>Filter follows noisy measurements closely, estimates become noisy.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong><strong>Tuning Strategies:</strong></strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li><strong>Choosing <span class="math inline">R</span> (Measurement Noise Covariance):</strong>
+<ul>
+<li><span class="math inline">R \in \mathbb{R}^{p \times p}</span>. Often <span class="math inline">R = \text{diag}(\sigma_{v_i}^2)</span>.</li>
+<li>Sensor datasheets and/or experimental data.</li>
+</ul></li>
+<li><strong>Choosing <span class="math inline">Q</span> (Process Noise Covariance):</strong>
+<ul>
+<li><span class="math inline">Q \in \mathbb{R}^{n \times n}</span> Often <span class="math inline">Q = \text{diag}(\sigma_{w_i}^2)</span>.</li>
+<li><span class="math inline">\sigma_{w_i}^2</span> reflects expected deviation of <span class="math inline">x_i</span> (physical intuition).</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+</div></div>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong><strong>Assessment Focus (KF):</strong></strong></p>
+</div>
+<div class="callout-content">
+<p>You are expected to know <em>what</em> it does, <em>why/when</em> it’s useful, and <em>how</em> to tune it (i.e., the role of <span class="math inline">Q</span>, <span class="math inline">R</span>), not the mathematical derivations.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="emulation-design-continuous-to-digital" class="slide level2 smaller scrollable">
+<h2>Emulation Design – Continuous to Digital</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<p><strong>Why Emulate?</strong></p>
+<ul>
+<li>Use continuous control design techniques (e.g., PID, lead-lag).</li>
+<li>Sometimes easier to get intuition and design in the <span class="math inline">s</span>-domain.</li>
+<li>Implement advanced continuous controllers digitally.</li>
+</ul>
+</div><div class="column" style="width:40%;">
+<p><img data-src="../lectures/images/lec11_c2d_controller.png"> <em><small>Source: Lecture 11 Slides, EGH445.</small></em></p>
+</div></div>
+<!-- **Emulation vs. Direct Digital Design:** -->
+<div class="columns">
+<div class="column">
+<ul>
+<li><strong>Emulation:</strong>
+<ol type="1">
+<li>Design <span class="math inline">G_c(s)</span> for the continuous plant <span class="math inline">P(s)</span>.</li>
+<li>Discretise <span class="math inline">G_c(s) \rightarrow G_d(z)</span>.</li>
+<li>Implement <span class="math inline">G_d(z)</span> to control <span class="math inline">P(s)</span>.</li>
+</ol></li>
+</ul>
+</div><div class="column">
+<ul>
+<li><strong>Direct Design:</strong>
+<ol type="1">
+<li>Discretise plant <span class="math inline">P(s) \rightarrow P_d(z)</span>.</li>
+<li>Design <span class="math inline">G_d(z)</span> directly for <span class="math inline">P_d(z)</span>.</li>
+</ol></li>
+</ul>
+</div></div>
+</section>
+<section id="emulation-design-discretisation-methods" class="slide level2 smaller">
+<h2>Emulation Design – Discretisation Methods</h2>
+<p><span class="subtitle">How to convert <span class="math inline">G_c(s)</span> into <span class="math inline">G_d(z)</span>?</span></p>
+<div class="columns">
+<div class="column" style="width:33%;">
+<p><strong>Tustin (Bilinear) Transformation</strong></p>
+<hr>
+<p><span class="math inline">\small G_d(z) = G_c\left(\frac{2}{T} \frac{z-1}{z+1}\right)</span>.</p>
+</div><div class="column" style="width:33%;">
+<p><strong>Zero-Order Hold (ZOH)</strong></p>
+<hr>
+<p><span class="math inline">\small G_d(z) = (1-z^{-1}) \mathcal{Z}\left\{\frac{G_c(s)}{s}\right\}</span>.</p>
+</div><div class="column" style="width:33%;">
+<p><strong>Matched Pole-Zero (MPZ)</strong></p>
+<hr>
+<p><span class="math inline">\small G_d(z) = K_d \frac{\prod (z - z_{z_j})}{\prod (z - z_{p_i})}</span>,</p>
+<p><span class="math inline">\small z_{p_i} = e^{s_{p_i} T}</span>, <span class="math inline">\small z_{z_j} = e^{s_{z_j} T}</span>.</p>
+<p>Add zeros at <span class="math inline">z=-1</span>.</p>
+<p><span class="math inline">K_d</span> is adjusted to match DC gain.</p>
+</div></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong><strong>Choosing a Method &amp; Sampling Time <span class="math inline">T</span></strong></strong></p>
+</div>
+<div class="callout-content">
+<p>The choice depends on the specific application, the characteristics of <span class="math inline">G_c(s)</span>, and the desired properties of <span class="math inline">G_d(z)</span>.</p>
+<p>A sufficiently small <span class="math inline">T</span> is crucial for all methods to ensure <span class="math inline">G_d(z)</span> accurately approximates <span class="math inline">G_c(s)</span>.</p>
+<p><strong>Rule of thumb:</strong> sampling frequency 10-20 times faster than the fastest pole of <span class="math inline">G_c(s)</span>.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section id="workshop-example" class="title-slide slide level1 smaller center">
+<h1>Workshop Example</h1>
+<p>Hodgkin-Huxley neuron model</p>
+<div class="columns">
+<div class="column">
+<p><img data-src="images/Hodgkin-Huxley.jpeg" alt="Hodgkin-Huxley Neuron"></p>
+</div><div class="column" style="font-size: 0.7em;">
+<p><span class="math display">
+\begin{align*}
+\dot V &amp;= \frac{1}{C_m} - \frac{\bar g_k}{C_m} (V - V_k) - \frac{\bar g_{Na}}{C_m} m^3 h (V - V_{Na}) - \frac{\bar g_{l}}{C_m} (V - V_{l}) \\
+\dot n &amp;= \alpha_n(V) (1 - n) - \beta_n(V) n \\
+\dot m &amp;= \alpha_m(V) (1 - m) - \beta_m(V) m \\
+\dot h &amp;= \alpha_h(V) (1 - h) - \beta_h(V) h
+\end{align*}
+</span></p>
+<p>where:</p>
+<p><span class="math display">
+\begin{align*}
+\alpha_n(V) &amp;= \frac{0.01 (10 - V)}{e^{(10 - V)/10} - 1} &amp; \beta_n(V) &amp;= 0.125 e^{-V/80} \\
+\alpha_m(V) &amp;= \frac{0.1 (25 - V)}{e^{(25 - V)/10} - 1} &amp; \beta_m(V) &amp;= 4 e^{-V/18} \\
+\alpha_h(V) &amp;= 0.07 e^{-V/20} &amp; \beta_h(V) &amp;= \frac{1}{e^{(30 - V)/10} + 1}
+\end{align*}
+</span></p>
+</div></div>
 
 
-
-<img data-src="images/Student-Success-Writing-Help/Slide3.PNG" class="r-stretch"></section>
+</section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
@@ -175,6 +491,7 @@
   <script src="../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
   <script src="../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
   <script src="../site_libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
@@ -195,7 +512,8 @@
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
-'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
 'smaller': false,
  
         // Display controls in the bottom right corner
@@ -349,7 +667,7 @@
         margin: 0.1,
 
         // reveal.js plugins
-        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
 
           RevealNotes,
           RevealSearch,

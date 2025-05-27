@@ -22,6 +22,16 @@ $highlight-box-border: #A0C4E4; // Slightly darker blue border (guess)
 
 /*-- scss:rules --*/
 
+.qut-blue {
+  color: $qut-blue; /* QUT Blue */
+}
+
+.subtitle {
+  font-size: 0.8em; /* Adjust subtitle size */
+  font-style: italic; /* Italicize subtitle */
+  color: $footer-color; /* Use footer color */
+}
+
 .list-style-numbered ul{
   list-style-type: decimal; /* Remove bullets */
   // padding-left: 0; /* Remove default padding */

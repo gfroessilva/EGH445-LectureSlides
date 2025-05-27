@@ -9,7 +9,7 @@
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.7.27">
 
-  <title>EGH445 Modern Control – week11</title>
+  <title>EGH445 Modern Control – lecture12</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -27,11 +27,95 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
   <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-975a98f3d01d5216602c495b1e7ef403.css">
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
   <link href="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
   <link href="../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
@@ -44,6 +128,7 @@
     }
     .reveal .slide:not(.center) {
       height: 100%;
+      overflow-y: auto;
     }
     .reveal .slide.scrollable {
       overflow-y: auto;
@@ -137,30 +222,449 @@
     <div class="slides">
 
 
-<section id="student-voice-surveys" class="slide level2" data-header-left="Week 11" data-header-right="Events">
-<h2>Student Voice Surveys</h2>
-
-<img data-src="images/Survey_Slide1.PNG" style="width:80.0%" class="r-stretch"></section>
-<section id="student-voice-surveys-1" class="slide level2" data-header-left="Week 11" data-header-right="Events">
-<h2>Student Voice Surveys</h2>
-
-<img data-src="images/Survey_Slide2.PNG" class="r-stretch"></section>
-<section id="student-support" class="slide level2" data-header-left="Week 11" data-header-right="Opportunities">
-<h2>Student Support</h2>
-<div style="width: 80%">
-<p><a href="qut.to/academicsupport"><img data-src="images/Student-Success-Writing-Help/Slide1.PNG"></a></p>
+<section id="title-slide" class="slide level2 title-slide-custom center" data-state="titleslide">
+<h2>Title Slide</h2>
+<div class="logo-container-title">
+<p><img src="../qut_logo.jpg" alt="QUT Logo"></p>
+</div>
+<div class="title-block">
+<h1>
+Advanced Topics
+</h1>
+<h2>
+Active Research Fields
+</h2>
+</div>
+<div class="author-block-title">
+<p>Dr Guilherme Froes Silva<br> School of Electrical Engineering &amp; Robotics<br> Queensland University of Technology</p>
+</div>
+<div class="course-code-title">
+<p>EGH445 - Modern Control</p>
+</div>
+<!-- <div class="website-link-title">
+  <a href="../index.html">
+    Website
+  </a>
+</div> -->
+<div class="contact-box-title">
+<p>Consultation: GP-S1111<br> Email: g.froessilva@qut.edu.au</p>
 </div>
 </section>
-<section id="student-support-1" class="slide level2" data-header-left="Week 11" data-header-right="Opportunities">
-<h2>Student Support</h2>
+<section id="overview" class="title-slide slide level1 center" data-state="overview">
+<h1>Overview</h1>
+<ul>
+<li class="fragment">Announcements (marking, demonstration, etc.)</li>
+<li class="fragment">Recap: state-feedback and estimation</li>
+<li class="fragment">Implementation: hardware and software</li>
+<li class="fragment">Energy-based control</li>
+<li class="fragment">Multi-agent systems</li>
+</ul>
+<!-- - Learning-based Control & Adaptive Control -->
+</section>
 
-<img data-src="images/Student-Success-Writing-Help/Slide2.PNG" class="r-stretch"></section>
-<section id="student-support-2" class="slide level2" data-header-left="Week 11" data-header-right="Opportunities">
-<h2>Student Support</h2>
+<section>
+<section id="state-feedback-and-estimation" class="title-slide slide level1 center">
+<h1>State-Feedback and Estimation</h1>
+<div class="columns">
+<div class="column">
+<ul>
+<li class="fragment">State-feedback control
+<ul>
+<li class="fragment">Pole placement</li>
+<li class="fragment">Linear quadratic regulator (LQR)</li>
+<li class="fragment">Integral action</li>
+</ul></li>
+</ul>
+</div><div class="column">
+<ul>
+<li class="fragment">State estimation
+<ul>
+<li class="fragment">Luenberger observer</li>
+<li class="fragment">Kalman filter</li>
+</ul></li>
+</ul>
+</div></div>
+</section>
+<section id="recap-state-feedback-and-estimation" class="slide level2 smaller">
+<h2>Recap: State-Feedback and Estimation</h2>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Modelling discrete-time state-space systems:</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display"> x(kT+T) = Gx(kT) + Hu(kT) </span> <span class="math display"> y(kT) = Cx(kT) + Du(kT) </span></p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>State-Feedback Control, designing <span class="math inline">u(kT) = -Kx(kT)</span> for:</strong></p>
+</div>
+<div class="callout-content">
+<div class="columns">
+<div class="column" style="width:33%;">
+<ul>
+<li class="fragment">Arbitrary pole placement.</li>
+</ul>
+</div><div class="column" style="width:33%;">
+<ul>
+<li class="fragment">Optimal performance via LQR.</li>
+</ul>
+</div><div class="column" style="width:33%;">
+<ul>
+<li class="fragment">Integral action.</li>
+</ul>
+</div></div>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>State Estimation (Observers), when <span class="math inline">x(kT)</span> isn’t fully measurable:</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display"> \hat{x}(kT+T) = (G - L_dC)\hat{x}(kT) + Hu(kT) + L_dy(kT) </span></p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Output Feedback, combining control and estimation (Separation Principle)</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display"> u(kT) = -K\hat{x}(kT) </span></p>
+</div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="controller-implementation" class="title-slide slide level1 center">
+<h1>Controller Implementation</h1>
+<p><span class="subtitle">How discrete-time control laws <span class="math inline">u(kT) = -Kx(kT)</span> run on a physical system?</span></p>
+<div class="columns">
+<div class="column">
+<ul>
+<li class="fragment">Common hardware platforms
+<ul>
+<li class="fragment">Development boards</li>
+<li class="fragment">Microcontrollers</li>
+<li class="fragment">Industrial controllers</li>
+</ul></li>
+</ul>
+</div><div class="column">
+<ul>
+<li class="fragment">Software considerations
+<ul>
+<li class="fragment">Discrete control loop</li>
+<li class="fragment">Interrupts</li>
+<li class="fragment">Latency</li>
+</ul></li>
+</ul>
+</div></div>
+</section>
+<section id="the-digital-control-loop" class="slide level2 smaller scrollable">
+<h2>The Digital Control Loop</h2>
+<ol type="1">
+<li class="fragment"><strong>Sample</strong> sensor data (e.g., position) at time <span class="math inline">kT</span>. Requires Analog-to-Digital Conversion (ADC)<sup>1</sup>.</li>
+<li class="fragment"><strong>Compute</strong> the control input <span class="math inline">u(kT)</span> using the discretised control law and the sampled (or estimated) states.</li>
+<li class="fragment"><strong>Apply</strong> the control input to actuators (e.g., motors). Requires Digital-to-Analog Conversion (DAC).</li>
+</ol>
+<div class="fragment">
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>This entire Sample-Compute-Actuate cycle must execute reliably <strong>within each sampling period <span class="math inline">T</span>!</strong></p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>Implementation involves choices about:</p>
+<ul>
+<li class="fragment"><strong>Hardware Platform.</strong></li>
+<li class="fragment"><strong>Software Environment.</strong></li>
+<li class="fragment"><strong>Interfacing sensors and actuators.</strong></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<aside><ol class="aside-footnotes"><li id="fn1"><p>Think of fixed-point versus float-point precision</p></li></ol></aside></section>
+<section id="hardware-development-boards" class="slide level2">
+<h2>Hardware: Development Boards</h2>
+<ul>
+<li>Common development boards
+<ul>
+<li><span class="fragment" data-fragment-index="1">Arduino, Teensy, etc.</span></li>
+<li><span class="fragment" data-fragment-index="2">dSpace DS1104, MicroLabBox, etc.</span></li>
+</ul></li>
+</ul>
+<div class="columns">
+<div class="column">
+<p><span class="fragment" data-fragment-index="1"><img data-src="images/tensy.jpg" height="300"></span></p>
+</div><div class="column">
+<p><span class="fragment" data-fragment-index="2"><img data-src="images/dSpaceDS1104.jpeg" height="300"></span></p>
+</div></div>
+</section>
+<section id="hardware-microcontrollers" class="slide level2">
+<h2>Hardware: Microcontrollers</h2>
+<ul>
+<li class="fragment">Common microcontrollers
+<ul>
+<li class="fragment">8-bit: Pic, ATmega (arduino), etc.</li>
+<li class="fragment">16-bit: MSP430, PIC24, etc.</li>
+<li class="fragment">32-bit: ARM Cortex-M, STM32, etc.</li>
+</ul></li>
+</ul>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>Microcontrollers are often the first choice of hardware in embedded systems due to their low cost and inclusion of peripherals (ADC, DAC, timers, PWM generators, etc.).</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="hardware-industrial-controllers" class="slide level2">
+<h2>Hardware: Industrial Controllers</h2>
+<p><span class="subtitle">Programmable Logic Controllers (PLCs)</span></p>
+<p>Built for <strong>industrial environments:</strong> Rugged, reliable, and modular.</p>
+<ul>
+<li class="fragment">Siemens S7 series</li>
+<li class="fragment">Rockwell Automation ControlLogix</li>
+<li class="fragment">Schneider Electric Modicon</li>
+</ul>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Programmed using <strong>IEC 61131-3 standards</strong></strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment">Ladder Logic (LD), Function Block Diagram (FBD), Structured Text (ST), Instruction List (IL), Sequential Function Chart (SFC).</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="software-discrete-control-loop" class="slide level2 smaller">
+<h2>Software: Discrete Control Loop</h2>
+<p>Control Law: <span class="math inline">u(kT) = -K\hat{x}(kT)</span> (using estimate)</p>
+<div class="sourceCode" id="cb1" data-code-line-numbers="|3-7|20"><pre class="sourceCode numberSource pseudo number-lines code-with-copy"><code class="sourceCode"><span id="cb1-1"><a></a>// --- Initialization (This is Pseudo-code) ---</span>
+<span id="cb1-2"><a></a>// Controller &amp; Observer Parameters (loaded from design)</span>
+<span id="cb1-3"><a></a>Matrix G, H, C, D;       // System model (D might be zero)</span>
+<span id="cb1-4"><a></a>Matrix K_gain;           // State-feedback gain</span>
+<span id="cb1-5"><a></a>Matrix Ld_gain;          // Observer gain</span>
+<span id="cb1-6"><a></a>Vector x_hat_k;          // Estimated state (current, initialized appropriately)</span>
+<span id="cb1-7"><a></a>Scalar T_sampling;       // Sampling period</span>
+<span id="cb1-8"><a></a></span>
+<span id="cb1-9"><a></a>initialize_ADC_DAC_timers();</span>
+<span id="cb1-10"><a></a>configure_timer_interrupt(T_sampling, &amp;control_loop_ISR);</span>
+<span id="cb1-11"><a></a>enable_interrupts();</span>
+<span id="cb1-12"><a></a>// x_hat_k = initial_estimate (e.g., zeros or best guess)</span>
+<span id="cb1-13"><a></a></span>
+<span id="cb1-14"><a></a>// --- Real-Time Loop (Interrupt Service Routine - ISR) ---</span>
+<span id="cb1-15"><a></a>// This function is called by the hardware timer every T_sampling seconds</span>
+<span id="cb1-16"><a></a>function control_loop_ISR() {</span>
+<span id="cb1-17"><a></a>// 1. SAMPLE SENSORS</span>
+<span id="cb1-18"><a></a>Vector y_k = read_ADCs(); // Get current output y(kT)</span>
+<span id="cb1-19"><a></a>// 2. COMPUTE (State Estimation - Luenberger Observer Example)</span>
+<span id="cb1-20"><a></a>x_hat_k = (G - Ld_gain * C) * x_hat_k + H * u_k + Ld_gain * y_k; // Think about how to implement this in a small Arduino Uno.</span>
+<span id="cb1-21"><a></a>// 3. COMPUTE (Control Law)</span>
+<span id="cb1-22"><a></a>Vector u_k = -K_gain * x_hat_k; // Control input</span>
+<span id="cb1-23"><a></a>// 4. ACTUATE</span>
+<span id="cb1-24"><a></a>apply_DAC_or_PWM(u_k);</span>
+<span id="cb1-25"><a></a>...</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="real-time-challenges" class="slide level2 smaller">
+<h2>Real-Time Challenges</h2>
+<ul>
+<li class="fragment">Computational Delay
+<ul>
+<li class="fragment">Time taken to compute control law</li>
+<li class="fragment">Time taken to read sensors and actuate</li>
+<li class="fragment">Time taken to execute the control loop</li>
+</ul></li>
+<li class="fragment">Timing Jitter
+<ul>
+<li class="fragment">Variability in timing of control loop execution</li>
+<li class="fragment">Can be caused by interrupts, other processes, etc.</li>
+</ul></li>
+<li class="fragment">Resources
+<ul>
+<li class="fragment">Memory limitations</li>
+<li class="fragment">Size of program (linear algebra libraries, etc.)</li>
+</ul></li>
+</ul>
+<!-- # Quantisation Effects
+[Continuous signals vs finite precision]{.subtitle}
+
+- Sources of quantisation
+    - Analog-to-digital conversion
+
+- Negative effects of quantisation -->
+</section></section>
+<section>
+<section id="energy-based-control" class="title-slide slide level1 center">
+<h1>Energy-based Control</h1>
+<p><span class="subtitle">Design controllers by directly considering the physical energy of the system.</span></p>
+<ul>
+<li class="fragment">Energy shaping
+<ul>
+<li class="fragment">Energy functions</li>
+<li class="fragment">Passivity</li>
+<li class="fragment">Dissipation</li>
+</ul></li>
+</ul>
+</section>
+<section id="energy-functions" class="slide level2 scrollable">
+<h2>Energy functions</h2>
+<p><span class="subtitle">Remember Lyapunov stability?</span></p>
+<ul>
+<li class="fragment">Lyapunov function <span class="math inline">\quad V(x) \geq 0,\quad x\neq 0,\quad V(0)=0</span></li>
+<li class="fragment">If <span class="math inline">\;\boxed{\dot{V}(x) = \frac{dV}{dx}\textcolor{blue}{\frac{dx}{dt}} &lt; 0}</span><sup>1</sup>, energy is being dissipated (stable system).</li>
+</ul>
+<div class="fragment">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Research: Passivity Based Control</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment"><strong>Passivity:</strong> A system is passive if it can only dissipate energy.</li>
+<li class="fragment"><strong>Damping Injection:</strong> A control strategy that adds damping to a system, making it passive.
+<ul>
+<li class="fragment">Example: Adding a damping term to the system dynamics.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<aside><ol class="aside-footnotes"><li id="fn2"><p>Discrete-time: <span class="math inline">V(x(kT+T)) - V(x(kT)) &lt; 0</span></p></li></ol></aside></section>
+<section id="pendulum-swing-up" class="slide level2 smaller scrollable">
+<h2>Pendulum Swing-Up<sup>1</sup></h2>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Swing-up (Energy Injection)</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment"><strong>Pendulum’s Energy:</strong> <em>Define</em> as proportional to the sum of its potential (<span class="math inline">mgl\cos(\theta)+1</span>) and rotational kinetic energy (<span class="math inline">ml^2\dot\theta^2</span>).</li>
+<li class="fragment"><strong>Target Energy:</strong> The upright position has a specific (higher) total energy (<span class="math inline">E_\text{up} = \text{Potential Energy}_{up}</span>).</li>
+<li class="fragment"><strong>Control Logic:</strong> If current total energy <span class="math inline">E &lt; E_\text{up}</span>, apply control to “pump” energy into the pendulum.
+<ul>
+<li class="fragment">This is a <strong>nonlinear control strategy</strong>.</li>
+<li class="fragment">Example approach: Apply torque/force in the direction of angular velocity when the pendulum is near the bottom (to add energy efficiently), or based on an energy error (<span class="math inline">E_\text{up} - E</span>).</li>
+<li class="fragment">The control <span class="math inline">u(kT)</span> is designed to ensure <span class="math inline">\Delta E = E(kT+T) - E(kT) &gt; 0</span> on average, until <span class="math inline">E(kT) \approx E_\text{up}</span>.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Catch &amp; Stabilise</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment"><strong>Condition:</strong> When the pendulum is near the upright position (angle <span class="math inline">\theta \approx 0</span>, angular velocity <span class="math inline">\dot{\theta} \approx 0</span>) AND its energy is close to <span class="math inline">E_\text{up}</span>.</li>
+<li class="fragment"><strong>Control Logic:</strong> Switch to a <strong>linear state-feedback controller</strong> (e.g., LQR or pole placement) designed for the <em>linearised system</em> around the upright equilibrium.</li>
+<li class="fragment">This local controller “catches” the pendulum and stabilises it.</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- ## Passivity and Dissipation
+[What is a passive system?]{.subtitle}
 
 
+- Energy balance $\frac{d}{dt} E(t) = E_\text{in}(t) - E_\text{out}(t)$
+- Dissipation $\frac{d}{dt} E(t) \leq 0$ - *how would you add a dissipative term? Using a controller.*
+- Input-output stability  -->
+<aside><ol class="aside-footnotes"><li id="fn3"><p>https://web.ece.ucsb.edu/~hespanha/ece229/references/AstromFurutaAUTOM00.pdf</p></li></ol></aside></section></section>
+<section>
+<section id="multi-agent-systems" class="title-slide slide level1 center">
+<h1>Multi-agent Systems</h1>
+<p><span class="subtitle">Distributed control</span></p>
+<ul>
+<li class="fragment">Consensus algorithms
+<ul>
+<li class="fragment">Average consensus</li>
+<li class="fragment">Leader-follower consensus</li>
+</ul></li>
+</ul>
+</section>
+<section id="network-instability" class="slide level2">
+<h2>Network instability</h2>
+<p><span class="subtitle">If an individual system is stable, is the network stable?</span></p>
 
-<img data-src="images/Student-Success-Writing-Help/Slide3.PNG" class="r-stretch"></section>
+
+</section></section>
+
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
@@ -175,6 +679,8 @@
   <script src="../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
   <script src="../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="../site_libs/revealjs/plugin/one-timer/onetimer.js"></script>
   <script src="../site_libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
@@ -195,7 +701,8 @@
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
-'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
 'smaller': false,
  
         // Display controls in the bottom right corner
@@ -349,7 +856,7 @@
         margin: 0.1,
 
         // reveal.js plugins
-        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, OneTimer, QuartoSupport,
 
           RevealNotes,
           RevealSearch,
